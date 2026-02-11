@@ -160,23 +160,22 @@
   // 홈 화면 추가 프롬프트
   // ═══════════════════════════════════════════════════
   function setupInstallPrompt() {
-    let deferredPrompt;
-
     window.addEventListener('beforeinstallprompt', (e) => {
       // 기본 프롬프트 방지
       e.preventDefault();
-      deferredPrompt = e;
+      // window 객체에 저장하여 UI 버튼에서 사용 가능하게
+      window.deferredPrompt = e;
 
       // 설치 안내 표시 (한 번만)
       if (!localStorage.getItem('pwa-install-prompted')) {
-        showInstallBanner(deferredPrompt);
+        showInstallBanner(window.deferredPrompt);
       }
     });
 
     // 설치 완료 감지
     window.addEventListener('appinstalled', () => {
       console.log('[PWA] App installed successfully');
-      deferredPrompt = null;
+      window.deferredPrompt = null;
 
       // Analytics 이벤트
       if (window.gtag) {
