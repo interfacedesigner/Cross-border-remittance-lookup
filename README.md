@@ -24,6 +24,16 @@ GitHub Actions (cron 화/금 09:00 KST)
 - **수동 실행**: Actions → "Update Remittance Data & Deploy" → "Run workflow"
 - **상세 가이드**: [AUTOMATION.md](AUTOMATION.md) 참고
 
+## 📱 PWA (Progressive Web App)
+
+- **홈 화면 추가**: Android/iOS에서 앱처럼 설치 가능
+- **전체 화면 실행**: 브라우저 UI 없이 네이티브 앱처럼 사용
+- **자동 업데이트**: 화/금 자동 업데이트 즉시 반영
+- **오프라인 작동**: 네트워크 없어도 기본 기능 사용 가능
+- **빠른 로딩**: Service Worker 캐싱
+- **비용**: ₩0 (앱 스토어 수수료 없음)
+- **상세 가이드**: [PWA_SETUP_GUIDE.md](PWA_SETUP_GUIDE.md) 참고
+
 ## 월 운영비: $0
 
 | 항목 | 비용 |

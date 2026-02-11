@@ -1,0 +1,108 @@
+{
+  "name": "해외송금 수수료 비교 - 유학비·생활비·급여 송금",
+  "short_name": "해외송금비교",
+  "description": "유학비, 생활비, 외국인 노동자 급여 송금, 수입수출 대금 결제 등 목적별 최저 수수료 비교. 8개 서비스 실시간 환율 비교.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#09090B",
+  "theme_color": "#09090B",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "utilities"],
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "screenshots": [
+    {
+      "src": "/screenshot-1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "실시간 환율 비교"
+    },
+    {
+      "src": "/screenshot-2.png",
+      "sizes": "720x540",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "멀티 통화 비교"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "실시간 비교",
+      "short_name": "비교",
+      "description": "실시간 환율 및 수수료 비교",
+      "url": "/?tab=compare",
+      "icons": [
+        {
+          "src": "/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "환율 히스토리",
+      "short_name": "히스토리",
+      "description": "5년 환율 데이터 차트",
+      "url": "/?tab=history",
+      "icons": [
+        {
+          "src": "/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}
