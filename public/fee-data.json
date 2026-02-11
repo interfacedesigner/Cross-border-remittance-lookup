@@ -1,0 +1,2431 @@
+{
+  "updatedAt": "2026-02-10T15:30:00.000Z",
+  "schedule": "Mon/Wed/Fri 09:00 & 14:00 KST",
+  "source": "research-based-2026-02-10",
+  "stats": {
+    "total": 8,
+    "success": 8,
+    "failed": 0
+  },
+  "note": "실제 서비스 웹사이트 리서치 기반 데이터 (2026년 2월 10일)",
+  "currencies": [
+    {
+      "code": "USD",
+      "name": "미국 달러",
+      "flag": "🇺🇸",
+      "symbol": "$",
+      "unit": 1
+    },
+    {
+      "code": "JPY",
+      "name": "일본 엔(100)",
+      "flag": "🇯🇵",
+      "symbol": "¥",
+      "unit": 100
+    },
+    {
+      "code": "EUR",
+      "name": "유로",
+      "flag": "🇪🇺",
+      "symbol": "€",
+      "unit": 1
+    },
+    {
+      "code": "GBP",
+      "name": "영국 파운드",
+      "flag": "🇬🇧",
+      "symbol": "£",
+      "unit": 1
+    },
+    {
+      "code": "CNY",
+      "name": "중국 위안",
+      "flag": "🇨🇳",
+      "symbol": "¥",
+      "unit": 1
+    },
+    {
+      "code": "AUD",
+      "name": "호주 달러",
+      "flag": "🇦🇺",
+      "symbol": "A$",
+      "unit": 1
+    },
+    {
+      "code": "CAD",
+      "name": "캐나다 달러",
+      "flag": "🇨🇦",
+      "symbol": "C$",
+      "unit": 1
+    },
+    {
+      "code": "SGD",
+      "name": "싱가포르 달러",
+      "flag": "🇸🇬",
+      "symbol": "S$",
+      "unit": 1
+    }
+  ],
+  "rates": {
+    "USD": {
+      "midRate": 1474,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "평균 1일",
+          "promotions": "환율우대 100%",
+          "note": "중간환율 적용, 토스 앱 연동 가능"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "가입 시 무료쿠폰",
+          "note": "정액제 수수료"
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3900,
+              "spread": 0.0
+            }
+          ],
+          "speed": "1~24시간",
+          "promotions": "100% 환율우대",
+          "note": "토스뱅크 직송금 (7개 통화)"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 3000000,
+              "fee": 3000,
+              "spread": 0.15
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2000,
+              "spread": 0.12
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 0,
+              "spread": 0.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 0,
+              "spread": 0.08
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "500만원 이상 수수료 무료",
+          "note": "혁신적 환율 제공"
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "인터넷뱅킹 50% 할인",
+          "note": "전신료 포함, 환율우대 적용 시"
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "인터넷뱅킹 50% 할인",
+          "note": "전신료+수수료, Wise 연동 가능"
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 4.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 4.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 3.9
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 3.8
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 3.7
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": "개인송금 최대 $4.99 수수료, 환전 스프레드 높음"
+        }
+      ]
+    },
+    "JPY": {
+      "midRate": 938,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 14000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 20000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 28000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 50000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 110000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "실시간",
+          "promotions": "환율우대 100%",
+          "note": "100엔 기준, 실시간 송금"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "",
+          "note": "100엔 기준, 정액제"
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 14000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 20000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 28000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 50000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 110000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "실시간",
+          "promotions": "",
+          "note": "100엔 기준, 모인 연동"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 3000000,
+              "fee": 3000,
+              "spread": 0.15
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2000,
+              "spread": 0.12
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 0,
+              "spread": 0.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 0,
+              "spread": 0.08
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "",
+          "note": "100엔 기준"
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": "100엔 기준, 전신료 포함"
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": "100엔 기준, 전신료+수수료 포함"
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 3.7
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 3.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 3.6
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 3.5
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 3.4
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": "100엔 기준, 스프레드 높음"
+        }
+      ]
+    },
+    "EUR": {
+      "midRate": 1545,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "실시간",
+          "promotions": "환율우대 100%",
+          "note": "중간환율 적용"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "",
+          "note": "정액제 수수료"
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3900,
+              "spread": 0.0
+            }
+          ],
+          "speed": "1시간 이내",
+          "promotions": "100% 환율우대",
+          "note": "토스뱅크 직송금"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 3000000,
+              "fee": 3000,
+              "spread": 0.15
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2000,
+              "spread": 0.12
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 0,
+              "spread": 0.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 0,
+              "spread": 0.08
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 4.2
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 4.2
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 4.1
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 4.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 3.9
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": ""
+        }
+      ]
+    },
+    "GBP": {
+      "midRate": 1885,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "실시간",
+          "promotions": "환율우대 100%",
+          "note": "중간환율 적용"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3900,
+              "spread": 0.0
+            }
+          ],
+          "speed": "1시간 이내",
+          "promotions": "100% 환율우대",
+          "note": "토스뱅크 직송금"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 3000000,
+              "fee": 3000,
+              "spread": 0.15
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2000,
+              "spread": 0.12
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 0,
+              "spread": 0.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 0,
+              "spread": 0.08
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 4.3
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 4.3
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 4.2
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 4.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 4.0
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": ""
+        }
+      ]
+    },
+    "CNY": {
+      "midRate": 201,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "환율우대 100%",
+          "note": "1회 최대 550만원"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "",
+          "note": "모인 연동 (CNY 미지원 토스뱅크 직송금)"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "CNY 미지원"
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 2.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.95
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.9
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.85
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.8
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 2.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.95
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.9
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.85
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.8
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 5.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 5.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 4.9
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 4.8
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 4.7
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": "중국 규제로 높은 수수료"
+        }
+      ]
+    },
+    "AUD": {
+      "midRate": 952,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "환율우대 100%",
+          "note": "중간환율 적용"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3900,
+              "spread": 0.0
+            }
+          ],
+          "speed": "1~24시간",
+          "promotions": "100% 환율우대",
+          "note": "토스뱅크 직송금"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 3000000,
+              "fee": 3000,
+              "spread": 0.15
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2000,
+              "spread": 0.12
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 0,
+              "spread": 0.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 0,
+              "spread": 0.08
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 4.3
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 4.3
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 4.2
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 4.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 4.0
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": ""
+        }
+      ]
+    },
+    "CAD": {
+      "midRate": 1025,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "1~24시간",
+          "promotions": "환율우대 100%",
+          "note": "중간환율 적용"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3900,
+              "spread": 0.0
+            }
+          ],
+          "speed": "1~24시간",
+          "promotions": "100% 환율우대",
+          "note": "토스뱅크 직송금"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 3000000,
+              "fee": 3000,
+              "spread": 0.15
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2000,
+              "spread": 0.12
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 0,
+              "spread": 0.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 0,
+              "spread": 0.08
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 4.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 4.1
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 4.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 3.9
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 3.8
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": ""
+        }
+      ]
+    },
+    "SGD": {
+      "midRate": 1132,
+      "fetchedAt": "2026-02-10T15:30:00.000Z",
+      "services": [
+        {
+          "id": "moin",
+          "name": "MOIN",
+          "kr": "모인",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2000,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 4000,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 6000,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 15000,
+              "spread": 0.0
+            }
+          ],
+          "speed": "실시간",
+          "promotions": "환율우대 100%",
+          "note": "중간환율 적용"
+        },
+        {
+          "id": "wise",
+          "name": "Wise",
+          "kr": "와이즈",
+          "supported": false,
+          "fee": 0,
+          "spread": 0,
+          "speed": "—",
+          "promotions": "",
+          "note": "KRW 출금 전용 (송금 불가)"
+        },
+        {
+          "id": "sentbe",
+          "name": "SentBe",
+          "kr": "센트비",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 2500,
+              "spread": 0.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 2500,
+              "spread": 0.08
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2500,
+              "spread": 0.06
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 2500,
+              "spread": 0.05
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 2500,
+              "spread": 0.04
+            }
+          ],
+          "speed": "5분~12시간",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "toss",
+          "name": "토스",
+          "kr": "토스",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3900,
+              "spread": 0.0
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3900,
+              "spread": 0.0
+            }
+          ],
+          "speed": "1시간 이내",
+          "promotions": "100% 환율우대",
+          "note": "토스뱅크 직송금"
+        },
+        {
+          "id": "wirebarley",
+          "name": "WireBarley",
+          "kr": "와이어바알리",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 3000000,
+              "fee": 3000,
+              "spread": 0.15
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 2000,
+              "spread": 0.12
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 0,
+              "spread": 0.1
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 0,
+              "spread": 0.08
+            }
+          ],
+          "speed": "수 시간~1일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "hana",
+          "name": "하나은행",
+          "kr": "하나은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 8000,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 8000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 10000,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 10000,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 10000,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "shinhan",
+          "name": "신한은행",
+          "kr": "신한은행",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 7500,
+              "spread": 1.75
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 10000,
+              "spread": 1.7
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 12500,
+              "spread": 1.65
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 12500,
+              "spread": 1.6
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 12500,
+              "spread": 1.55
+            }
+          ],
+          "speed": "1~3일",
+          "promotions": "",
+          "note": ""
+        },
+        {
+          "id": "paypal",
+          "name": "PayPal",
+          "kr": "페이팔",
+          "supported": true,
+          "feeStructure": [
+            {
+              "min": 0,
+              "max": 1000000,
+              "fee": 3640,
+              "spread": 4.1
+            },
+            {
+              "min": 1000000,
+              "max": 3000000,
+              "fee": 3640,
+              "spread": 4.1
+            },
+            {
+              "min": 3000000,
+              "max": 5000000,
+              "fee": 3640,
+              "spread": 4.0
+            },
+            {
+              "min": 5000000,
+              "max": 10000000,
+              "fee": 3640,
+              "spread": 3.9
+            },
+            {
+              "min": 10000000,
+              "max": 999999999,
+              "fee": 3640,
+              "spread": 3.8
+            }
+          ],
+          "speed": "즉시~1일",
+          "promotions": "",
+          "note": ""
+        }
+      ]
+    }
+  }
+}

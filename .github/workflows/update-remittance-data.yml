@@ -1,0 +1,107 @@
+name: Update Remittance Data & Deploy
+
+on:
+  schedule:
+    # Runs at 00:00 UTC Tuesday/Friday (9:00 AM KST)
+    - cron: '0 0 * * 2,5'
+  workflow_dispatch:  # Allow manual triggering
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'public/fee-data.json'
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # For git push
+      issues: write    # For error notifications
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run data update script
+        id: update
+        run: |
+          echo "Running update script..."
+          node scripts/update-fees.mjs
+          echo "update_status=success" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Check for data changes
+        id: changes
+        run: |
+          if git diff --quiet public/fee-data.json; then
+            echo "No changes detected"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Data changed, will commit and deploy"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit updated data
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/fee-data.json
+          git commit -m "chore: update remittance data - $(date -u +'%Y-%m-%d %H:%M UTC')
+
+          Auto-updated exchange rates and fees for 8 currencies
+
+          Co-Authored-By: GitHub Actions <github-actions[bot]@users.noreply.github.com>"
+          git push
+
+      - name: Build application
+        if: steps.changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: npm run build
+
+      - name: Deploy to Firebase
+        if: steps.changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: cross-border-remittance-lookup
+          channelId: live
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ Automated Data Update Failed',
+              body: `## Update Failure Report
+
+              **Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+              **Trigger:** ${context.eventName}
+              **Time:** ${new Date().toISOString()}
+
+              ### Action Required
+              Check the workflow logs to diagnose the issue.
+
+              ### Common Causes
+              - API rate limiting
+              - Network connectivity issues
+              - Firebase authentication failure
+              - Build errors
+
+              This issue was automatically created by GitHub Actions.`,
+              labels: ['automation', 'bug']
+            })
