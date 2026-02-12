@@ -1,8 +1,8 @@
 // Service Worker for PWA
 // 화/금 자동 업데이트 시스템과 연동
 
-const CACHE_NAME = 'remittance-compare-v1';
-const DATA_CACHE_NAME = 'remittance-data-v1';
+const CACHE_NAME = 'remittance-compare-v2';
+const DATA_CACHE_NAME = 'remittance-data-v2';
 
 // 캐시할 정적 파일 목록
 const STATIC_FILES = [

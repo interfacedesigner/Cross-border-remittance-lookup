@@ -1100,19 +1100,35 @@ export default function App() {
               onClick={() => {
                 // PWA 설치 프롬프트 트리거
                 if (window.deferredPrompt) {
+                  // 즉시 설치 프롬프트 표시
                   window.deferredPrompt.prompt();
                   window.deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                       trackEvent('pwa_install_from_button', { source: 'header' });
+                      console.log('PWA 설치 완료');
+                    } else {
+                      console.log('PWA 설치 취소');
                     }
                     window.deferredPrompt = null;
                   });
                 } else {
-                  // 이미 설치되었거나 지원 안 함
+                  // deferredPrompt가 없는 경우
                   if (window.matchMedia('(display-mode: standalone)').matches) {
+                    // 이미 설치됨
                     alert('이미 앱으로 설치되어 있습니다! 🎉');
                   } else {
-                    alert('앱 설치는 모바일 브라우저에서 가능합니다.\n\n• Android: 메뉴(⋮) → "홈 화면에 추가"\n• iOS: 공유(□↑) → "홈 화면에 추가"');
+                    // 브라우저가 PWA를 지원하지 않거나 이미 프롬프트가 소진됨
+                    // iOS는 항상 수동 설치만 가능
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                    const isAndroid = /Android/.test(navigator.userAgent);
+
+                    if (isIOS) {
+                      alert('앱 설치는 모바일 브라우저에서 가능합니다.\n\niOS: 공유(□↑) → "홈 화면에 추가"');
+                    } else if (isAndroid) {
+                      alert('앱 설치는 모바일 브라우저에서 가능합니다.\n\nAndroid: 메뉴(⋮) → "홈 화면에 추가"');
+                    } else {
+                      alert('앱 설치는 모바일 브라우저에서 가능합니다.\n\n• Android: 메뉴(⋮) → "홈 화면에 추가"\n• iOS: 공유(□↑) → "홈 화면에 추가"');
+                    }
                   }
                 }
               }}
@@ -1122,23 +1138,22 @@ export default function App() {
                 gap: 6,
                 padding: '8px 12px',
                 borderRadius: 8,
-                border: 'none',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#fff',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                background: 'transparent',
+                color: '#E4E4E7',
                 fontSize: 'clamp(11px, 2.8vw, 12px)',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)',
                 whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
               }}
             >
               📱 <span style={{display: window.innerWidth >= 400 ? 'inline' : 'none'}}>앱 </span>다운로드
