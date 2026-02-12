@@ -78,38 +78,16 @@ jobs:
           projectId: cross-border-remittance-lookup
           channelId: live
 
-      - name: Send success email notification
+      - name: Send success notification via webhook
         if: steps.changes.outputs.changed == 'true'
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: '✅ 해외송금 비교 - 데이터 업데이트 완료'
-          to: the@designer-kyungho.com
-          from: Cross-border Remittance Lookup <noreply@github.com>
-          body: |
-            안녕하세요,
-
-            해외송금 수수료 비교 서비스의 데이터가 성공적으로 업데이트되었습니다.
-
-            📊 업데이트 정보
-            - 일시: ${{ github.event.head_commit.timestamp }}
-            - 트리거: ${{ github.event_name }}
-            - 커밋: ${{ github.sha }}
-
-            🌐 라이브 사이트
-            https://cross-border-remittance-lookup.web.app
-
-            📈 GitHub Repository
-            https://github.com/${{ github.repository }}
-
-            🔍 Workflow 실행 로그
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            ---
-            이 이메일은 GitHub Actions에서 자동으로 발송되었습니다.
+        run: |
+          curl -X POST https://maker.ifttt.com/trigger/remittance_update_success/with/key/${{ secrets.IFTTT_WEBHOOK_KEY }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "value1": "데이터 업데이트 완료",
+              "value2": "https://cross-border-remittance-lookup.web.app",
+              "value3": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            }' || echo "Webhook notification skipped"
 
       - name: Create issue on failure
         if: failure()
@@ -139,38 +117,13 @@ jobs:
               labels: ['automation', 'bug']
             })
 
-      - name: Send failure email notification
+      - name: Send failure notification via webhook
         if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: '⚠️ 해외송금 비교 - 업데이트 실패 알림'
-          to: the@designer-kyungho.com
-          from: Cross-border Remittance Lookup <noreply@github.com>
-          body: |
-            경고: 데이터 업데이트가 실패했습니다.
-
-            ⚠️ 실패 정보
-            - 일시: ${{ github.event.head_commit.timestamp }}
-            - 트리거: ${{ github.event_name }}
-            - 커밋: ${{ github.sha }}
-
-            🔍 Workflow 실행 로그
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            📋 자동 생성된 Issue
-            https://github.com/${{ github.repository }}/issues
-
-            가능한 원인:
-            - API rate limiting
-            - 네트워크 연결 문제
-            - Firebase 인증 실패
-            - 빌드 에러
-
-            빠른 시일 내에 확인 부탁드립니다.
-
-            ---
-            이 이메일은 GitHub Actions에서 자동으로 발송되었습니다.
+        run: |
+          curl -X POST https://maker.ifttt.com/trigger/remittance_update_failure/with/key/${{ secrets.IFTTT_WEBHOOK_KEY }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "value1": "⚠️ 업데이트 실패",
+              "value2": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "value3": "즉시 확인 필요"
+            }' || echo "Webhook notification skipped"
