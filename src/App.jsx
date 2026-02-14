@@ -518,14 +518,16 @@ export default function App() {
   // ═══════════════════════════════════════════════════
   const [curOpen, setCurOpen] = useState(false);
   const curRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const isScrollingRef = useRef(false);
 
   const curOptions = Object.entries(CURRENCIES);
 
   // Close dropdown on outside click (mobile-friendly)
   useEffect(() => {
     const handler = (e) => {
-      // Ignore touch scroll events to prevent dropdown from closing during scroll
-      if (e.type === 'touchstart' || e.type === 'touchmove') {
+      // If user is scrolling the dropdown, don't close it
+      if (isScrollingRef.current) {
         return;
       }
 
@@ -542,6 +544,38 @@ export default function App() {
       document.removeEventListener("touchend", handler);
     };
   }, []);
+
+  // Track scrolling state on dropdown
+  useEffect(() => {
+    if (!dropdownRef.current) return;
+
+    const dropdown = dropdownRef.current;
+    let scrollTimeout;
+
+    const handleScrollStart = () => {
+      isScrollingRef.current = true;
+      clearTimeout(scrollTimeout);
+    };
+
+    const handleScrollEnd = () => {
+      scrollTimeout = setTimeout(() => {
+        isScrollingRef.current = false;
+      }, 100);
+    };
+
+    dropdown.addEventListener('touchstart', handleScrollStart);
+    dropdown.addEventListener('touchmove', handleScrollStart);
+    dropdown.addEventListener('touchend', handleScrollEnd);
+    dropdown.addEventListener('scroll', handleScrollStart);
+
+    return () => {
+      dropdown.removeEventListener('touchstart', handleScrollStart);
+      dropdown.removeEventListener('touchmove', handleScrollStart);
+      dropdown.removeEventListener('touchend', handleScrollEnd);
+      dropdown.removeEventListener('scroll', handleScrollStart);
+      clearTimeout(scrollTimeout);
+    };
+  }, [curOpen]);
 
   const CurPicker = () => (
     <div ref={curRef} style={{position:"relative",width:"100%"}}>
@@ -566,6 +600,7 @@ export default function App() {
 
       {curOpen && (
         <div
+          ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
           style={{
             position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:100,
@@ -597,7 +632,6 @@ export default function App() {
 
                   setCur(code);
                   setCurOpen(false);
-                  setCurSearch("");
                 }}
                 onTouchEnd={(e) => {
                   e.preventDefault();
@@ -613,7 +647,6 @@ export default function App() {
 
                   setCur(code);
                   setCurOpen(false);
-                  setCurSearch("");
                 }}
                 style={{
                   display:"flex",alignItems:"center",gap:10,padding:"14px 16px",cursor:"pointer",minHeight:50,
