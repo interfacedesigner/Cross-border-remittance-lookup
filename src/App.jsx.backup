@@ -50,9 +50,9 @@ const CTooltip = ({active,payload,label}) => {
   if(!active||!payload?.length) return null;
   return (
     <div style={{background:"rgba(8,8,16,0.97)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:8,padding:"8px 12px",backdropFilter:"blur(12px)",maxWidth:"90vw"}}>
-      <p style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,marginBottom:3}}>{label}</p>
+      <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",margin:0,marginBottom:3}}>{label}</p>
       {payload.map((p,i)=>(
-        <p key={i} style={{color:p.color||"#fff",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"1px 0",fontWeight:600}}>
+        <p key={i} style={{color:p.color||"#fff",fontSize:"clamp(12px, 3vw, 13px)",margin:"1px 0",fontWeight:600}}>
           {p.name}: {typeof p.value==="number"?p.value.toLocaleString():p.value}
         </p>
       ))}
@@ -514,127 +514,44 @@ export default function App() {
   ];
 
   // ═══════════════════════════════════════════════════
-  // CURRENCY SELECT
+  // CURRENCY AUTOCOMPLETE SELECT
   // ═══════════════════════════════════════════════════
+  const [curSearch, setCurSearch] = useState("");
   const [curOpen, setCurOpen] = useState(false);
   const curRef = useRef(null);
-  const dropdownRef = useRef(null);
-  const isScrollingRef = useRef(false);
+  const curInputRef = useRef(null);
 
-  const curOptions = Object.entries(CURRENCIES);
+  const curOptions = useMemo(() => {
+    const q = curSearch.toLowerCase().trim();
+    if (!q) return Object.entries(CURRENCIES);
+    return Object.entries(CURRENCIES).filter(([code, info]) =>
+      code.toLowerCase().includes(q) ||
+      info.name.toLowerCase().includes(q) ||
+      info.flag.includes(q) ||
+      info.symbol.includes(q)
+    );
+  }, [curSearch]);
 
-  // Close dropdown on outside click (mobile-friendly)
+  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
-      // If user is scrolling the dropdown, don't close it
-      if (isScrollingRef.current) {
-        return;
-      }
-
       if (curRef.current && !curRef.current.contains(e.target)) {
         setCurOpen(false);
+        setCurSearch("");
       }
     };
-
-    // Only use mousedown for desktop
     document.addEventListener("mousedown", handler);
-
-    return () => {
-      document.removeEventListener("mousedown", handler);
-    };
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  // Track scrolling state on dropdown - mobile optimized
-  useEffect(() => {
-    if (!dropdownRef.current || !curOpen) return;
-
-    const dropdown = dropdownRef.current;
-    let scrollTimeout;
-    let touchStartY = 0;
-    let isTouching = false;
-
-    const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
-      isTouching = true;
-      isScrollingRef.current = false;
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isTouching) return;
-
-      const touchY = e.touches[0].clientY;
-      const deltaY = Math.abs(touchY - touchStartY);
-
-      // If user moved more than 5px vertically, it's a scroll
-      if (deltaY > 5) {
-        isScrollingRef.current = true;
-        clearTimeout(scrollTimeout);
-      }
-    };
-
-    const handleTouchEnd = () => {
-      isTouching = false;
-
-      // Reset scroll state after a delay
-      scrollTimeout = setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 150);
-    };
-
-    const handleScroll = () => {
-      isScrollingRef.current = true;
-      clearTimeout(scrollTimeout);
-
-      scrollTimeout = setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 150);
-    };
-
-    dropdown.addEventListener('touchstart', handleTouchStart, { passive: true });
-    dropdown.addEventListener('touchmove', handleTouchMove, { passive: true });
-    dropdown.addEventListener('touchend', handleTouchEnd, { passive: true });
-    dropdown.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      dropdown.removeEventListener('touchstart', handleTouchStart);
-      dropdown.removeEventListener('touchmove', handleTouchMove);
-      dropdown.removeEventListener('touchend', handleTouchEnd);
-      dropdown.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
-    };
-  }, [curOpen]);
-
-  // Handle mobile backdrop click
-  useEffect(() => {
-    if (!curOpen) return;
-
-    const handleBackdropTouch = (e) => {
-      // Don't close if scrolling
-      if (isScrollingRef.current) {
-        return;
-      }
-
-      // Don't close if touching inside the dropdown container
-      if (curRef.current && !curRef.current.contains(e.target)) {
-        setCurOpen(false);
-      }
-    };
-
-    // Add a small delay to avoid immediate closing
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("touchstart", handleBackdropTouch, { passive: true });
-    }, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("touchstart", handleBackdropTouch);
-    };
-  }, [curOpen]);
 
   const CurPicker = () => (
     <div ref={curRef} style={{position:"relative",width:"100%"}}>
       <div
-        onClick={() => setCurOpen(!curOpen)}
+        onClick={() => {
+          if (!curOpen) {
+            setCurOpen(true);
+          }
+        }}
         style={{
           display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,cursor:"pointer",
           border: curOpen ? "1px solid rgba(59,130,246,0.4)" : "1px solid rgba(255,255,255,0.08)",
@@ -642,30 +559,54 @@ export default function App() {
           transition:"all 0.2s", minHeight:48,
         }}
       >
-        <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{ci.flag}</span>
-        <div style={{flex:1,minWidth:0}}>
-          <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
-          <span style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{ci.name}</span>
-        </div>
-        <span style={{color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>
-          {curOpen ? "▲" : "▼"}
-        </span>
+        {!curOpen ? (
+          <>
+            <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{ci.flag}</span>
+            <div style={{flex:1,minWidth:0}}>
+              <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
+              <span style={{color:"#71717A",fontSize:"clamp(12px, 3.2vw, 13px)",marginLeft:8}}>{ci.name}</span>
+            </div>
+            <span style={{color:"#52525B",fontSize:"clamp(11px, 3vw, 12px)",flexShrink:0}}>▼</span>
+          </>
+        ) : (
+          <>
+            <span style={{color:"#71717A",fontSize:"clamp(14px, 3.8vw, 15px)",flexShrink:0}}>🔍</span>
+            <input
+              ref={curInputRef}
+              type="text"
+              value={curSearch}
+              onChange={e => setCurSearch(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === "Escape") { setCurOpen(false); setCurSearch(""); }
+                if (e.key === "Enter" && curOptions.length > 0) {
+                  setCur(curOptions[0][0]);
+                  setCurOpen(false);
+                  setCurSearch("");
+                }
+              }}
+              placeholder="통화 검색 (USD, 달러...)"
+              style={{
+                flex:1,background:"transparent",border:"none",outline:"none",
+                color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontFamily:"inherit",minWidth:0,
+              }}
+            />
+            <span onClick={(e) => { e.stopPropagation(); setCurOpen(false); setCurSearch(""); }}
+              style={{color:"#71717A",fontSize:"clamp(13px, 3.5vw, 14px)",cursor:"pointer",padding:"4px 6px",flexShrink:0}}>✕</span>
+          </>
+        )}
       </div>
 
       {curOpen && (
         <div
-          ref={dropdownRef}
           onClick={(e) => e.stopPropagation()}
           style={{
             position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:100,
             background:"#1C1C1E",border:"1px solid rgba(255,255,255,0.1)",borderRadius:12,
             boxShadow:"0 8px 32px rgba(0,0,0,0.5)",maxHeight:"min(280px, 50vh)",overflowY:"auto",
             pointerEvents: "auto",
-            touchAction: "pan-y",
-            WebkitOverflowScrolling: "touch",
           }}>
           {curOptions.length === 0 ? (
-            <div style={{padding:"16px",color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",textAlign:"center"}}>
+            <div style={{padding:"16px",color:"#52525B",fontSize:"clamp(12px, 3.2vw, 13px)",textAlign:"center"}}>
               검색 결과 없음
             </div>
           ) : (
@@ -686,6 +627,7 @@ export default function App() {
 
                   setCur(code);
                   setCurOpen(false);
+                  setCurSearch("");
                 }}
                 onTouchEnd={(e) => {
                   e.preventDefault();
@@ -701,6 +643,7 @@ export default function App() {
 
                   setCur(code);
                   setCurOpen(false);
+                  setCurSearch("");
                 }}
                 style={{
                   display:"flex",alignItems:"center",gap:10,padding:"14px 16px",cursor:"pointer",minHeight:50,
@@ -715,10 +658,10 @@ export default function App() {
               >
                 <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{info.flag}</span>
                 <div style={{flex:1,minWidth:0}}>
-                  <span style={{color: cur===code ? "#60A5FA" : "#E4E4E7", fontSize:"clamp(14px, 3.5vw, 15px)", fontWeight:700}}>{code}</span>
-                  <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{info.name}</span>
+                  <span style={{color: cur===code ? "#60A5FA" : "#E4E4E7", fontSize:"clamp(13px, 3.5vw, 14px)", fontWeight:700}}>{code}</span>
+                  <span style={{color:"#A1A1AA",fontSize:"clamp(11px, 3vw, 12px)",marginLeft:8}}>{info.name}</span>
                 </div>
-                {cur === code && <span style={{color:"#60A5FA",fontSize:"clamp(14px, 3.5vw, 15px)",flexShrink:0}}>✓</span>}
+                {cur === code && <span style={{color:"#60A5FA",fontSize:"clamp(13px, 3.5vw, 14px)",flexShrink:0}}>✓</span>}
               </div>
             ))
           )}
@@ -735,10 +678,10 @@ export default function App() {
       {/* Non-business day info */}
       {bizDayBlocked && svcSnapshot.length > 0 && (
         <div style={{padding:"12px 16px",borderRadius:12,background:"rgba(245,158,11,0.05)",border:"1px solid rgba(245,158,11,0.12)"}}>
-          <p style={{color:"#F59E0B",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:"0 0 4px"}}>
+          <p style={{color:"#F59E0B",fontSize:"clamp(13px, 3.5vw, 14px)",fontWeight:700,margin:"0 0 4px"}}>
             📅 현재 {getNonBusinessReason()}
           </p>
-          <p style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,lineHeight:1.5}}>
+          <p style={{color:"#A1A1AA",fontSize:"clamp(11px, 3vw, 12px)",margin:0,lineHeight:1.5}}>
             🟢 핀테크: 신청 가능 (처리는 영업일) · 🔴 은행: 영업일만
           </p>
         </div>
@@ -748,16 +691,16 @@ export default function App() {
       <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"14px 16px",border:"1px solid rgba(255,255,255,0.04)"}}>
         {/* Currency */}
         <div style={{marginBottom:14}}>
-          <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 수취 통화</span>
+          <span style={{color:"#A1A1AA",fontSize:"clamp(13px, 3.5vw, 14px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 수취 통화</span>
           <CurPicker />
         </div>
 
         {/* Amount */}
         <div style={{marginBottom:14}}>
           <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:4}}>
-            <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600}}>💰 송금 금액</span>
+            <span style={{color:"#A1A1AA",fontSize:"clamp(13px, 3.5vw, 14px)",fontWeight:600}}>💰 송금 금액</span>
             {amount > 0 && (
-              <span style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)"}}>
+              <span style={{color:"#71717A",fontSize:"clamp(11px, 3vw, 12px)"}}>
                 {amount >= 100000000 ? `${Math.floor(amount/100000000)}억 ` : ""}
                 {amount % 100000000 >= 10000 ? `${Math.floor((amount%100000000)/10000).toLocaleString()}만` : ""}
                 {amount % 10000 > 0 ? ` ${(amount%10000).toLocaleString()}` : ""}원
@@ -815,7 +758,7 @@ export default function App() {
           {fetchMode==="live" && <div style={{width:8,height:8,borderRadius:"50%",background:"#22C55E",flexShrink:0}} />}
           {fetchMode==="cached" && <div style={{width:8,height:8,borderRadius:"50%",background:"#EAB308",flexShrink:0}} />}
           {fetchMode==="error" && <div style={{width:8,height:8,borderRadius:"50%",background:"#EF4444",flexShrink:0}} />}
-          <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",lineHeight:1.4}}>
+          <span style={{color:"#A1A1AA",fontSize:"clamp(11px, 3vw, 12px)",lineHeight:1.4}}>
             {fetchMode==="loading" ? "조회 중..." :
              fetchMode==="live" ? "실시간 환율" :
              fetchMode==="cached" ? "저장 환율" :
@@ -849,7 +792,7 @@ export default function App() {
                           <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{s.name}</span>
                           {bizDayBlocked && (
                             <span style={{
-                              padding:"3px 7px", borderRadius:4, fontSize:"clamp(12px, 3vw, 12px)", fontWeight:600,
+                              padding:"3px 7px", borderRadius:4, fontSize:"clamp(9px, 2.3vw, 10px)", fontWeight:600,
                               background: s.avail.weekend ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
                               color: s.avail.weekend ? "#22C55E" : "#EF4444",
                               whiteSpace:"nowrap",
@@ -864,24 +807,24 @@ export default function App() {
                       <p style={{color:isTop?"#22C55E":"#E4E4E7",fontSize:"clamp(15px, 4.2vw, 17px)",fontWeight:800,margin:0,fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>
                         {ci.symbol}{s.foreignAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
                       </p>
-                      <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>실수령</p>
+                      <p style={{color:"#52525B",fontSize:"clamp(9px, 2.3vw, 10px)",margin:0}}>실수령</p>
                     </div>
                   </div>
                   {/* Row 2: Details */}
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                    <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",background:"rgba(255,255,255,0.03)",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                    <span style={{color:"#A1A1AA",fontSize:"clamp(11px, 2.8vw, 12px)",background:"rgba(255,255,255,0.03)",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
                       수수료 {s.fee===0?<span style={{color:"#22C55E"}}>무료</span>:`₩${s.fee.toLocaleString()}`}
                     </span>
-                    <span style={{color:s.spread>2?"#EF4444":s.spread>1?"#EAB308":"#22C55E",fontSize:"clamp(14px, 3.5vw, 14px)",background:"rgba(255,255,255,0.03)",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                    <span style={{color:s.spread>2?"#EF4444":s.spread>1?"#EAB308":"#22C55E",fontSize:"clamp(11px, 2.8vw, 12px)",background:"rgba(255,255,255,0.03)",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
                       스프레드 {s.spread}%
                     </span>
-                    <span style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)",background:"rgba(255,255,255,0.03)",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                    <span style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",background:"rgba(255,255,255,0.03)",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
                       {s.speed}
                     </span>
                   </div>
                   {/* Promotions */}
                   {s.promotions && (
-                    <p style={{color:"#F59E0B",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.4}}>🏷️ {s.promotions}</p>
+                    <p style={{color:"#F59E0B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"6px 0 0",lineHeight:1.4}}>🏷️ {s.promotions}</p>
                   )}
                 </div>
               );
@@ -891,10 +834,10 @@ export default function App() {
           {/* Savings highlight */}
           {svcSnapshot.length >= 2 && (
             <div style={{padding:"14px 16px",borderRadius:14,background:"rgba(34,197,94,0.04)",border:"1px solid rgba(34,197,94,0.1)"}}>
-              <p style={{color:"#22C55E",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:0,lineHeight:1.5}}>
+              <p style={{color:"#22C55E",fontSize:"clamp(13px, 3.5vw, 14px)",fontWeight:700,margin:0,lineHeight:1.5}}>
                 💡 {svcSnapshot[0].name} 이용 시 최대 ₩{(svcSnapshot[svcSnapshot.length-1].totalCost - svcSnapshot[0].totalCost).toLocaleString()} 절감
               </p>
-              <p style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"4px 0 0",lineHeight:1.4}}>
+              <p style={{color:"#A1A1AA",fontSize:"clamp(11px, 3vw, 12px)",margin:"4px 0 0",lineHeight:1.4}}>
                 vs {svcSnapshot[svcSnapshot.length-1].name} 대비 · {ci.symbol}{(svcSnapshot[0].foreignAmount - svcSnapshot[svcSnapshot.length-1].foreignAmount).toFixed(2)} 더 수령
               </p>
             </div>
@@ -902,12 +845,12 @@ export default function App() {
 
           {/* Chart */}
           <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"12px 10px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
-            <p style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>실수령 비교 · ₩{amount.toLocaleString()} → {cur}</p>
+            <p style={{color:"#A1A1AA",fontSize:"clamp(11px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>실수령 비교 · ₩{amount.toLocaleString()} → {cur}</p>
             <ResponsiveContainer width="100%" height={Math.max(260, svcSnapshot.length * 40)} minWidth={300}>
               <BarChart data={svcSnapshot} layout="vertical" margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)"/>
-                <XAxis type="number" tick={{fill:"#71717A",fontSize:"clamp(12px, 3vw, 12px)"}} tickFormatter={v=>`${ci.symbol}${v.toFixed(0)}`}/>
-                <YAxis dataKey="kr" type="category" tick={{fill:"#A1A1AA",fontSize:"clamp(12px, 3vw, 12px)"}} width={60}/>
+                <XAxis type="number" tick={{fill:"#71717A",fontSize:"clamp(9px, 2.3vw, 10px)"}} tickFormatter={v=>`${ci.symbol}${v.toFixed(0)}`}/>
+                <YAxis dataKey="kr" type="category" tick={{fill:"#A1A1AA",fontSize:"clamp(10px, 2.5vw, 11px)"}} width={60}/>
                 <Tooltip content={<CTooltip/>}/>
                 <Bar dataKey="foreignAmount" name={`실수령(${cur})`} radius={[0,4,4,0]}>
                   {svcSnapshot.map((s,i) => (
@@ -927,7 +870,7 @@ export default function App() {
           />
 
           {/* Disclaimer — minimal */}
-          <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.6,padding:"0 4px"}}>
+          <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0,lineHeight:1.6,padding:"0 4px"}}>
             ※ 환율은 조회 시점 실시간, 수수료는 자동 갱신 기반. 실제 금액은 각 서비스에서 확인하세요. <span style={{color:"#3B82F6"}}>특정 서비스를 추천하지 않습니다.</span>
           </p>
         </>
@@ -959,7 +902,7 @@ export default function App() {
             <button key={y} onClick={()=>setSelectedYear(y)} style={{
               padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
               background:selectedYear===y?"rgba(255,255,255,0.08)":"rgba(255,255,255,0.02)",
-              color:selectedYear===y?"#fff":"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
+              color:selectedYear===y?"#fff":"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",fontWeight:600,
               minHeight:36,flex:"1 0 auto",
             }}>{y==="all"?"전체":y}</button>
           ))}
@@ -967,7 +910,7 @@ export default function App() {
         <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)",gap:8}}>
           {[{l:"현재",v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:"5년 평균",v:`₩${avg.toLocaleString()}`,a:"#3B82F6"},{l:"최저/최고",v:`${mn}~${mx}`,a:"#EAB308"},{l:"시그널",v:sig.s,a:sig.c}].map((k,i)=>(
             <div key={i} style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"12px",border:"1px solid rgba(255,255,255,0.04)",borderTop:`2px solid ${k.a}`}}>
-              <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{k.l}</p>
+              <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{k.l}</p>
               <p style={{color:"#fff",fontSize:"clamp(15px, 4.5vw, 18px)",fontWeight:700,margin:"4px 0 0",fontFamily:"'JetBrains Mono',sans-serif",wordBreak:"break-word"}}>{k.v}</p>
             </div>
           ))}
@@ -977,8 +920,8 @@ export default function App() {
             <AreaChart data={filteredHist} margin={{left:0,right:10,top:5,bottom:5}}>
               <defs><linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={ci.color} stopOpacity={0.15}/><stop offset="100%" stopColor={ci.color} stopOpacity={0}/></linearGradient></defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)"/>
-              <XAxis dataKey="d" tick={{fill:"#52525B",fontSize:"clamp(12px, 2.5vw, 12px)"}} tickFormatter={v=>v.slice(2)} interval={selectedYear==="all"?5:0}/>
-              <YAxis tick={{fill:"#52525B",fontSize:"clamp(12px, 2.5vw, 12px)"}} domain={["dataMin-15","dataMax+15"]}/>
+              <XAxis dataKey="d" tick={{fill:"#52525B",fontSize:"clamp(8px, 2vw, 9px)"}} tickFormatter={v=>v.slice(2)} interval={selectedYear==="all"?5:0}/>
+              <YAxis tick={{fill:"#52525B",fontSize:"clamp(8px, 2vw, 9px)"}} domain={["dataMin-15","dataMax+15"]}/>
               <Tooltip content={<CTooltip/>}/>
               <ReferenceLine y={avg} stroke="#EAB308" strokeDasharray="4 4"/>
               <Area type="monotone" dataKey="r" stroke={ci.color} fill="url(#ag2)" strokeWidth={2} name={`${cur}/KRW`}/>
@@ -987,11 +930,11 @@ export default function App() {
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:12}}>
           <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
-            <p style={{color:"#71717A",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>연도별 변동률</p>
+            <p style={{color:"#71717A",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>연도별 변동률</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <BarChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)"/>
-                <XAxis dataKey="year" tick={{fill:"#52525B",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+                <XAxis dataKey="year" tick={{fill:"#52525B",fontSize:"clamp(8px, 2vw, 9px)"}}/>
                 <YAxis tick={{fill:"#52525B",fontSize:"clamp(7px, 1.8vw, 8px)"}} unit="%"/>
                 <Tooltip content={<CTooltip/>}/>
                 <Bar dataKey="chg" name="변동률(%)" radius={[2,2,0,0]}>{yearly.map((e,i)=><Cell key={i} fill={parseFloat(e.chg)>0?"#EF4444":"#22C55E"} fillOpacity={0.6}/>)}</Bar>
@@ -999,17 +942,17 @@ export default function App() {
             </ResponsiveContainer>
           </div>
           <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
-            <p style={{color:"#71717A",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>연도별 평균·범위</p>
+            <p style={{color:"#71717A",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>연도별 평균·범위</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <ComposedChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)"/>
-                <XAxis dataKey="year" tick={{fill:"#52525B",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+                <XAxis dataKey="year" tick={{fill:"#52525B",fontSize:"clamp(8px, 2vw, 9px)"}}/>
                 <YAxis tick={{fill:"#52525B",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
                 <Tooltip content={<CTooltip/>}/>
                 <Line type="monotone" dataKey="avg" stroke={ci.color} strokeWidth={2} dot={{r:2.5,fill:ci.color}} name="평균"/>
                 <Line type="monotone" dataKey="min" stroke="#3B82F6" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최저"/>
                 <Line type="monotone" dataKey="max" stroke="#EF4444" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최고"/>
-                <Legend wrapperStyle={{fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+                <Legend wrapperStyle={{fontSize:"clamp(8px, 2vw, 9px)"}}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -1039,7 +982,7 @@ export default function App() {
             <button key={d} onClick={()=>setDirection(d)} style={{
               padding:"10px 14px",borderRadius:12,border:"none",cursor:"pointer",
               background:direction===d?"rgba(255,255,255,0.08)":"rgba(255,255,255,0.02)",
-              color:direction===d?"#fff":"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
+              color:direction===d?"#fff":"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",fontWeight:600,
               flex:"1 0 auto",minHeight:44,
             }}>{d==="outbound"?"🇰🇷→ 해외송금":"→🇰🇷 수취"}</button>
           ))}
@@ -1049,14 +992,14 @@ export default function App() {
           <span style={{fontSize:"clamp(24px, 7vw, 28px)",flexShrink:0}}>{sig.i}</span>
           <div style={{minWidth:0}}>
             <p style={{color:sig.c,margin:0,fontSize:"clamp(16px, 4.5vw, 18px)",fontWeight:800}}>{sig.s}</p>
-            <p style={{color:"#71717A",margin:"2px 0 0",fontSize:"clamp(12px, 3vw, 12px)",lineHeight:1.4}}>{ci.flag} {cur} · ₩{curRate.toLocaleString()} · 평균 ₩{avg.toLocaleString()}</p>
+            <p style={{color:"#71717A",margin:"2px 0 0",fontSize:"clamp(10px, 2.5vw, 11px)",lineHeight:1.4}}>{ci.flag} {cur} · ₩{curRate.toLocaleString()} · 평균 ₩{avg.toLocaleString()}</p>
           </div>
         </div>
         <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
           <ResponsiveContainer width="100%" height={240} minWidth={300}>
             <ComposedChart data={seasonalData} margin={{left:0,right:10,top:5,bottom:5}}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)"/>
-              <XAxis dataKey="label" tick={{fill:"#52525B",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+              <XAxis dataKey="label" tick={{fill:"#52525B",fontSize:"clamp(8px, 2vw, 9px)"}}/>
               <YAxis tick={{fill:"#52525B",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-10","dataMax+10"]}/>
               <Tooltip content={<CTooltip/>}/>
               <Bar dataKey="avg" name="월별 평균" radius={[2,2,0,0]}>{seasonalData.map((e,i)=>{
@@ -1066,18 +1009,18 @@ export default function App() {
               <Line type="monotone" dataKey="max" stroke="#EF4444" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최고"/>
               <Line type="monotone" dataKey="min" stroke="#3B82F6" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최저"/>
               <ReferenceLine y={avg} stroke="#EAB308" strokeDasharray="3 3"/>
-              <Legend wrapperStyle={{fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+              <Legend wrapperStyle={{fontSize:"clamp(8px, 2vw, 9px)"}}/>
             </ComposedChart>
           </ResponsiveContainer>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:12}}>
           {[{t:"해외송금 BEST (환율 낮을 때)",d:bestSend},{t:"수취 BEST (환율 높을 때)",d:bestRecv}].map((sec,si)=>(
             <div key={si} style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(255,255,255,0.04)"}}>
-              <p style={{color:"#71717A",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600}}>{sec.t}</p>
+              <p style={{color:"#71717A",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"0 0 8px",fontWeight:600}}>{sec.t}</p>
               {sec.d.map((m,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 10px",borderRadius:6,marginBottom:4,background:"rgba(255,255,255,0.02)",gap:8}}>
-                  <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600}}>{i+1}위 · {m.label}</span>
-                  <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>₩{m.avg.toLocaleString()}</span>
+                  <span style={{color:"#A1A1AA",fontSize:"clamp(11px, 2.8vw, 12px)",fontWeight:600}}>{i+1}위 · {m.label}</span>
+                  <span style={{color:"#E4E4E7",fontSize:"clamp(11px, 2.8vw, 12px)",fontWeight:700,fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>₩{m.avg.toLocaleString()}</span>
                 </div>
               ))}
             </div>
@@ -1097,14 +1040,14 @@ export default function App() {
           <button key={code} onClick={()=>setMultiCur(prev=>prev.includes(code)?prev.filter(c=>c!==code):[...prev,code])} style={{
             padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
             background:multiCur.includes(code)?"rgba(255,255,255,0.08)":"rgba(255,255,255,0.02)",
-            color:multiCur.includes(code)?"#fff":"#52525B",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
+            color:multiCur.includes(code)?"#fff":"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",fontWeight:600,
             outline:multiCur.includes(code)?`1px solid ${info.color}`:"none",
             flex:"0 0 auto",minHeight:36,
           }}>{info.flag} {code}</button>
         ))}
       </div>
       <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
-        <p style={{color:"#71717A",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>정규화 지수 (2020-01=100)</p>
+        <p style={{color:"#71717A",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>정규화 지수 (2020-01=100)</p>
         <ResponsiveContainer width="100%" height={280} minWidth={300}>
           <LineChart data={(()=>{
             const dates=HIST.USD.map(d=>d.d);
@@ -1116,16 +1059,16 @@ export default function App() {
             <Tooltip content={<CTooltip/>}/>
             <ReferenceLine y={100} stroke="rgba(255,255,255,0.08)" strokeDasharray="3 3"/>
             {multiCur.map(code=><Line key={code} type="monotone" dataKey={code} stroke={CURRENCIES[code].color} strokeWidth={2} dot={false} name={`${CURRENCIES[code].flag} ${code}`}/>)}
-            <Legend wrapperStyle={{fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+            <Legend wrapperStyle={{fontSize:"clamp(8px, 2vw, 9px)"}}/>
           </LineChart>
         </ResponsiveContainer>
       </div>
       <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"10px 8px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
         <table style={{width:"100%",minWidth:550,borderCollapse:"separate",borderSpacing:"0 2px"}}>
-          <thead><tr>{["통화","현재","5년 평균","최저","최고","편차","시그널"].map(h=><th key={h} style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+          <thead><tr>{["통화","현재","5년 평균","최저","최고","편차","시그널"].map(h=><th key={h} style={{color:"#52525B",fontSize:"clamp(9px, 2.3vw, 10px)",fontWeight:600,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
           <tbody>{Object.entries(CURRENCIES).map(([code,info])=>{
             const h=HIST[code]||[];const lr=info.base;const a=h.length?Math.round(h.reduce((s,d)=>s+d.r,0)/h.length):0;const n=h.length?Math.min(...h.map(d=>d.r)):0;const x=h.length?Math.max(...h.map(d=>d.r)):0;const sg=getSignal(lr,a);
-            return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(14px, 3.5vw, 14px)"}}>{info.flag}</span> <span style={{color:"#D4D4D8",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{code}</span></td><td style={{color:"#fff",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,padding:"8px 7px",fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:"#A1A1AA",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:"#3B82F6",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:"#EF4444",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?"#EF4444":"#22C55E",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{sg.i} {sg.s}</span></td></tr>);
+            return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(11px, 2.8vw, 12px)"}}>{info.flag}</span> <span style={{color:"#D4D4D8",fontSize:"clamp(10px, 2.5vw, 11px)",fontWeight:600}}>{code}</span></td><td style={{color:"#fff",fontSize:"clamp(11px, 2.8vw, 12px)",fontWeight:700,padding:"8px 7px",fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:"#A1A1AA",fontSize:"clamp(10px, 2.5vw, 11px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:"#3B82F6",fontSize:"clamp(10px, 2.5vw, 11px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:"#EF4444",fontSize:"clamp(10px, 2.5vw, 11px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?"#EF4444":"#22C55E",fontSize:"clamp(10px, 2.5vw, 11px)",fontWeight:600,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(9px, 2.3vw, 10px)",fontWeight:600}}>{sg.i} {sg.s}</span></td></tr>);
           })}</tbody>
         </table>
       </div>
@@ -1150,7 +1093,7 @@ export default function App() {
               <span style={{fontSize:"clamp(22px, 5vw, 26px)"}}>⚖️</span>
               <div>
                 <h1 style={{margin:0,fontSize:"clamp(16px, 4vw, 18px)",fontWeight:800,letterSpacing:-0.3}}>해외송금 공정 비교</h1>
-                <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>실시간 · 8개 서비스 · 편향 없음</p>
+                <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>실시간 · 8개 서비스 · 편향 없음</p>
               </div>
             </div>
             <button
@@ -1198,7 +1141,7 @@ export default function App() {
                 border: '1px solid rgba(255, 255, 255, 0.12)',
                 background: 'transparent',
                 color: '#E4E4E7',
-                fontSize: 'clamp(14px, 3.5vw, 14px)',
+                fontSize: 'clamp(11px, 2.8vw, 12px)',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
@@ -1232,7 +1175,7 @@ export default function App() {
                 }} style={{
                   padding:"10px 12px",borderRadius:"6px 6px 0 0",border:"none",cursor:"pointer",
                   background:tab===t.id?"rgba(255,255,255,0.04)":"transparent",
-                  color:tab===t.id?"#E4E4E7":"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:tab===t.id?700:500,
+                  color:tab===t.id?"#E4E4E7":"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",fontWeight:tab===t.id?700:500,
                   borderBottom:tab===t.id?"2px solid #71717A":"2px solid transparent",
                   transition:"all 0.15s",whiteSpace:"nowrap",flex:"1 0 auto",minHeight:44,
                 }}>{t.icon} {t.label}</button>
@@ -1248,8 +1191,8 @@ export default function App() {
         <div style={{display: tab==="multi" ? "block" : "none"}}><MultiTab/></div>
       </div>
       <div style={{borderTop:"1px solid rgba(255,255,255,0.02)",padding:"12px 16px",textAlign:"center"}}>
-        <p style={{color:"#3F3F46",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ 환율 API + Wise 비교 API · 자동 갱신 · 운영비 $0</p>
-        <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.5}}>
+        <p style={{color:"#3F3F46",fontSize:"clamp(9px, 2.3vw, 10px)",margin:0,lineHeight:1.5}}>⚖️ 환율 API + Wise 비교 API · 자동 갱신 · 운영비 $0</p>
+        <p style={{color:"#52525B",fontSize:"clamp(9px, 2.3vw, 10px)",margin:"6px 0 0",lineHeight:1.5}}>
           문의: <a href="mailto:the@designer-kyungho.com" style={{color:"#71717A",textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#A1A1AA"} onMouseLeave={(e) => e.target.style.color="#71717A"}>the@designer-kyungho.com</a>
         </p>
       </div>
