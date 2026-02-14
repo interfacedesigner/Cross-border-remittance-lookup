@@ -514,43 +514,31 @@ export default function App() {
   ];
 
   // ═══════════════════════════════════════════════════
-  // CURRENCY SELECT
+  // CURRENCY SELECT MODAL
   // ═══════════════════════════════════════════════════
   const [curOpen, setCurOpen] = useState(false);
-  const curRef = useRef(null);
 
   const curOptions = Object.entries(CURRENCIES);
 
-  // Simple outside click handler - works on both desktop and mobile
+  // Prevent body scroll when modal is open
   useEffect(() => {
-    if (!curOpen) return;
-
-    const handleClickOutside = (e) => {
-      if (curRef.current && !curRef.current.contains(e.target)) {
-        setCurOpen(false);
-      }
-    };
-
-    // Use click event which works reliably on both desktop and mobile
-    // Add a small delay to prevent immediate closing when opening
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("click", handleClickOutside, true);
-    }, 50);
-
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("click", handleClickOutside, true);
-    };
+    if (curOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
   }, [curOpen]);
 
   const CurPicker = () => (
-    <div ref={curRef} style={{position:"relative",width:"100%"}}>
+    <>
+      {/* Trigger Button */}
       <div
-        onClick={() => setCurOpen(!curOpen)}
+        onClick={() => setCurOpen(true)}
         style={{
           display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,cursor:"pointer",
-          border: curOpen ? "1px solid rgba(59,130,246,0.4)" : "1px solid rgba(255,255,255,0.08)",
-          background: curOpen ? "rgba(59,130,246,0.04)" : "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(255,255,255,0.03)",
           transition:"all 0.2s", minHeight:48,
         }}
       >
@@ -559,80 +547,106 @@ export default function App() {
           <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
           <span style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{ci.name}</span>
         </div>
-        <span style={{color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>
-          {curOpen ? "▲" : "▼"}
-        </span>
+        <span style={{color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>▼</span>
       </div>
 
+      {/* Modal */}
       {curOpen && (
         <div
+          onClick={() => setCurOpen(false)}
           style={{
-            position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:100,
-            background:"#1C1C1E",border:"1px solid rgba(255,255,255,0.1)",borderRadius:12,
-            boxShadow:"0 8px 32px rgba(0,0,0,0.5)",maxHeight:"min(280px, 50vh)",overflowY:"auto",
-            WebkitOverflowScrolling: "touch",
-          }}>
-          {curOptions.length === 0 ? (
-            <div style={{padding:"16px",color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",textAlign:"center"}}>
-              검색 결과 없음
-            </div>
-          ) : (
-            curOptions.map(([code, info]) => (
-              <div
-                key={code}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log("Currency clicked:", code);
-
-                  // GA4 이벤트: 통화 변경
-                  trackEvent('currency_change', {
-                    from_currency: cur,
-                    to_currency: code,
-                    method: 'click'
-                  });
-
-                  setCur(code);
-                  setCurOpen(false);
-                }}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log("Currency touched:", code);
-
-                  // GA4 이벤트: 통화 변경 (터치)
-                  trackEvent('currency_change', {
-                    from_currency: cur,
-                    to_currency: code,
-                    method: 'touch'
-                  });
-
-                  setCur(code);
-                  setCurOpen(false);
-                }}
+            position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9999,
+            background:"rgba(0,0,0,0.7)",
+            display:"flex",alignItems:"flex-end",
+            animation:"fadeIn 0.2s ease-out",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width:"100%",
+              maxHeight:"70vh",
+              background:"#1C1C1E",
+              borderRadius:"20px 20px 0 0",
+              overflow:"hidden",
+              animation:"slideUp 0.3s ease-out",
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              padding:"20px",
+              borderBottom:"1px solid rgba(255,255,255,0.1)",
+              display:"flex",
+              justifyContent:"space-between",
+              alignItems:"center",
+            }}>
+              <h3 style={{color:"#E4E4E7",fontSize:"clamp(16px, 4.2vw, 18px)",fontWeight:700,margin:0}}>
+                수취 통화 선택
+              </h3>
+              <button
+                onClick={() => setCurOpen(false)}
                 style={{
-                  display:"flex",alignItems:"center",gap:10,padding:"14px 16px",cursor:"pointer",minHeight:50,
-                  background: cur === code ? "rgba(59,130,246,0.08)" : "transparent",
-                  borderLeft: cur === code ? `3px solid ${info.color}` : "3px solid transparent",
-                  transition:"background 0.1s",
-                  touchAction: "manipulation",
-                  WebkitTapHighlightColor: "transparent",
+                  background:"transparent",
+                  border:"none",
+                  color:"#71717A",
+                  fontSize:"clamp(24px, 6vw, 28px)",
+                  cursor:"pointer",
+                  padding:"0 8px",
+                  lineHeight:1,
                 }}
-                onMouseEnter={e => { if(cur!==code) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-                onMouseLeave={e => { if(cur!==code) e.currentTarget.style.background = "transparent"; }}
               >
-                <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{info.flag}</span>
-                <div style={{flex:1,minWidth:0}}>
-                  <span style={{color: cur===code ? "#60A5FA" : "#E4E4E7", fontSize:"clamp(14px, 3.5vw, 15px)", fontWeight:700}}>{code}</span>
-                  <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{info.name}</span>
+                ×
+              </button>
+            </div>
+
+            {/* Currency List */}
+            <div style={{overflowY:"auto",maxHeight:"calc(70vh - 80px)",WebkitOverflowScrolling:"touch"}}>
+              {curOptions.map(([code, info]) => (
+                <div
+                  key={code}
+                  onClick={() => {
+                    console.log("Currency selected:", code);
+                    trackEvent('currency_change', {
+                      from_currency: cur,
+                      to_currency: code,
+                      method: 'modal'
+                    });
+                    setCur(code);
+                    setCurOpen(false);
+                  }}
+                  style={{
+                    display:"flex",alignItems:"center",gap:12,padding:"16px 20px",cursor:"pointer",
+                    background: cur === code ? "rgba(59,130,246,0.08)" : "transparent",
+                    borderLeft: cur === code ? "4px solid #3B82F6" : "4px solid transparent",
+                    transition:"background 0.15s",
+                  }}
+                  onMouseEnter={e => { if(cur!==code) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                  onMouseLeave={e => { if(cur!==code) e.currentTarget.style.background = "transparent"; }}
+                >
+                  <span style={{fontSize:"clamp(24px, 6vw, 28px)",flexShrink:0}}>{info.flag}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{color: cur===code ? "#60A5FA" : "#E4E4E7", fontSize:"clamp(15px, 4vw, 16px)", fontWeight:700}}>{code}</div>
+                    <div style={{color:"#A1A1AA",fontSize:"clamp(13px, 3.5vw, 14px)",marginTop:2}}>{info.name}</div>
+                  </div>
+                  {cur === code && <span style={{color:"#3B82F6",fontSize:"clamp(20px, 5vw, 24px)",flexShrink:0}}>✓</span>}
                 </div>
-                {cur === code && <span style={{color:"#60A5FA",fontSize:"clamp(14px, 3.5vw, 15px)",flexShrink:0}}>✓</span>}
-              </div>
-            ))
-          )}
+              ))}
+            </div>
+          </div>
         </div>
       )}
-    </div>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+      `}</style>
+    </>
   );
 
   // ═══════════════════════════════════════════════════
