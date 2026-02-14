@@ -1192,6 +1192,9 @@ export default function App() {
       </div>
       <div style={{borderTop:"1px solid rgba(255,255,255,0.02)",padding:"12px 16px",textAlign:"center"}}>
         <p style={{color:"#3F3F46",fontSize:"clamp(9px, 2.3vw, 10px)",margin:0,lineHeight:1.5}}>⚖️ 환율 API + Wise 비교 API · 자동 갱신 · 운영비 $0</p>
+        <p style={{color:"#52525B",fontSize:"clamp(9px, 2.3vw, 10px)",margin:"6px 0 0",lineHeight:1.5}}>
+          문의: <a href="mailto:the@designer-kyungho.com" style={{color:"#71717A",textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#A1A1AA"} onMouseLeave={(e) => e.target.style.color="#71717A"}>the@designer-kyungho.com</a>
+        </p>
       </div>
     </div>
   );
