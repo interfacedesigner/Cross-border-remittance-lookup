@@ -2,8 +2,8 @@ name: Update Remittance Data & Deploy
 
 on:
   schedule:
-    # Runs at 00:00 UTC Tuesday/Friday (9:00 AM KST)
-    - cron: '0 0 * * 2,5'
+    # Runs at 00:00 UTC Tuesday/Thursday (9:00 AM KST)
+    - cron: '0 0 * * 2,4'
   workflow_dispatch:  # Allow manual triggering
   push:
     branches: [main]

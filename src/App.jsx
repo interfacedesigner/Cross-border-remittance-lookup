@@ -514,44 +514,39 @@ export default function App() {
   ];
 
   // ═══════════════════════════════════════════════════
-  // CURRENCY AUTOCOMPLETE SELECT
+  // CURRENCY SELECT
   // ═══════════════════════════════════════════════════
-  const [curSearch, setCurSearch] = useState("");
   const [curOpen, setCurOpen] = useState(false);
   const curRef = useRef(null);
-  const curInputRef = useRef(null);
 
-  const curOptions = useMemo(() => {
-    const q = curSearch.toLowerCase().trim();
-    if (!q) return Object.entries(CURRENCIES);
-    return Object.entries(CURRENCIES).filter(([code, info]) =>
-      code.toLowerCase().includes(q) ||
-      info.name.toLowerCase().includes(q) ||
-      info.flag.includes(q) ||
-      info.symbol.includes(q)
-    );
-  }, [curSearch]);
+  const curOptions = Object.entries(CURRENCIES);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click (mobile-friendly)
   useEffect(() => {
     const handler = (e) => {
+      // Ignore touch scroll events to prevent dropdown from closing during scroll
+      if (e.type === 'touchstart' || e.type === 'touchmove') {
+        return;
+      }
+
       if (curRef.current && !curRef.current.contains(e.target)) {
         setCurOpen(false);
-        setCurSearch("");
       }
     };
+
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("touchend", handler);
+
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchend", handler);
+    };
   }, []);
 
   const CurPicker = () => (
     <div ref={curRef} style={{position:"relative",width:"100%"}}>
       <div
-        onClick={() => {
-          if (!curOpen) {
-            setCurOpen(true);
-          }
-        }}
+        onClick={() => setCurOpen(!curOpen)}
         style={{
           display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,cursor:"pointer",
           border: curOpen ? "1px solid rgba(59,130,246,0.4)" : "1px solid rgba(255,255,255,0.08)",
@@ -559,41 +554,14 @@ export default function App() {
           transition:"all 0.2s", minHeight:48,
         }}
       >
-        {!curOpen ? (
-          <>
-            <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{ci.flag}</span>
-            <div style={{flex:1,minWidth:0}}>
-              <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
-              <span style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{ci.name}</span>
-            </div>
-            <span style={{color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>▼</span>
-          </>
-        ) : (
-          <>
-            <span style={{color:"#71717A",fontSize:"clamp(14px, 3.8vw, 15px)",flexShrink:0}}>🔍</span>
-            <input
-              ref={curInputRef}
-              type="text"
-              value={curSearch}
-              onChange={e => setCurSearch(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === "Escape") { setCurOpen(false); setCurSearch(""); }
-                if (e.key === "Enter" && curOptions.length > 0) {
-                  setCur(curOptions[0][0]);
-                  setCurOpen(false);
-                  setCurSearch("");
-                }
-              }}
-              placeholder="통화 검색 (USD, 달러...)"
-              style={{
-                flex:1,background:"transparent",border:"none",outline:"none",
-                color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontFamily:"inherit",minWidth:0,
-              }}
-            />
-            <span onClick={(e) => { e.stopPropagation(); setCurOpen(false); setCurSearch(""); }}
-              style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 15px)",cursor:"pointer",padding:"4px 6px",flexShrink:0}}>✕</span>
-          </>
-        )}
+        <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{ci.flag}</span>
+        <div style={{flex:1,minWidth:0}}>
+          <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
+          <span style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{ci.name}</span>
+        </div>
+        <span style={{color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>
+          {curOpen ? "▲" : "▼"}
+        </span>
       </div>
 
       {curOpen && (
@@ -604,6 +572,8 @@ export default function App() {
             background:"#1C1C1E",border:"1px solid rgba(255,255,255,0.1)",borderRadius:12,
             boxShadow:"0 8px 32px rgba(0,0,0,0.5)",maxHeight:"min(280px, 50vh)",overflowY:"auto",
             pointerEvents: "auto",
+            touchAction: "pan-y",
+            WebkitOverflowScrolling: "touch",
           }}>
           {curOptions.length === 0 ? (
             <div style={{padding:"16px",color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",textAlign:"center"}}>
