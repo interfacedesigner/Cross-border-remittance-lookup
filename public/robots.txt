@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /*.json$
+
+# Sitemap
+Sitemap: https://cross-border-remittance-lookup.web.app/sitemap.xml
+
+# 주요 검색엔진
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+# 크롤 속도 제한 (서버 부하 방지)
+Crawl-delay: 1
