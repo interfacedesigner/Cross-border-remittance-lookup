@@ -518,116 +518,28 @@ export default function App() {
   // ═══════════════════════════════════════════════════
   const [curOpen, setCurOpen] = useState(false);
   const curRef = useRef(null);
-  const dropdownRef = useRef(null);
-  const isScrollingRef = useRef(false);
 
   const curOptions = Object.entries(CURRENCIES);
 
-  // Close dropdown on outside click (mobile-friendly)
-  useEffect(() => {
-    const handler = (e) => {
-      // If user is scrolling the dropdown, don't close it
-      if (isScrollingRef.current) {
-        return;
-      }
-
-      if (curRef.current && !curRef.current.contains(e.target)) {
-        setCurOpen(false);
-      }
-    };
-
-    // Only use mousedown for desktop
-    document.addEventListener("mousedown", handler);
-
-    return () => {
-      document.removeEventListener("mousedown", handler);
-    };
-  }, []);
-
-  // Track scrolling state on dropdown - mobile optimized
-  useEffect(() => {
-    if (!dropdownRef.current || !curOpen) return;
-
-    const dropdown = dropdownRef.current;
-    let scrollTimeout;
-    let touchStartY = 0;
-    let isTouching = false;
-
-    const handleTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY;
-      isTouching = true;
-      isScrollingRef.current = false;
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isTouching) return;
-
-      const touchY = e.touches[0].clientY;
-      const deltaY = Math.abs(touchY - touchStartY);
-
-      // If user moved more than 5px vertically, it's a scroll
-      if (deltaY > 5) {
-        isScrollingRef.current = true;
-        clearTimeout(scrollTimeout);
-      }
-    };
-
-    const handleTouchEnd = () => {
-      isTouching = false;
-
-      // Reset scroll state after a delay
-      scrollTimeout = setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 150);
-    };
-
-    const handleScroll = () => {
-      isScrollingRef.current = true;
-      clearTimeout(scrollTimeout);
-
-      scrollTimeout = setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 150);
-    };
-
-    dropdown.addEventListener('touchstart', handleTouchStart, { passive: true });
-    dropdown.addEventListener('touchmove', handleTouchMove, { passive: true });
-    dropdown.addEventListener('touchend', handleTouchEnd, { passive: true });
-    dropdown.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => {
-      dropdown.removeEventListener('touchstart', handleTouchStart);
-      dropdown.removeEventListener('touchmove', handleTouchMove);
-      dropdown.removeEventListener('touchend', handleTouchEnd);
-      dropdown.removeEventListener('scroll', handleScroll);
-      clearTimeout(scrollTimeout);
-    };
-  }, [curOpen]);
-
-  // Handle mobile backdrop click
+  // Simple outside click handler - works on both desktop and mobile
   useEffect(() => {
     if (!curOpen) return;
 
-    const handleBackdropTouch = (e) => {
-      // Don't close if scrolling
-      if (isScrollingRef.current) {
-        return;
-      }
-
-      // Don't close if touching inside the dropdown container
+    const handleClickOutside = (e) => {
       if (curRef.current && !curRef.current.contains(e.target)) {
         setCurOpen(false);
       }
     };
 
-    // Add a small delay to avoid immediate closing
+    // Use click event which works reliably on both desktop and mobile
+    // Add a small delay to prevent immediate closing when opening
     const timeoutId = setTimeout(() => {
-      document.addEventListener("touchstart", handleBackdropTouch, { passive: true });
-    }, 100);
+      document.addEventListener("click", handleClickOutside, true);
+    }, 50);
 
     return () => {
       clearTimeout(timeoutId);
-      document.removeEventListener("touchstart", handleBackdropTouch);
+      document.removeEventListener("click", handleClickOutside, true);
     };
   }, [curOpen]);
 
@@ -654,14 +566,10 @@ export default function App() {
 
       {curOpen && (
         <div
-          ref={dropdownRef}
-          onClick={(e) => e.stopPropagation()}
           style={{
             position:"absolute",top:"calc(100% + 4px)",left:0,right:0,zIndex:100,
             background:"#1C1C1E",border:"1px solid rgba(255,255,255,0.1)",borderRadius:12,
             boxShadow:"0 8px 32px rgba(0,0,0,0.5)",maxHeight:"min(280px, 50vh)",overflowY:"auto",
-            pointerEvents: "auto",
-            touchAction: "pan-y",
             WebkitOverflowScrolling: "touch",
           }}>
           {curOptions.length === 0 ? (
