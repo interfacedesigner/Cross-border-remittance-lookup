@@ -26,7 +26,15 @@
       "Bash(git push)",
       "Bash(git stash:*)",
       "Bash(git pull:*)",
-      "Bash(gh run:*)"
+      "Bash(gh run:*)",
+      "Bash(node scripts/update-fees.mjs:*)",
+      "Bash(gh issue list:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(git -C /Users/designerkyunghoohatdenyx/Documents/development/Cross-border-remittance-lookup diff --name-only --diff-filter=U)",
+      "Bash(git -C /Users/designerkyunghoohatdenyx/Documents/development/Cross-border-remittance-lookup checkout --theirs public/fee-data.json)",
+      "Bash(git -C /Users/designerkyunghoohatdenyx/Documents/development/Cross-border-remittance-lookup add public/fee-data.json)",
+      "Bash(git -C /Users/designerkyunghoohatdenyx/Documents/development/Cross-border-remittance-lookup rebase --continue)",
+      "Bash(GIT_EDITOR=true git rebase:*)"
     ]
   }
 }
