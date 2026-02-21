@@ -267,6 +267,144 @@ const getNonBusinessReason = () => {
 };
 
 // ═══════════════════════════════════════════════════
+// BLOG LIST PAGE
+// ═══════════════════════════════════════════════════
+const BlogListPage = ({ posts, navigate }) => {
+  const [filter, setFilter] = useState("전체");
+  const categories = ["전체", "가이드", "비교/리뷰", "팁", "뉴스", "초보자"];
+  const filtered = filter === "전체" ? posts : posts.filter(p => p.category === filter);
+  return (
+    <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard','JetBrains Mono',-apple-system,sans-serif"}}>
+      <div style={{background:"rgba(255,255,255,0.02)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
+        <div style={{maxWidth:900,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <button onClick={()=>navigate("/")} style={{background:"none",border:"none",color:"#60A5FA",cursor:"pointer",fontSize:14,padding:0,display:"flex",alignItems:"center",gap:4}}>← 홈으로</button>
+          <h1 style={{margin:0,fontSize:"clamp(16px,4vw,18px)",fontWeight:800}}>📝 해외송금 블로그</h1>
+          <div style={{width:60}}/>
+        </div>
+      </div>
+      <div style={{maxWidth:900,margin:"0 auto",padding:"20px 16px"}}>
+        <p style={{color:"#71717A",fontSize:"clamp(13px,3.2vw,14px)",margin:"0 0 20px",lineHeight:1.6}}>해외송금 수수료 절약, 서비스 비교, 환율 분석 등 유용한 정보를 제공합니다.</p>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
+          {categories.map(cat => (
+            <button key={cat} onClick={()=>setFilter(cat)} style={{padding:"6px 14px",borderRadius:20,fontSize:13,fontWeight:600,cursor:"pointer",border:"1px solid",transition:"all 0.2s",background:filter===cat?"rgba(96,165,250,0.15)":"transparent",color:filter===cat?"#60A5FA":"#71717A",borderColor:filter===cat?"rgba(96,165,250,0.3)":"rgba(255,255,255,0.08)"}}>{cat}</button>
+          ))}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+          {filtered.length === 0 && <p style={{color:"#52525B",textAlign:"center",padding:40}}>해당 카테고리의 글이 없습니다.</p>}
+          {filtered.map(post => (
+            <a key={post.id} href={`/blog/${post.slug}`} onClick={(e)=>{e.preventDefault();navigate(`/blog/${post.slug}`)}}
+              style={{display:"block",padding:"18px 20px",borderRadius:14,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s,transform 0.2s"}}
+              onMouseEnter={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.05)";e.currentTarget.style.borderColor="rgba(255,255,255,0.12)";e.currentTarget.style.transform="translateY(-1px)"}}
+              onMouseLeave={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.02)";e.currentTarget.style.borderColor="rgba(255,255,255,0.06)";e.currentTarget.style.transform="translateY(0)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:8}}>
+                <span style={{fontSize:11,color:"#60A5FA",fontWeight:600,background:"rgba(96,165,250,0.1)",padding:"3px 10px",borderRadius:6}}>{post.category}</span>
+                <span style={{fontSize:12,color:"#52525B"}}>{post.date}</span>
+              </div>
+              <h2 style={{margin:0,color:"#E4E4E7",fontWeight:700,fontSize:"clamp(14px,3.8vw,16px)",lineHeight:1.5}}>{post.title}</h2>
+              {post.summary && <p style={{margin:"8px 0 0",color:"#71717A",fontSize:"clamp(12px,3vw,13px)",lineHeight:1.7,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.summary}</p>}
+            </a>
+          ))}
+        </div>
+        <p style={{color:"#3F3F46",fontSize:12,textAlign:"center",margin:"32px 0 0"}}>총 {filtered.length}개의 글</p>
+      </div>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════
+// BLOG POST PAGE
+// ═══════════════════════════════════════════════════
+const blogArticleStyles = `
+.blog-article h1{color:#F4F4F5;font-size:clamp(20px,5vw,24px);font-weight:800;margin:28px 0 14px;line-height:1.4}
+.blog-article h2{color:#60A5FA;font-size:clamp(17px,4.2vw,20px);font-weight:700;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06);line-height:1.4}
+.blog-article h3{color:#E4E4E7;font-size:clamp(15px,3.8vw,17px);font-weight:600;margin:22px 0 10px;line-height:1.4}
+.blog-article p{color:#A1A1AA;font-size:clamp(14px,3.5vw,15px);line-height:1.85;margin:12px 0}
+.blog-article ul,.blog-article ol{color:#A1A1AA;padding-left:20px;margin:10px 0}
+.blog-article li{font-size:clamp(14px,3.5vw,15px);line-height:1.85;margin:6px 0}
+.blog-article strong{color:#E4E4E7}
+.blog-article a{color:#60A5FA;text-decoration:underline;text-underline-offset:3px}
+.blog-article blockquote{border-left:3px solid #60A5FA;padding:8px 16px;margin:16px 0;background:rgba(96,165,250,0.05);border-radius:0 8px 8px 0}
+.blog-article blockquote p{color:#A1A1AA}
+.blog-article code{background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;font-size:13px;color:#E4E4E7}
+.blog-article pre{background:rgba(255,255,255,0.04);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0}
+.blog-article hr{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:24px 0}
+`;
+
+const BlogPostPage = ({ slug, posts, navigate }) => {
+  const post = posts.find(p => p.slug === slug);
+  const relatedPosts = posts.filter(p => p.slug !== slug && p.category === post?.category).slice(0, 3);
+
+  useEffect(() => {
+    // Inject blog article styles
+    if (!document.getElementById("blog-styles")) {
+      const style = document.createElement("style");
+      style.id = "blog-styles";
+      style.textContent = blogArticleStyles;
+      document.head.appendChild(style);
+    }
+    // Update document title for SEO
+    if (post) document.title = `${post.title} | 해외송금 비교`;
+    return () => { document.title = "해외송금 수수료 비교 | 8개 서비스 실시간 비교"; };
+  }, [post]);
+
+  if (!post) return (
+    <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard',-apple-system,sans-serif",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:40}}>
+      <p style={{fontSize:48,margin:"0 0 16px"}}>📭</p>
+      <p style={{fontSize:18,fontWeight:600,margin:"0 0 8px"}}>포스트를 찾을 수 없습니다</p>
+      <p style={{color:"#71717A",margin:"0 0 24px"}}>요청하신 글이 존재하지 않거나 삭제되었습니다.</p>
+      <button onClick={()=>navigate("/blog")} style={{padding:"10px 24px",borderRadius:10,background:"rgba(96,165,250,0.15)",border:"1px solid rgba(96,165,250,0.3)",color:"#60A5FA",fontSize:14,fontWeight:600,cursor:"pointer"}}>블로그 목록으로</button>
+    </div>
+  );
+
+  return (
+    <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard','JetBrains Mono',-apple-system,sans-serif"}}>
+      <div style={{background:"rgba(255,255,255,0.02)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
+        <div style={{maxWidth:800,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <button onClick={()=>navigate("/blog")} style={{background:"none",border:"none",color:"#60A5FA",cursor:"pointer",fontSize:14,padding:0,display:"flex",alignItems:"center",gap:4}}>← 블로그</button>
+          <span style={{color:"#52525B",fontSize:12}}>{post.category}</span>
+          <div style={{width:60}}/>
+        </div>
+      </div>
+      <header style={{maxWidth:800,margin:"0 auto",padding:"32px 16px 24px"}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
+          <span style={{fontSize:12,color:"#60A5FA",fontWeight:600,background:"rgba(96,165,250,0.1)",padding:"4px 12px",borderRadius:6}}>{post.category}</span>
+          <span style={{fontSize:13,color:"#52525B"}}>{post.date}</span>
+        </div>
+        <h1 style={{margin:0,fontSize:"clamp(22px,5.5vw,30px)",fontWeight:800,lineHeight:1.35,color:"#F4F4F5"}}>{post.title}</h1>
+        {post.summary && <p style={{margin:"14px 0 0",color:"#71717A",fontSize:"clamp(14px,3.5vw,15px)",lineHeight:1.7}}>{post.summary}</p>}
+      </header>
+      {post.contentHtml ? (
+        <article className="blog-article" style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px"}} dangerouslySetInnerHTML={{__html:post.contentHtml}} />
+      ) : (
+        <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px",textAlign:"center"}}>
+          <p style={{color:"#71717A",padding:40}}>본문을 불러오는 중입니다...</p>
+        </div>
+      )}
+      {/* CTA */}
+      <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 32px"}}>
+        <button onClick={()=>navigate("/")} style={{display:"block",width:"100%",padding:"16px",borderRadius:12,background:"linear-gradient(135deg,rgba(96,165,250,0.15),rgba(139,92,246,0.15))",border:"1px solid rgba(96,165,250,0.2)",color:"#60A5FA",fontSize:"clamp(14px,3.5vw,16px)",fontWeight:700,cursor:"pointer",textAlign:"center",transition:"all 0.2s"}} onMouseEnter={(e)=>e.target.style.background="linear-gradient(135deg,rgba(96,165,250,0.25),rgba(139,92,246,0.25))"} onMouseLeave={(e)=>e.target.style.background="linear-gradient(135deg,rgba(96,165,250,0.15),rgba(139,92,246,0.15))"}>⚖️ 8개 서비스 실시간 수수료 비교하기</button>
+      </div>
+      {/* Related Posts */}
+      {relatedPosts.length > 0 && (
+        <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px"}}>
+          <h3 style={{color:"#A1A1AA",fontSize:15,fontWeight:600,margin:"0 0 14px"}}>📌 관련 글</h3>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {relatedPosts.map(rp => (
+              <a key={rp.id} href={`/blog/${rp.slug}`} onClick={(e)=>{e.preventDefault();navigate(`/blog/${rp.slug}`)}}
+                style={{display:"block",padding:"12px 16px",borderRadius:10,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",textDecoration:"none",color:"inherit",transition:"background 0.2s"}}
+                onMouseEnter={(e)=>e.currentTarget.style.background="rgba(255,255,255,0.05)"} onMouseLeave={(e)=>e.currentTarget.style.background="rgba(255,255,255,0.02)"}>
+                <p style={{margin:0,color:"#E4E4E7",fontWeight:600,fontSize:14}}>{rp.title}</p>
+                <p style={{margin:"4px 0 0",color:"#52525B",fontSize:12}}>{rp.date}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════════════════
 // ABOUT PAGE
 // ═══════════════════════════════════════════════════
 const AboutPage = ({ onBack }) => (
@@ -572,7 +710,31 @@ const PrivacyPage = ({ onBack }) => (
 // ═══════════════════════════════════════════════════
 export default function App() {
   const [tab, setTab] = useState("compare");
-  const [page, setPage] = useState("main");
+  // Path-based routing for SEO
+  const getRouteFromPath = () => {
+    const path = window.location.pathname;
+    if (path === "/" || path === "") return { page: "main", slug: null };
+    if (path === "/about") return { page: "about", slug: null };
+    if (path === "/privacy") return { page: "privacy", slug: null };
+    if (path === "/blog") return { page: "blog", slug: null };
+    if (path.startsWith("/blog/")) return { page: "blogPost", slug: path.slice(6) };
+    return { page: "main", slug: null };
+  };
+  const [route, setRoute] = useState(getRouteFromPath);
+  const page = route.page;
+  const navigate = useCallback((path) => {
+    window.history.pushState(null, "", path);
+    setRoute({
+      page: path === "/" ? "main" : path === "/about" ? "about" : path === "/privacy" ? "privacy" : path === "/blog" ? "blog" : path.startsWith("/blog/") ? "blogPost" : "main",
+      slug: path.startsWith("/blog/") ? path.slice(6) : null,
+    });
+    window.scrollTo(0, 0);
+  }, []);
+  useEffect(() => {
+    const onPop = () => setRoute(getRouteFromPath());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   const [cur, setCur] = useState("USD");
   const [amount, setAmount] = useState(1000000); // 원화 기준 (100만원)
   const [direction, setDirection] = useState("outbound");
@@ -1378,11 +1540,19 @@ export default function App() {
   );
 
   if (page === "about") {
-    return <AboutPage onBack={() => setPage("main")} />;
+    return <AboutPage onBack={() => navigate("/")} />;
   }
 
   if (page === "privacy") {
-    return <PrivacyPage onBack={() => setPage("main")} />;
+    return <PrivacyPage onBack={() => navigate("/")} />;
+  }
+
+  if (page === "blog") {
+    return <BlogListPage posts={posts} navigate={navigate} />;
+  }
+
+  if (page === "blogPost") {
+    return <BlogPostPage slug={route.slug} posts={posts} navigate={navigate} />;
   }
 
   return (
@@ -1500,7 +1670,8 @@ export default function App() {
           </h2>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {posts.slice(0,5).map(post => (
-              <a key={post.id} href={post.notionUrl} target="_blank" rel="noopener noreferrer"
+              <a key={post.id} href={`/blog/${post.slug}`}
+                onClick={(e)=>{e.preventDefault();navigate(`/blog/${post.slug}`)}}
                 style={{display:"block",padding:"14px 16px",borderRadius:12,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s"}}
                 onMouseEnter={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.05)";e.currentTarget.style.borderColor="rgba(255,255,255,0.12)"}}
                 onMouseLeave={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.02)";e.currentTarget.style.borderColor="rgba(255,255,255,0.06)"}}>
@@ -1514,6 +1685,7 @@ export default function App() {
                 )}
               </a>
             ))}
+            <button onClick={()=>navigate("/blog")} style={{display:"block",width:"100%",padding:"12px",borderRadius:10,background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",color:"#60A5FA",fontSize:"clamp(13px,3.5vw,14px)",fontWeight:600,cursor:"pointer",textAlign:"center",transition:"background 0.2s",marginTop:4}} onMouseEnter={(e)=>e.target.style.background="rgba(96,165,250,0.15)"} onMouseLeave={(e)=>e.target.style.background="rgba(96,165,250,0.08)"}>모든 글 보기 →</button>
           </div>
         </section>
       )}
@@ -1524,8 +1696,9 @@ export default function App() {
           문의: <a href="mailto:the@designer-kyungho.com" style={{color:"#71717A",textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#A1A1AA"} onMouseLeave={(e) => e.target.style.color="#71717A"}>the@designer-kyungho.com</a>
         </p>
         <p style={{margin:"6px 0 0"}}>
-          <button onClick={() => setPage("about")} style={{background:"none",border:"none",color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#71717A"} onMouseLeave={(e) => e.target.style.color="#52525B"}>서비스 소개</button>
-          <button onClick={() => setPage("privacy")} style={{background:"none",border:"none",color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#71717A"} onMouseLeave={(e) => e.target.style.color="#52525B"}>개인정보 보호정책</button>
+          <button onClick={() => navigate("/about")} style={{background:"none",border:"none",color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#71717A"} onMouseLeave={(e) => e.target.style.color="#52525B"}>서비스 소개</button>
+          <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#71717A"} onMouseLeave={(e) => e.target.style.color="#52525B"}>블로그</button>
+          <button onClick={() => navigate("/privacy")} style={{background:"none",border:"none",color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#71717A"} onMouseLeave={(e) => e.target.style.color="#52525B"}>개인정보 보호정책</button>
         </p>
       </div>
     </div>

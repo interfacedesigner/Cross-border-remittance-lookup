@@ -183,7 +183,7 @@ async function callGroqAPI(messages) {
           model: GROQ_MODEL,
           messages,
           temperature: 0.7,
-          max_tokens: 4096,
+          max_tokens: 8192,
           top_p: 0.9,
         }),
         signal: AbortSignal.timeout(60000),
@@ -237,14 +237,14 @@ async function generateMetadata(topic) {
   "slug": "english-url-slug-format",
   "category": "${topic.category}",
   "keywords": ["키워드1", "키워드2", "키워드3", "키워드4", "키워드5"],
-  "outline": ["섹션1 제목", "섹션2 제목", "섹션3 제목", "섹션4 제목", "섹션5 제목"]
+  "outline": ["섹션1 제목", "섹션2 제목", "섹션3 제목", "섹션4 제목", "섹션5 제목", "섹션6 제목", "자주 묻는 질문"]
 }
 
 주의사항:
 - title에는 반드시 | 구분자를 사용하세요 (예: "미국 송금 가이드 | 2026 최신 정보")
 - slug는 영어 소문자와 하이픈만 사용 (예: "us-remittance-guide-2026")
 - keywords는 해외송금 관련 한국어 검색 키워드 5개
-- outline은 블로그 본문의 H2 섹션 제목 5개
+- outline은 블로그 본문의 H2 섹션 제목 6-7개 (마지막은 반드시 "자주 묻는 질문")
 - 2026년 최신 정보임을 반영하세요`;
   } else {
     // AI fallback: topic pool 소진 시
@@ -259,7 +259,7 @@ async function generateMetadata(topic) {
   "slug": "english-url-slug-format",
   "category": "카테고리명",
   "keywords": ["키워드1", "키워드2", "키워드3", "키워드4", "키워드5"],
-  "outline": ["섹션1 제목", "섹션2 제목", "섹션3 제목", "섹션4 제목", "섹션5 제목"]
+  "outline": ["섹션1 제목", "섹션2 제목", "섹션3 제목", "섹션4 제목", "섹션5 제목", "섹션6 제목", "자주 묻는 질문"]
 }`;
   }
 
@@ -337,16 +337,20 @@ async function generateBody(metadata) {
 섹션 구성: ${metadata.outline.join(" / ")}
 
 작성 규칙:
-1. 800-1500자 분량으로 작성 (한글 기준)
-2. 각 섹션은 "## 섹션제목" 형식의 마크다운 H2로 시작
-3. 핵심 키워드를 자연스럽게 본문에 3-5회 포함
-4. 실용적이고 구체적인 정보 제공 (수수료, 서비스명, 절차 등)
-5. 한국에서 사용 가능한 송금 서비스 언급 (Wise, 센트비, 모인, 와이어바알리, 토스, 하나은행, 신한은행)
-6. 문체: 전문적이지만 친근한 존댓말 (-합니다, -세요)
-7. 마지막에 "## 마무리" 섹션으로 핵심 요약 포함
-8. 숫자와 구체적 사례 활용
-9. 💡 이모지를 적절히 활용하여 가독성 향상
-10. cross-border-remittance-lookup.web.app 사이트에서 실시간 비교 가능하다고 자연스럽게 언급
+1. **2500-3500자** 분량으로 작성 (한글 기준, 충분히 깊이 있는 콘텐츠)
+2. 각 섹션은 "## 섹션제목" 형식의 마크다운 H2로 시작 (6-7개 섹션)
+3. 각 섹션당 **300-500자** 이상 작성
+4. 핵심 키워드를 자연스럽게 본문에 5-8회 포함
+5. 실용적이고 구체적인 정보 제공 (수수료 금액, 환율 스프레드 %, 서비스명, 절차 등)
+6. 한국에서 사용 가능한 송금 서비스 언급 (Wise, 센트비, 모인, 와이어바알리, 토스, 하나은행, 신한은행, PayPal)
+7. 문체: 전문적이지만 친근한 존댓말 (-합니다, -세요)
+8. 마지막에 "## 자주 묻는 질문" 섹션 포함 (Q&A 형식으로 3-4개, 각 질문은 ### 로 시작)
+9. 그 다음 "## 마무리" 섹션으로 핵심 내용 3-5줄 요약
+10. 구체적인 숫자, 비교 데이터, 실제 시나리오 예시 적극 활용
+11. 💡 이모지를 적절히 활용하여 가독성 향상
+12. cross-border-remittance-lookup.web.app 사이트에서 8개 서비스를 실시간 비교 가능하다고 자연스럽게 1-2회 언급
+13. 필요시 비교표나 번호 리스트를 적극 활용
+14. **절대로 짧게 쓰지 마세요.** 각 섹션을 충실하게 작성하세요.
 
 마크다운 형식으로 본문만 작성하세요 (제목 H1은 포함하지 마세요).`;
 
@@ -626,9 +630,35 @@ async function main() {
   console.log(`  📏 Content: ${charCount} characters`);
   metadata.charCount = charCount;
 
-  if (charCount < 200) {
+  if (charCount < 500) {
     console.warn("  ⚠️ Generated content too short. Skipping.");
     return;
+  }
+
+  // 보충 생성: 1500-2000자 사이면 추가 섹션 요청
+  if (charCount < 2000) {
+    console.log("  ⚠️ Content shorter than ideal, requesting extension...");
+    try {
+      const extension = await callGroqAPI([
+        { role: "system", content: "당신은 한국의 해외송금 전문 블로그 작가입니다." },
+        { role: "user", content: `다음 블로그 글에 추가할 보충 내용을 800-1200자로 작성해주세요.
+기존 글 제목: ${metadata.title}
+기존 글 마지막 부분: ${bodyMarkdown.slice(-300)}
+
+추가할 내용:
+1. "## 실전 꿀팁" 또는 "## 추가로 알아두면 좋은 점" 섹션
+2. "## 자주 묻는 질문" 섹션 (Q&A 3-4개, 질문은 ### 형식)
+
+마크다운 형식으로만 작성하세요.` },
+      ]);
+      bodyMarkdown += "\n\n" + extension;
+      const newPlainText = bodyMarkdown.replace(/[#*\-\n\r\s]/g, "");
+      const newCharCount = newPlainText.length;
+      console.log(`  📏 Extended content: ${newCharCount} characters`);
+      metadata.charCount = newCharCount;
+    } catch (err) {
+      console.warn(`  ⚠️ Extension failed: ${err.message}, proceeding with original content`);
+    }
   }
 
   // 8. 마크다운 → Notion 블록 변환
