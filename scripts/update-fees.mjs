@@ -5,7 +5,7 @@
  * 1. 환율: open.er-api.com (무료, API키 불필요)
  * 2. 수수료: Wise Comparison API (무료, 인증 불필요)
  *    + 한국 서비스 수수료 고정값 (월 1-2회 수동 갱신)
- * 3. GitHub Actions cron 월/수/금 09:00 & 14:00 KST
+ * 3. GitHub Actions cron 화/목 09:00 KST
  *
  * Run: node scripts/update-fees.mjs
  */
@@ -325,7 +325,7 @@ async function main() {
   // Build output
   const output = {
     updatedAt: now.toISOString(),
-    schedule: "Mon/Wed/Fri 09:00 & 14:00 KST",
+    schedule: "Tue/Thu 09:00 KST",
     source: "auto-free",
     stats: {
       total: CURRENCIES.length,

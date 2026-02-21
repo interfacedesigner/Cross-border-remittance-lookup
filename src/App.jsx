@@ -590,6 +590,9 @@ export default function App() {
   const [feeDataMeta, setFeeDataMeta] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
 
+  // Posts from Notion CMS (posts.json)
+  const [posts, setPosts] = useState([]);
+
   const ci = CURRENCIES[cur];
   const hist = HIST[cur] || [];
   const curRate = midRate || ci.base;
@@ -626,6 +629,16 @@ export default function App() {
       setDataLoading(false);
     };
     loadFeeData();
+  }, []);
+
+  // ═══════════════════════════════════════════════════
+  // LOAD POSTS (Notion CMS → posts.json)
+  // ═══════════════════════════════════════════════════
+  useEffect(() => {
+    fetch("/posts.json?" + Date.now())
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.posts) setPosts(data.posts); })
+      .catch(() => {});
   }, []);
 
   // ═══════════════════════════════════════════════════
@@ -1479,6 +1492,32 @@ export default function App() {
         <div style={{display: tab==="timing" ? "block" : "none"}}><TimingTab/></div>
         <div style={{display: tab==="multi" ? "block" : "none"}}><MultiTab/></div>
       </div>
+      {/* ═══ Notion Posts Section ═══ */}
+      {posts.length > 0 && (
+        <section style={{maxWidth:1100,margin:"0 auto",padding:"20px 16px 8px"}}>
+          <h2 style={{color:"#E4E4E7",fontSize:"clamp(15px,4vw,17px)",fontWeight:700,margin:"0 0 12px",display:"flex",alignItems:"center",gap:8}}>
+            <span style={{fontSize:18}}>📝</span> 해외송금 인사이트
+          </h2>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            {posts.slice(0,5).map(post => (
+              <a key={post.id} href={post.notionUrl} target="_blank" rel="noopener noreferrer"
+                style={{display:"block",padding:"14px 16px",borderRadius:12,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s"}}
+                onMouseEnter={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.05)";e.currentTarget.style.borderColor="rgba(255,255,255,0.12)"}}
+                onMouseLeave={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.02)";e.currentTarget.style.borderColor="rgba(255,255,255,0.06)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:6}}>
+                  <span style={{fontSize:11,color:"#60A5FA",fontWeight:600,background:"rgba(96,165,250,0.1)",padding:"2px 8px",borderRadius:4}}>{post.category}</span>
+                  <span style={{fontSize:11,color:"#52525B",whiteSpace:"nowrap"}}>{post.date}</span>
+                </div>
+                <p style={{margin:0,color:"#E4E4E7",fontWeight:600,fontSize:"clamp(13px,3.5vw,14px)",lineHeight:1.5}}>{post.title}</p>
+                {post.summary && (
+                  <p style={{margin:"6px 0 0",color:"#71717A",fontSize:"clamp(12px,3vw,13px)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.summary}</p>
+                )}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
       <div style={{borderTop:"1px solid rgba(255,255,255,0.02)",padding:"12px 16px",textAlign:"center"}}>
         <p style={{color:"#3F3F46",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ 환율 API + Wise 비교 API · 자동 갱신 · 운영비 $0</p>
         <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.5}}>

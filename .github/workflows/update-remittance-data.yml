@@ -41,10 +41,25 @@ jobs:
           echo "update_status=success" >> $GITHUB_OUTPUT
         continue-on-error: true
 
+      - name: Generate AI blog post
+        run: node scripts/generate-post.mjs
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        continue-on-error: true
+
+      - name: Run posts update script
+        run: node scripts/update-posts.mjs
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        continue-on-error: true
+
       - name: Check for data changes
         id: changes
         run: |
-          if git diff --quiet public/fee-data.json; then
+          if git diff --quiet public/fee-data.json public/posts.json; then
             echo "No changes detected"
             echo "changed=false" >> $GITHUB_OUTPUT
           else
@@ -57,7 +72,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/fee-data.json
+          git add public/fee-data.json public/posts.json
           git commit -m "chore: update remittance data - $(date -u +'%Y-%m-%d %H:%M UTC')
 
           Auto-updated exchange rates and fees for 8 currencies

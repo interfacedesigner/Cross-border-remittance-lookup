@@ -2,8 +2,8 @@
 
 ## 개요
 
-해외송금 비교 서비스는 **주 2회 자동으로 환율 및 수수료 데이터를 업데이트**합니다.
-- **일정**: 매주 화요일 & 금요일 오전 9시 (KST)
+해외송금 비교 서비스는 **주 2회 자동으로 환율, 수수료 데이터, AI 블로그 포스트 생성, 포스트 수집을 업데이트**합니다.
+- **일정**: 매주 화요일 & 목요일 오전 9시 (KST)
 - **비용**: 완전 무료 (GitHub Actions 무료 티어 사용)
 - **자동화**: 100% 자동 - 수동 개입 불필요
 
@@ -12,18 +12,21 @@
 ## 자동화 일정
 
 ### 정기 업데이트
-- **요일**: 화요일, 금요일
+- **요일**: 화요일, 목요일
 - **시간**: 오전 9:00 (KST) = 00:00 (UTC)
-- **Cron**: `0 0 * * 2,5`
+- **Cron**: `0 0 * * 2,4`
 
 ### 업데이트 프로세스
 ```
 1. 환율 데이터 수집 (open.er-api.com)
-2. 서비스 수수료 수집 (Wise API + 고정 데이터)
+2. 서비스 수수료 수집 (Wise Comparison API + fixed-fees.json 폴백)
 3. fee-data.json 파일 업데이트
-4. Git commit & push
-5. 빌드 (npm run build)
-6. Firebase Hosting 배포
+4. AI 블로그 포스트 자동 생성 (Groq Llama 3.3 70B → Notion DB 저장)
+5. Notion 블로그 포스트 수집 (Notion API, 최신 5개)
+6. posts.json 파일 업데이트
+7. Git commit & push
+8. 빌드 (npm run build)
+9. Firebase Hosting 배포
 ```
 
 ---
@@ -41,18 +44,24 @@
 
 ### 로컬에서 직접 실행
 ```bash
-# 1. 데이터 업데이트
+# 1. 수수료 데이터 업데이트
 node scripts/update-fees.mjs
 
-# 2. 변경사항 확인
-git diff public/fee-data.json
+# 2. AI 블로그 포스트 생성 (Groq + Notion 환경변수 필요)
+GROQ_API_KEY=gsk_xxx NOTION_TOKEN=ntn_xxx NOTION_DATABASE_ID=xxx node scripts/generate-post.mjs
 
-# 3. 커밋 & 푸시
-git add public/fee-data.json
+# 3. 포스트 업데이트 (Notion 환경변수 필요)
+NOTION_TOKEN=ntn_xxx NOTION_DATABASE_ID=xxx node scripts/update-posts.mjs
+
+# 4. 변경사항 확인
+git diff public/fee-data.json public/posts.json
+
+# 5. 커밋 & 푸시
+git add public/fee-data.json public/posts.json
 git commit -m "chore: manual data update"
 git push
 
-# 4. 빌드 & 배포
+# 6. 빌드 & 배포
 npm run build
 firebase deploy
 ```
@@ -88,16 +97,31 @@ firebase deploy
 - **업데이트**: 매일
 - **통화**: USD, JPY, EUR, GBP, CNY, AUD, CAD, SGD
 
-### 2. 서비스 수수료 - 해외 서비스
-- **API**: Wise Comparison API
+### 2. 서비스 수수료 (자동)
+- **API**: Wise Comparison API v4
 - **비용**: 무료 (인증 불필요)
-- **서비스**: Wise, SentBe 등
-- **데이터**: 수수료, 스프레드, 예상 도착 시간
+- **서비스**: Wise, PayPal, SentBe, MOIN, 토스, WireBarley, 하나은행, 신한은행
+- **데이터**: 수수료, 스프레드, 적용 환율, 예상 도착 시간
 
-### 3. 서비스 수수료 - 한국 서비스
+### 3. 서비스 수수료 - 폴백 (수동)
 - **파일**: `/scripts/fixed-fees.json`
 - **업데이트**: 수동 (월 1~2회)
-- **서비스**: MOIN, 토스, WireBarley, 하나은행, 신한은행, PayPal
+- **용도**: Wise Comparison API에서 데이터를 가져오지 못할 경우 폴백으로 사용
+- **서비스**: SentBe, MOIN, 토스, WireBarley, 하나은행, 신한은행
+
+### 4. AI 블로그 포스트 생성 (자동)
+- **AI**: Groq API (Llama 3.3 70B Versatile)
+- **비용**: 무료 (1,000 요청/일)
+- **기능**: 해외송금 관련 SEO 블로그 포스트 자동 생성
+- **주제**: 45개 사전 정의 주제 풀 (가이드/비교/팁/뉴스/초보자) + AI 폴백 생성
+- **중복 방지**: 기존 포스트 제목 키워드 매칭으로 중복 검사
+- **출력**: Notion DB에 `상태: 발행됨`으로 직접 저장
+
+### 5. 블로그 포스트 수집 (자동)
+- **API**: Notion API (Internal Integration)
+- **비용**: 무료
+- **데이터**: 최신 발행 포스트 5개 (제목, 요약, 카테고리, 날짜)
+- **출력**: `/public/posts.json`
 
 ---
 
@@ -175,7 +199,7 @@ git push
 2. `schedule:` 섹션 주석 처리:
    ```yaml
    # schedule:
-   #   - cron: '0 0 * * 2,5'
+   #   - cron: '0 0 * * 2,4'
    ```
 3. 커밋 & 푸시
 
@@ -191,6 +215,9 @@ git push
 ### GitHub Secrets
 민감한 정보는 GitHub Secrets에 암호화 저장:
 - `FIREBASE_SERVICE_ACCOUNT`: Firebase 배포 인증 정보
+- `NOTION_TOKEN`: Notion Internal Integration 시크릿
+- `NOTION_DATABASE_ID`: Notion 포스트 데이터베이스 ID
+- `GROQ_API_KEY`: Groq AI API 인증 (무료 티어)
 - `GITHUB_TOKEN`: 자동 생성 (커밋/Issue 생성 권한)
 
 ### 권한 최소화
@@ -202,7 +229,7 @@ git push
 모든 변경사항은 Git 이력에 기록:
 - 누가 (github-actions[bot])
 - 언제 (커밋 시간)
-- 무엇을 (fee-data.json 변경 내용)
+- 무엇을 (fee-data.json, posts.json 변경 내용)
 
 ---
 
@@ -210,7 +237,7 @@ git push
 
 ### GitHub Actions
 - **무료 티어**: 2,000분/월
-- **사용량**: ~5분/회 × 8회/월 = 40분/월
+- **사용량**: ~5분/회 × 약 8회/월 = 40분/월
 - **비용**: ₩0
 
 ### Firebase Hosting
@@ -220,7 +247,9 @@ git push
 
 ### API 호출
 - **open.er-api.com**: 무료, 무제한
-- **Wise API**: 무료, 무제한
+- **Wise Comparison API**: 무료, 무제한
+- **Groq AI API**: 무료 (1,000 요청/일, Llama 3.3 70B)
+- **Notion API**: 무료 (Internal Integration)
 - **비용**: ₩0
 
 **총 비용: ₩0/월**
@@ -251,8 +280,10 @@ A: 일부 통화 실패는 정상입니다. 다음 스케줄에 자동 재시도
 ## 관련 문서
 
 - `FIREBASE_SETUP_GUIDE.md` - Firebase Service Account 설정 가이드
-- `scripts/update-fees.mjs` - 데이터 업데이트 스크립트
-- `scripts/fixed-fees.json` - 한국 서비스 고정 수수료
+- `scripts/update-fees.mjs` - 수수료 데이터 업데이트 스크립트
+- `scripts/generate-post.mjs` - AI 블로그 포스트 자동 생성 스크립트 (Groq + Notion)
+- `scripts/update-posts.mjs` - Notion 포스트 업데이트 스크립트
+- `scripts/fixed-fees.json` - 한국 서비스 고정 수수료 (폴백)
 - `.github/workflows/update-remittance-data.yml` - 워크플로우 설정
 
 ---
