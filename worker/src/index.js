@@ -1,11 +1,8 @@
 /**
  * Cloudflare Worker — 실시간 환율 프록시
  *
- * Cron (*/5 * * * *):
- *   MOIN API (40 calls) + 하나은행 (1 call) → KV 저장
- *
- * GET /api/rates:
- *   KV에서 최신 데이터 읽어 CORS 응답
+ * Cron (every 5 min): MOIN API (40 calls) + 하나은행 (1 call) → KV 저장
+ * GET /api/rates: KV에서 최신 데이터 읽어 CORS 응답
  */
 
 // ═══════════════════════════════════════════════
