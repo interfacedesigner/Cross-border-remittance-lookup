@@ -1,9 +1,9 @@
-name: Update Remittance Data & Deploy
+name: Daily Market Update & Content Generation
 
 on:
   schedule:
-    # Runs at 00:00 UTC Tuesday/Thursday (9:00 AM KST)
-    - cron: '0 0 * * 2,4'
+    # Runs daily at 00:00 UTC (09:00 KST)
+    - cron: '0 0 * * *'
   workflow_dispatch:  # Allow manual triggering
   push:
     branches: [main]
@@ -15,8 +15,8 @@ jobs:
   update-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # For git push
-      issues: write    # For error notifications
+      contents: write
+      issues: write
 
     steps:
       - name: Checkout repository
@@ -33,29 +33,55 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run data update script
+      # ═══════════════════════════════════════
+      # Step 1: 환율/수수료 데이터 갱신
+      # ═══════════════════════════════════════
+      - name: Update exchange rates & fees
         id: update
         run: |
-          echo "Running update script..."
+          echo "📊 Updating exchange rates and fees..."
           node scripts/update-fees.mjs
           echo "update_status=success" >> $GITHUB_OUTPUT
         continue-on-error: true
 
-      - name: Generate AI blog post
-        run: node scripts/generate-post.mjs
+      # ═══════════════════════════════════════
+      # Step 2: 시장 컨텍스트 분석
+      # ═══════════════════════════════════════
+      - name: Generate market context
+        id: market
+        run: |
+          echo "📡 Analyzing market context..."
+          node scripts/fetch-market-context.mjs
+          echo "market_status=success" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      # ═══════════════════════════════════════
+      # Step 3: AI 블로그 포스트 생성 (시장 분석 기반)
+      # ═══════════════════════════════════════
+      - name: Generate AI blog post (market-driven)
+        if: steps.market.outputs.market_status == 'success'
+        run: |
+          echo "🤖 Generating market-driven blog post..."
+          node scripts/generate-post.mjs
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         continue-on-error: true
 
-      - name: Run posts update script
+      # ═══════════════════════════════════════
+      # Step 4: Notion → posts.json 동기화
+      # ═══════════════════════════════════════
+      - name: Sync posts from Notion
         run: node scripts/update-posts.mjs
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         continue-on-error: true
 
+      # ═══════════════════════════════════════
+      # Step 5: 변경사항 커밋 & 배포
+      # ═══════════════════════════════════════
       - name: Check for data changes
         id: changes
         run: |
@@ -75,7 +101,7 @@ jobs:
           git add public/fee-data.json public/posts.json public/sitemap.xml
           git commit -m "chore: update remittance data - $(date -u +'%Y-%m-%d %H:%M UTC')
 
-          Auto-updated exchange rates and fees for 8 currencies
+          Auto-updated exchange rates, fees, and blog content
 
           Co-Authored-By: GitHub Actions <github-actions[bot]@users.noreply.github.com>"
           git push
@@ -83,6 +109,8 @@ jobs:
       - name: Build application
         if: steps.changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: npm run build
+        env:
+          VITE_WORKER_URL: https://remittance-rates.remittance-app.workers.dev
 
       - name: Deploy to Firebase
         if: steps.changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
@@ -93,6 +121,43 @@ jobs:
           projectId: cross-border-remittance-lookup
           channelId: live
 
+      # ═══════════════════════════════════════
+      # Step 6: fixed-fees 경과 알림
+      # ═══════════════════════════════════════
+      - name: Check fixed-fees staleness
+        run: |
+          LAST_UPDATE=$(node -e "const d=JSON.parse(require('fs').readFileSync('scripts/fixed-fees.json','utf-8'));console.log(d._lastManualUpdate||'unknown')")
+          DAYS_OLD=$(node -e "const d=JSON.parse(require('fs').readFileSync('scripts/fixed-fees.json','utf-8'));const diff=Math.floor((Date.now()-new Date(d._lastManualUpdate).getTime())/86400000);console.log(diff)")
+          echo "fixed-fees last updated: ${LAST_UPDATE} (${DAYS_OLD} days ago)"
+          echo "days_old=${DAYS_OLD}" >> $GITHUB_OUTPUT
+        id: fixed_fees
+        continue-on-error: true
+
+      - name: Create fixed-fees update reminder
+        if: steps.fixed_fees.outputs.days_old > 30
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'fixed-fees-update',
+              state: 'open'
+            });
+            if (existing.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '📋 fixed-fees.json 수동 갱신 필요',
+                body: `fixed-fees.json이 **${steps.fixed_fees.outputs.days_old}일** 경과했습니다.\n\n한국 서비스(센트비, 모인, 와이어바알리, 토스, 하나은행, 신한은행)의 수수료를 확인하고 갱신해주세요.\n\n파일: \`scripts/fixed-fees.json\``,
+                labels: ['fixed-fees-update', 'maintenance']
+              });
+            }
+        continue-on-error: true
+
+      # ═══════════════════════════════════════
+      # Step 7: 실패 시 알림
+      # ═══════════════════════════════════════
       - name: Create issue on failure
         if: failure()
         uses: actions/github-script@v7
@@ -101,22 +166,7 @@ jobs:
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '⚠️ Automated Data Update Failed',
-              body: `## Update Failure Report
-
-              **Workflow Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
-              **Trigger:** ${context.eventName}
-              **Time:** ${new Date().toISOString()}
-
-              ### Action Required
-              Check the workflow logs to diagnose the issue.
-
-              ### Common Causes
-              - API rate limiting
-              - Network connectivity issues
-              - Firebase authentication failure
-              - Build errors
-
-              This issue was automatically created by GitHub Actions.`,
+              title: '⚠️ Daily Update Failed - ' + new Date().toISOString().split('T')[0],
+              body: `## Update Failure Report\n\n**Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n**Time:** ${new Date().toISOString()}\n\nCheck workflow logs.`,
               labels: ['automation', 'bug']
             })
