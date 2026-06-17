@@ -2,708 +2,25 @@ import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, Cell, ReferenceLine, Legend, ComposedChart } from "recharts";
 
 // ═══════════════════════════════════════════════════
-// GOOGLE ANALYTICS HELPER
+// EXTRACTED MODULES
 // ═══════════════════════════════════════════════════
-const trackEvent = (eventName, eventParams = {}) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', eventName, eventParams);
-  }
-};
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { CTooltip } from "./components/CTooltip";
+import { AmountInput } from "./components/AmountInput";
+import { AdSenseAd } from "./components/AdSenseAd";
+import { BlogListPage } from "./components/BlogListPage";
+import { BlogPostPage } from "./components/BlogPostPage";
+import { AboutPage } from "./components/AboutPage";
+import { PrivacyPage } from "./components/PrivacyPage";
 
-// ═══════════════════════════════════════════════════
-// CONFIG
-// ═══════════════════════════════════════════════════
-const CURRENCIES = {
-  USD:{code:"USD",name:"미국 달러",flag:"🇺🇸",symbol:"$",color:"#22C55E",base:1474},
-  JPY:{code:"JPY",name:"일본 엔(100)",flag:"🇯🇵",symbol:"¥",color:"#EF4444",unit:100,base:938},
-  EUR:{code:"EUR",name:"유로",flag:"🇪🇺",symbol:"€",color:"#3B82F6",base:1545},
-  GBP:{code:"GBP",name:"영국 파운드",flag:"🇬🇧",symbol:"£",color:"#F59E0B",base:1885},
-  CNY:{code:"CNY",name:"중국 위안",flag:"🇨🇳",symbol:"¥",color:"#F97316",base:201},
-  AUD:{code:"AUD",name:"호주 달러",flag:"🇦🇺",symbol:"A$",color:"#06B6D4",base:952},
-  CAD:{code:"CAD",name:"캐나다 달러",flag:"🇨🇦",symbol:"C$",color:"#DC2626",base:1025},
-  SGD:{code:"SGD",name:"싱가포르 달러",flag:"🇸🇬",symbol:"S$",color:"#8B5CF6",base:1132},
-};
+import { trackEvent } from "./utils/analytics";
+import { CURRENCIES, SVC_AVAIL } from "./utils/constants";
+import { HIST } from "./utils/histData";
+import { isBusinessDay, getNonBusinessReason } from "./utils/dateUtils";
+import { RATE_CACHE_TTL } from "./styles/theme";
+import { fetchAllAndCompute, fetchMidRates, fetchWorkerRates, loadFeePolicies } from "./utils/rateFetcher";
 
-// Historical monthly data (2020-2026)
-const HIST={USD:[{d:"2020-01",r:1165},{d:"2020-02",r:1191},{d:"2020-03",r:1226},{d:"2020-04",r:1222},{d:"2020-05",r:1238},{d:"2020-06",r:1199},{d:"2020-07",r:1196},{d:"2020-08",r:1187},{d:"2020-09",r:1169},{d:"2020-10",r:1135},{d:"2020-11",r:1113},{d:"2020-12",r:1088},{d:"2021-01",r:1100},{d:"2021-02",r:1107},{d:"2021-03",r:1131},{d:"2021-04",r:1118},{d:"2021-05",r:1116},{d:"2021-06",r:1130},{d:"2021-07",r:1150},{d:"2021-08",r:1165},{d:"2021-09",r:1180},{d:"2021-10",r:1175},{d:"2021-11",r:1187},{d:"2021-12",r:1189},{d:"2022-01",r:1198},{d:"2022-02",r:1197},{d:"2022-03",r:1215},{d:"2022-04",r:1252},{d:"2022-05",r:1265},{d:"2022-06",r:1295},{d:"2022-07",r:1306},{d:"2022-08",r:1325},{d:"2022-09",r:1397},{d:"2022-10",r:1424},{d:"2022-11",r:1330},{d:"2022-12",r:1272},{d:"2023-01",r:1248},{d:"2023-02",r:1282},{d:"2023-03",r:1305},{d:"2023-04",r:1325},{d:"2023-05",r:1329},{d:"2023-06",r:1285},{d:"2023-07",r:1282},{d:"2023-08",r:1322},{d:"2023-09",r:1338},{d:"2023-10",r:1347},{d:"2023-11",r:1306},{d:"2023-12",r:1289},{d:"2024-01",r:1328},{d:"2024-02",r:1333},{d:"2024-03",r:1341},{d:"2024-04",r:1373},{d:"2024-05",r:1365},{d:"2024-06",r:1382},{d:"2024-07",r:1374},{d:"2024-08",r:1352},{d:"2024-09",r:1330},{d:"2024-10",r:1361},{d:"2024-11",r:1399},{d:"2024-12",r:1453},{d:"2025-01",r:1460},{d:"2025-02",r:1448},{d:"2025-03",r:1450},{d:"2025-04",r:1487},{d:"2025-05",r:1425},{d:"2025-06",r:1402},{d:"2025-07",r:1389},{d:"2025-08",r:1400},{d:"2025-09",r:1379},{d:"2025-10",r:1395},{d:"2025-11",r:1420},{d:"2025-12",r:1480},{d:"2026-01",r:1465},{d:"2026-02",r:1474}],JPY:[{d:"2020-01",r:1072},{d:"2020-02",r:1086},{d:"2020-03",r:1126},{d:"2020-04",r:1131},{d:"2020-05",r:1152},{d:"2020-06",r:1118},{d:"2020-07",r:1113},{d:"2020-08",r:1115},{d:"2020-09",r:1105},{d:"2020-10",r:1074},{d:"2020-11",r:1068},{d:"2020-12",r:1053},{d:"2021-01",r:1063},{d:"2021-02",r:1050},{d:"2021-03",r:1032},{d:"2021-04",r:1029},{d:"2021-05",r:1023},{d:"2021-06",r:1025},{d:"2021-07",r:1044},{d:"2021-08",r:1060},{d:"2021-09",r:1073},{d:"2021-10",r:1033},{d:"2021-11",r:1042},{d:"2021-12",r:1033},{d:"2022-01",r:1041},{d:"2022-02",r:1038},{d:"2022-03",r:997},{d:"2022-04",r:967},{d:"2022-05",r:984},{d:"2022-06",r:957},{d:"2022-07",r:955},{d:"2022-08",r:968},{d:"2022-09",r:964},{d:"2022-10",r:960},{d:"2022-11",r:960},{d:"2022-12",r:946},{d:"2023-01",r:960},{d:"2023-02",r:955},{d:"2023-03",r:980},{d:"2023-04",r:993},{d:"2023-05",r:964},{d:"2023-06",r:910},{d:"2023-07",r:914},{d:"2023-08",r:912},{d:"2023-09",r:899},{d:"2023-10",r:902},{d:"2023-11",r:876},{d:"2023-12",r:905},{d:"2024-01",r:904},{d:"2024-02",r:889},{d:"2024-03",r:889},{d:"2024-04",r:882},{d:"2024-05",r:869},{d:"2024-06",r:863},{d:"2024-07",r:878},{d:"2024-08",r:925},{d:"2024-09",r:924},{d:"2024-10",r:897},{d:"2024-11",r:910},{d:"2024-12",r:926},{d:"2025-01",r:938},{d:"2025-02",r:952},{d:"2025-03",r:968},{d:"2025-04",r:1025},{d:"2025-05",r:989},{d:"2025-06",r:970},{d:"2025-07",r:960},{d:"2025-08",r:972},{d:"2025-09",r:963},{d:"2025-10",r:945},{d:"2025-11",r:935},{d:"2025-12",r:956},{d:"2026-01",r:942},{d:"2026-02",r:938}],EUR:[{d:"2020-01",r:1288},{d:"2020-02",r:1303},{d:"2020-03",r:1348},{d:"2020-04",r:1337},{d:"2020-05",r:1346},{d:"2020-06",r:1348},{d:"2020-07",r:1380},{d:"2020-08",r:1411},{d:"2020-09",r:1383},{d:"2020-10",r:1339},{d:"2020-11",r:1333},{d:"2020-12",r:1335},{d:"2021-01",r:1332},{d:"2021-02",r:1339},{d:"2021-03",r:1337},{d:"2021-04",r:1346},{d:"2021-05",r:1362},{d:"2021-06",r:1345},{d:"2021-07",r:1357},{d:"2021-08",r:1372},{d:"2021-09",r:1377},{d:"2021-10",r:1363},{d:"2021-11",r:1341},{d:"2021-12",r:1345},{d:"2022-01",r:1353},{d:"2022-02",r:1350},{d:"2022-03",r:1339},{d:"2022-04",r:1349},{d:"2022-05",r:1337},{d:"2022-06",r:1353},{d:"2022-07",r:1331},{d:"2022-08",r:1325},{d:"2022-09",r:1390},{d:"2022-10",r:1400},{d:"2022-11",r:1370},{d:"2022-12",r:1350},{d:"2023-01",r:1352},{d:"2023-02",r:1368},{d:"2023-03",r:1414},{d:"2023-04",r:1453},{d:"2023-05",r:1435},{d:"2023-06",r:1402},{d:"2023-07",r:1425},{d:"2023-08",r:1439},{d:"2023-09",r:1415},{d:"2023-10",r:1411},{d:"2023-11",r:1425},{d:"2023-12",r:1422},{d:"2024-01",r:1445},{d:"2024-02",r:1441},{d:"2024-03",r:1453},{d:"2024-04",r:1462},{d:"2024-05",r:1477},{d:"2024-06",r:1480},{d:"2024-07",r:1489},{d:"2024-08",r:1498},{d:"2024-09",r:1483},{d:"2024-10",r:1471},{d:"2024-11",r:1474},{d:"2024-12",r:1516},{d:"2025-01",r:1510},{d:"2025-02",r:1520},{d:"2025-03",r:1565},{d:"2025-04",r:1685},{d:"2025-05",r:1600},{d:"2025-06",r:1582},{d:"2025-07",r:1570},{d:"2025-08",r:1568},{d:"2025-09",r:1538},{d:"2025-10",r:1555},{d:"2025-11",r:1497},{d:"2025-12",r:1540},{d:"2026-01",r:1535},{d:"2026-02",r:1545}],GBP:[{d:"2020-01",r:1514},{d:"2020-02",r:1531},{d:"2020-03",r:1506},{d:"2020-04",r:1509},{d:"2020-05",r:1518},{d:"2020-06",r:1489},{d:"2020-07",r:1517},{d:"2020-08",r:1562},{d:"2020-09",r:1511},{d:"2020-10",r:1474},{d:"2020-11",r:1486},{d:"2020-12",r:1483},{d:"2021-01",r:1504},{d:"2021-02",r:1539},{d:"2021-03",r:1557},{d:"2021-04",r:1548},{d:"2021-05",r:1578},{d:"2021-06",r:1569},{d:"2021-07",r:1597},{d:"2021-08",r:1609},{d:"2021-09",r:1608},{d:"2021-10",r:1607},{d:"2021-11",r:1583},{d:"2021-12",r:1598},{d:"2022-01",r:1618},{d:"2022-02",r:1615},{d:"2022-03",r:1595},{d:"2022-04",r:1605},{d:"2022-05",r:1575},{d:"2022-06",r:1586},{d:"2022-07",r:1572},{d:"2022-08",r:1567},{d:"2022-09",r:1533},{d:"2022-10",r:1580},{d:"2022-11",r:1596},{d:"2022-12",r:1545},{d:"2023-01",r:1547},{d:"2023-02",r:1558},{d:"2023-03",r:1613},{d:"2023-04",r:1660},{d:"2023-05",r:1656},{d:"2023-06",r:1636},{d:"2023-07",r:1700},{d:"2023-08",r:1682},{d:"2023-09",r:1640},{d:"2023-10",r:1636},{d:"2023-11",r:1649},{d:"2023-12",r:1643},{d:"2024-01",r:1691},{d:"2024-02",r:1688},{d:"2024-03",r:1699},{d:"2024-04",r:1710},{d:"2024-05",r:1726},{d:"2024-06",r:1745},{d:"2024-07",r:1772},{d:"2024-08",r:1766},{d:"2024-09",r:1765},{d:"2024-10",r:1754},{d:"2024-11",r:1771},{d:"2024-12",r:1835},{d:"2025-01",r:1810},{d:"2025-02",r:1825},{d:"2025-03",r:1882},{d:"2025-04",r:1974},{d:"2025-05",r:1896},{d:"2025-06",r:1870},{d:"2025-07",r:1855},{d:"2025-08",r:1860},{d:"2025-09",r:1830},{d:"2025-10",r:1845},{d:"2025-11",r:1810},{d:"2025-12",r:1880},{d:"2026-01",r:1870},{d:"2026-02",r:1885}],CNY:[{d:"2020-01",r:168},{d:"2020-02",r:170},{d:"2020-03",r:174},{d:"2020-04",r:173},{d:"2020-05",r:174},{d:"2020-06",r:169},{d:"2020-07",r:171},{d:"2020-08",r:172},{d:"2020-09",r:172},{d:"2020-10",r:169},{d:"2020-11",r:169},{d:"2020-12",r:167},{d:"2021-01",r:170},{d:"2021-02",r:171},{d:"2021-03",r:173},{d:"2021-04",r:172},{d:"2021-05",r:173},{d:"2021-06",r:175},{d:"2021-07",r:178},{d:"2021-08",r:180},{d:"2021-09",r:183},{d:"2021-10",r:184},{d:"2021-11",r:186},{d:"2021-12",r:187},{d:"2022-01",r:189},{d:"2022-02",r:189},{d:"2022-03",r:191},{d:"2022-04",r:192},{d:"2022-05",r:189},{d:"2022-06",r:193},{d:"2022-07",r:194},{d:"2022-08",r:194},{d:"2022-09",r:197},{d:"2022-10",r:196},{d:"2022-11",r:186},{d:"2022-12",r:183},{d:"2023-01",r:184},{d:"2023-02",r:186},{d:"2023-03",r:190},{d:"2023-04",r:192},{d:"2023-05",r:186},{d:"2023-06",r:178},{d:"2023-07",r:178},{d:"2023-08",r:181},{d:"2023-09",r:183},{d:"2023-10",r:184},{d:"2023-11",r:183},{d:"2023-12",r:182},{d:"2024-01",r:186},{d:"2024-02",r:185},{d:"2024-03",r:186},{d:"2024-04",r:189},{d:"2024-05",r:188},{d:"2024-06",r:190},{d:"2024-07",r:189},{d:"2024-08",r:190},{d:"2024-09",r:188},{d:"2024-10",r:191},{d:"2024-11",r:193},{d:"2024-12",r:199},{d:"2025-01",r:200},{d:"2025-02",r:202},{d:"2025-03",r:200},{d:"2025-04",r:204},{d:"2025-05",r:197},{d:"2025-06",r:194},{d:"2025-07",r:192},{d:"2025-08",r:194},{d:"2025-09",r:195},{d:"2025-10",r:196},{d:"2025-11",r:197},{d:"2025-12",r:203},{d:"2026-01",r:200},{d:"2026-02",r:201}],AUD:[{d:"2020-01",r:798},{d:"2020-02",r:789},{d:"2020-03",r:748},{d:"2020-04",r:768},{d:"2020-05",r:815},{d:"2020-06",r:827},{d:"2020-07",r:846},{d:"2020-08",r:857},{d:"2020-09",r:834},{d:"2020-10",r:810},{d:"2020-11",r:818},{d:"2020-12",r:835},{d:"2021-01",r:851},{d:"2021-02",r:864},{d:"2021-03",r:863},{d:"2021-04",r:862},{d:"2021-05",r:862},{d:"2021-06",r:852},{d:"2021-07",r:853},{d:"2021-08",r:853},{d:"2021-09",r:852},{d:"2021-10",r:878},{d:"2021-11",r:854},{d:"2021-12",r:857},{d:"2022-01",r:857},{d:"2022-02",r:857},{d:"2022-03",r:897},{d:"2022-04",r:920},{d:"2022-05",r:884},{d:"2022-06",r:893},{d:"2022-07",r:896},{d:"2022-08",r:914},{d:"2022-09",r:912},{d:"2022-10",r:896},{d:"2022-11",r:901},{d:"2022-12",r:861},{d:"2023-01",r:872},{d:"2023-02",r:875},{d:"2023-03",r:875},{d:"2023-04",r:892},{d:"2023-05",r:876},{d:"2023-06",r:858},{d:"2023-07",r:870},{d:"2023-08",r:852},{d:"2023-09",r:860},{d:"2023-10",r:856},{d:"2023-11",r:860},{d:"2023-12",r:878},{d:"2024-01",r:877},{d:"2024-02",r:872},{d:"2024-03",r:877},{d:"2024-04",r:884},{d:"2024-05",r:896},{d:"2024-06",r:912},{d:"2024-07",r:915},{d:"2024-08",r:903},{d:"2024-09",r:912},{d:"2024-10",r:902},{d:"2024-11",r:910},{d:"2024-12",r:922},{d:"2025-01",r:915},{d:"2025-02",r:920},{d:"2025-03",r:925},{d:"2025-04",r:945},{d:"2025-05",r:935},{d:"2025-06",r:920},{d:"2025-07",r:910},{d:"2025-08",r:915},{d:"2025-09",r:925},{d:"2025-10",r:930},{d:"2025-11",r:920},{d:"2025-12",r:955},{d:"2026-01",r:948},{d:"2026-02",r:952}],CAD:[{d:"2020-01",r:890},{d:"2020-02",r:893},{d:"2020-03",r:870},{d:"2020-04",r:864},{d:"2020-05",r:891},{d:"2020-06",r:886},{d:"2020-07",r:890},{d:"2020-08",r:895},{d:"2020-09",r:882},{d:"2020-10",r:862},{d:"2020-11",r:863},{d:"2020-12",r:854},{d:"2021-01",r:862},{d:"2021-02",r:878},{d:"2021-03",r:897},{d:"2021-04",r:897},{d:"2021-05",r:918},{d:"2021-06",r:918},{d:"2021-07",r:921},{d:"2021-08",r:926},{d:"2021-09",r:932},{d:"2021-10",r:948},{d:"2021-11",r:937},{d:"2021-12",r:932},{d:"2022-01",r:939},{d:"2022-02",r:943},{d:"2022-03",r:961},{d:"2022-04",r:980},{d:"2022-05",r:982},{d:"2022-06",r:1002},{d:"2022-07",r:1005},{d:"2022-08",r:1022},{d:"2022-09",r:1023},{d:"2022-10",r:1035},{d:"2022-11",r:988},{d:"2022-12",r:940},{d:"2023-01",r:932},{d:"2023-02",r:953},{d:"2023-03",r:965},{d:"2023-04",r:988},{d:"2023-05",r:990},{d:"2023-06",r:974},{d:"2023-07",r:976},{d:"2023-08",r:976},{d:"2023-09",r:984},{d:"2023-10",r:978},{d:"2023-11",r:963},{d:"2023-12",r:976},{d:"2024-01",r:993},{d:"2024-02",r:987},{d:"2024-03",r:992},{d:"2024-04",r:1003},{d:"2024-05",r:1000},{d:"2024-06",r:1009},{d:"2024-07",r:1004},{d:"2024-08",r:989},{d:"2024-09",r:981},{d:"2024-10",r:980},{d:"2024-11",r:998},{d:"2024-12",r:1012},{d:"2025-01",r:1015},{d:"2025-02",r:1020},{d:"2025-03",r:1008},{d:"2025-04",r:1058},{d:"2025-05",r:1035},{d:"2025-06",r:1028},{d:"2025-07",r:1020},{d:"2025-08",r:1022},{d:"2025-09",r:1010},{d:"2025-10",r:1005},{d:"2025-11",r:998},{d:"2025-12",r:1028},{d:"2026-01",r:1022},{d:"2026-02",r:1025}],SGD:[{d:"2020-01",r:861},{d:"2020-02",r:859},{d:"2020-03",r:861},{d:"2020-04",r:860},{d:"2020-05",r:876},{d:"2020-06",r:861},{d:"2020-07",r:863},{d:"2020-08",r:864},{d:"2020-09",r:855},{d:"2020-10",r:836},{d:"2020-11",r:835},{d:"2020-12",r:822},{d:"2021-01",r:830},{d:"2021-02",r:833},{d:"2021-03",r:842},{d:"2021-04",r:841},{d:"2021-05",r:841},{d:"2021-06",r:845},{d:"2021-07",r:850},{d:"2021-08",r:862},{d:"2021-09",r:873},{d:"2021-10",r:869},{d:"2021-11",r:872},{d:"2021-12",r:876},{d:"2022-01",r:885},{d:"2022-02",r:884},{d:"2022-03",r:893},{d:"2022-04",r:907},{d:"2022-05",r:912},{d:"2022-06",r:932},{d:"2022-07",r:940},{d:"2022-08",r:951},{d:"2022-09",r:979},{d:"2022-10",r:997},{d:"2022-11",r:975},{d:"2022-12",r:948},{d:"2023-01",r:943},{d:"2023-02",r:961},{d:"2023-03",r:978},{d:"2023-04",r:998},{d:"2023-05",r:990},{d:"2023-06",r:963},{d:"2023-07",r:967},{d:"2023-08",r:978},{d:"2023-09",r:986},{d:"2023-10",r:977},{d:"2023-11",r:976},{d:"2023-12",r:978},{d:"2024-01",r:996},{d:"2024-02",r:993},{d:"2024-03",r:1000},{d:"2024-04",r:1012},{d:"2024-05",r:1011},{d:"2024-06",r:1024},{d:"2024-07",r:1029},{d:"2024-08",r:1032},{d:"2024-09",r:1029},{d:"2024-10",r:1030},{d:"2024-11",r:1048},{d:"2024-12",r:1072},{d:"2025-01",r:1080},{d:"2025-02",r:1088},{d:"2025-03",r:1095},{d:"2025-04",r:1145},{d:"2025-05",r:1110},{d:"2025-06",r:1098},{d:"2025-07",r:1088},{d:"2025-08",r:1092},{d:"2025-09",r:1078},{d:"2025-10",r:1085},{d:"2025-11",r:1095},{d:"2025-12",r:1135},{d:"2026-01",r:1128},{d:"2026-02",r:1132}]};
-
-// ═══════════════════════════════════════════════════
-// SERVICE AVAILABILITY (주말/공휴일 가용 여부)
-// ═══════════════════════════════════════════════════
-const SVC_AVAIL = {
-  wise:      { weekend: true,  holiday: true,  label: "24시간 신청 가능", processNote: "처리는 영업일" },
-  sentbe:    { weekend: true,  holiday: true,  label: "24시간 신청 가능", processNote: "처리는 영업일" },
-  moin:      { weekend: true,  holiday: true,  label: "24시간 신청 가능", processNote: "처리는 영업일" },
-  wirebarley:{ weekend: true,  holiday: true,  label: "24시간 신청 가능", processNote: "처리는 영업일" },
-  toss:      { weekend: true,  holiday: true,  label: "24시간 신청 가능", processNote: "처리는 영업일" },
-  paypal:    { weekend: true,  holiday: true,  label: "24시간 신청 가능", processNote: "처리는 영업일" },
-  hana:      { weekend: false, holiday: false, label: "영업일만 가능",   processNote: "09:00~16:00" },
-  shinhan:   { weekend: false, holiday: false, label: "영업일만 가능",   processNote: "09:00~16:00" },
-};
-
-// ═══════════════════════════════════════════════════
-// SERVICE DEFINITIONS — loaded from fee-data.json
-// (updated weekly via GitHub Actions + Claude API)
-// Fallback hardcoded values used if JSON unavailable
-// ═══════════════════════════════════════════════════
-const CTooltip = ({active,payload,label}) => {
-  if(!active||!payload?.length) return null;
-  return (
-    <div style={{background:"rgba(8,8,16,0.97)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:8,padding:"8px 12px",backdropFilter:"blur(12px)",maxWidth:"90vw"}}>
-      <p style={{color:"#71717A",fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,marginBottom:3}}>{label}</p>
-      {payload.map((p,i)=>(
-        <p key={i} style={{color:p.color||"#fff",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"1px 0",fontWeight:600}}>
-          {p.name}: {typeof p.value==="number"?p.value.toLocaleString():p.value}
-        </p>
-      ))}
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════
-// AMOUNT INPUT (완전 uncontrolled — 커서 문제 원천 차단)
-// React의 value 바인딩을 사용하지 않음
-// ═══════════════════════════════════════════════════
-const AmountInput = ({ amount, setAmount }) => {
-  const inputRef = useRef(null);
-  const timerRef = useRef(null);
-
-  // 외부에서 amount가 변경되면 (퀵버튼 등) 입력 필드도 업데이트
-  useEffect(() => {
-    if (!inputRef.current) return;
-    // 현재 포커스가 이 입력 필드에 있으면 업데이트 안 함 (타이핑 중)
-    if (document.activeElement === inputRef.current) return;
-    inputRef.current.value = amount > 0 ? amount.toLocaleString() : "";
-  }, [amount]);
-
-  const parseAndSet = (text) => {
-    const digits = text.replace(/[^0-9]/g, "");
-    const v = parseInt(digits, 10);
-    if (!isNaN(v) && v > 0 && v <= 999999999) {
-      setAmount(v);
-    } else {
-      setAmount(0);
-    }
-  };
-
-  const handleInput = (e) => {
-    // 숫자 외 문자 즉시 제거
-    const raw = e.target.value;
-    const digits = raw.replace(/[^0-9]/g, "");
-    if (digits.length > 9) {
-      e.target.value = digits.slice(0, 9);
-    } else if (raw !== digits) {
-      e.target.value = digits;
-    }
-    // 500ms debounce로 amount 업데이트 (리렌더링 최소화)
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => parseAndSet(e.target.value), 500);
-  };
-
-  const handleBlur = (e) => {
-    clearTimeout(timerRef.current);
-    parseAndSet(e.target.value);
-    // blur 시 포맷 표시
-    const digits = e.target.value.replace(/[^0-9]/g, "");
-    const v = parseInt(digits, 10);
-    if (!isNaN(v) && v > 0) {
-      e.target.value = v.toLocaleString();
-    } else {
-      e.target.value = "";
-    }
-    e.target.style.borderColor = "rgba(255,255,255,0.08)";
-    e.target.style.boxShadow = "none";
-  };
-
-  const handleFocus = (e) => {
-    // 포커스 시 순수 숫자로 전환
-    const digits = e.target.value.replace(/[^0-9]/g, "");
-    e.target.value = digits === "0" ? "" : digits;
-    e.target.style.borderColor = "rgba(59,130,246,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
-    // 전체 선택 (편리한 수정)
-    setTimeout(() => e.target.select(), 0);
-  };
-
-  const handleKeyDown = (e) => {
-    // Enter 키로 즉시 반영
-    if (e.key === "Enter") {
-      clearTimeout(timerRef.current);
-      parseAndSet(e.target.value);
-      e.target.blur();
-    }
-  };
-
-  return (
-    <input
-      ref={inputRef}
-      type="text"
-      inputMode="numeric"
-      pattern="[0-9]*"
-      defaultValue={amount > 0 ? amount.toLocaleString() : ""}
-      onInput={handleInput}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      placeholder="송금할 금액을 입력하세요"
-      autoComplete="off"
-      style={{
-        width:"100%", boxSizing:"border-box",
-        padding:"14px 16px", borderRadius:12,
-        border:"1.5px solid rgba(255,255,255,0.08)",
-        background:"rgba(255,255,255,0.04)",
-        color:"#E4E4E7",
-        fontSize:"clamp(20px, 6vw, 28px)", fontWeight:700,
-        fontFamily:"'JetBrains Mono', 'SF Mono', monospace",
-        textAlign:"right", outline:"none",
-        transition:"border-color 0.2s, box-shadow 0.2s",
-        WebkitAppearance:"none",
-        minHeight:"clamp(54px, 12vw, 60px)",
-        letterSpacing:"0.5px",
-      }}
-    />
-  );
-};
-
-// ═══════════════════════════════════════════════════
-// ADSENSE COMPONENT
-// ═══════════════════════════════════════════════════
-const AdSenseAd = ({ slot, format = "auto", responsive = true, style = {} }) => {
-  const adRef = useRef(null);
-
-  useEffect(() => {
-    if (adRef.current && window.adsbygoogle) {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error('AdSense error:', e);
-      }
-    }
-  }, []);
-
-  return (
-    <div style={{
-      margin: "16px 0",
-      padding: "12px",
-      background: "rgba(255,255,255,0.02)",
-      borderRadius: 12,
-      border: "1px solid rgba(255,255,255,0.04)",
-      minHeight: 100,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-      ...style
-    }}>
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={{ display: "block", ...style }}
-        data-ad-client="ca-pub-1792554171041608"
-        data-ad-slot={slot}
-        data-ad-format={format}
-        data-full-width-responsive={responsive.toString()}
-      />
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════
-// BUSINESS DAY CHECK (KST, Korean holidays)
-// ═══════════════════════════════════════════════════
-const getKST = () => {
-  const now = new Date();
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  return new Date(utc + 9 * 3600000); // KST = UTC+9
-};
-
-// Korean public holidays (fixed + lunar-based approximations for 2025-2026)
-const KOREAN_HOLIDAYS = [
-  // 2025
-  "2025-01-01","2025-01-28","2025-01-29","2025-01-30", // 신정, 설날연휴
-  "2025-03-01","2025-05-01","2025-05-05","2025-05-06", // 삼일절, 근로자의날, 어린이날, 대체공휴일
-  "2025-06-06","2025-08-15",                            // 현충일, 광복절
-  "2025-10-03","2025-10-05","2025-10-06","2025-10-07", // 개천절, 추석연휴
-  "2025-10-09","2025-12-25",                            // 한글날, 성탄절
-  // 2026
-  "2026-01-01","2026-02-16","2026-02-17","2026-02-18", // 신정, 설날연휴
-  "2026-03-01","2026-05-01","2026-05-05","2026-05-24", // 삼일절, 근로자의날, 어린이날, 석가탄신일
-  "2026-06-06","2026-08-15",                            // 현충일, 광복절
-  "2026-09-24","2026-09-25","2026-09-26",              // 추석연휴
-  "2026-10-03","2026-10-09","2026-12-25",              // 개천절, 한글날, 성탄절
-];
-
-const isBusinessDay = () => {
-  const kst = getKST();
-  const day = kst.getDay(); // 0=Sun, 6=Sat
-  if (day === 0 || day === 6) return false;
-  const dateStr = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}-${String(kst.getDate()).padStart(2,'0')}`;
-  if (KOREAN_HOLIDAYS.includes(dateStr)) return false;
-  return true;
-};
-
-const getNextBusinessDay = () => {
-  const kst = getKST();
-  let next = new Date(kst);
-  for (let i = 0; i < 10; i++) {
-    next.setDate(next.getDate() + 1);
-    const d = next.getDay();
-    const ds = `${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}`;
-    if (d !== 0 && d !== 6 && !KOREAN_HOLIDAYS.includes(ds)) {
-      return `${next.getMonth()+1}월 ${next.getDate()}일 (${['일','월','화','수','목','금','토'][d]})`;
-    }
-  }
-  return "다음 영업일";
-};
-
-const getNonBusinessReason = () => {
-  const kst = getKST();
-  const day = kst.getDay();
-  const dateStr = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}-${String(kst.getDate()).padStart(2,'0')}`;
-  if (KOREAN_HOLIDAYS.includes(dateStr)) return "공휴일";
-  if (day === 0) return "일요일";
-  if (day === 6) return "토요일";
-  return "";
-};
-
-// ═══════════════════════════════════════════════════
-// BLOG LIST PAGE
-// ═══════════════════════════════════════════════════
-const BlogListPage = ({ posts, navigate }) => {
-  const [filter, setFilter] = useState("전체");
-  const categories = ["전체", "가이드", "비교/리뷰", "팁", "뉴스", "초보자"];
-  const filtered = filter === "전체" ? posts : posts.filter(p => p.category === filter);
-  return (
-    <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard','JetBrains Mono',-apple-system,sans-serif"}}>
-      <div style={{background:"rgba(255,255,255,0.02)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
-        <div style={{maxWidth:900,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <button onClick={()=>navigate("/")} style={{background:"none",border:"none",color:"#60A5FA",cursor:"pointer",fontSize:14,padding:0,display:"flex",alignItems:"center",gap:4}}>← 홈으로</button>
-          <h1 style={{margin:0,fontSize:"clamp(16px,4vw,18px)",fontWeight:800}}>📝 해외송금 블로그</h1>
-          <div style={{width:60}}/>
-        </div>
-      </div>
-      <div style={{maxWidth:900,margin:"0 auto",padding:"20px 16px"}}>
-        <p style={{color:"#71717A",fontSize:"clamp(13px,3.2vw,14px)",margin:"0 0 20px",lineHeight:1.6}}>해외송금 수수료 절약, 서비스 비교, 환율 분석 등 유용한 정보를 제공합니다.</p>
-        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
-          {categories.map(cat => (
-            <button key={cat} onClick={()=>setFilter(cat)} style={{padding:"6px 14px",borderRadius:20,fontSize:13,fontWeight:600,cursor:"pointer",border:"1px solid",transition:"all 0.2s",background:filter===cat?"rgba(96,165,250,0.15)":"transparent",color:filter===cat?"#60A5FA":"#71717A",borderColor:filter===cat?"rgba(96,165,250,0.3)":"rgba(255,255,255,0.08)"}}>{cat}</button>
-          ))}
-        </div>
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          {filtered.length === 0 && <p style={{color:"#52525B",textAlign:"center",padding:40}}>해당 카테고리의 글이 없습니다.</p>}
-          {filtered.map(post => (
-            <a key={post.id} href={`/blog/${post.slug}`} onClick={(e)=>{e.preventDefault();navigate(`/blog/${post.slug}`)}}
-              style={{display:"block",padding:"18px 20px",borderRadius:14,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s,transform 0.2s"}}
-              onMouseEnter={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.05)";e.currentTarget.style.borderColor="rgba(255,255,255,0.12)";e.currentTarget.style.transform="translateY(-1px)"}}
-              onMouseLeave={(e)=>{e.currentTarget.style.background="rgba(255,255,255,0.02)";e.currentTarget.style.borderColor="rgba(255,255,255,0.06)";e.currentTarget.style.transform="translateY(0)"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:8}}>
-                <span style={{fontSize:11,color:"#60A5FA",fontWeight:600,background:"rgba(96,165,250,0.1)",padding:"3px 10px",borderRadius:6}}>{post.category}</span>
-                <span style={{fontSize:12,color:"#52525B"}}>{post.date}</span>
-              </div>
-              <h2 style={{margin:0,color:"#E4E4E7",fontWeight:700,fontSize:"clamp(14px,3.8vw,16px)",lineHeight:1.5}}>{post.title}</h2>
-              {post.summary && <p style={{margin:"8px 0 0",color:"#71717A",fontSize:"clamp(12px,3vw,13px)",lineHeight:1.7,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.summary}</p>}
-            </a>
-          ))}
-        </div>
-        <p style={{color:"#3F3F46",fontSize:12,textAlign:"center",margin:"32px 0 0"}}>총 {filtered.length}개의 글</p>
-      </div>
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════
-// BLOG POST PAGE
-// ═══════════════════════════════════════════════════
-const blogArticleStyles = `
-.blog-article h1{color:#F4F4F5;font-size:clamp(20px,5vw,24px);font-weight:800;margin:28px 0 14px;line-height:1.4}
-.blog-article h2{color:#60A5FA;font-size:clamp(17px,4.2vw,20px);font-weight:700;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06);line-height:1.4}
-.blog-article h3{color:#E4E4E7;font-size:clamp(15px,3.8vw,17px);font-weight:600;margin:22px 0 10px;line-height:1.4}
-.blog-article p{color:#A1A1AA;font-size:clamp(14px,3.5vw,15px);line-height:1.85;margin:12px 0}
-.blog-article ul,.blog-article ol{color:#A1A1AA;padding-left:20px;margin:10px 0}
-.blog-article li{font-size:clamp(14px,3.5vw,15px);line-height:1.85;margin:6px 0}
-.blog-article strong{color:#E4E4E7}
-.blog-article a{color:#60A5FA;text-decoration:underline;text-underline-offset:3px}
-.blog-article blockquote{border-left:3px solid #60A5FA;padding:8px 16px;margin:16px 0;background:rgba(96,165,250,0.05);border-radius:0 8px 8px 0}
-.blog-article blockquote p{color:#A1A1AA}
-.blog-article code{background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;font-size:13px;color:#E4E4E7}
-.blog-article pre{background:rgba(255,255,255,0.04);padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0}
-.blog-article hr{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:24px 0}
-`;
-
-const BlogPostPage = ({ slug, posts, navigate }) => {
-  const post = posts.find(p => p.slug === slug);
-  const relatedPosts = posts.filter(p => p.slug !== slug && p.category === post?.category).slice(0, 3);
-
-  useEffect(() => {
-    // Inject blog article styles
-    if (!document.getElementById("blog-styles")) {
-      const style = document.createElement("style");
-      style.id = "blog-styles";
-      style.textContent = blogArticleStyles;
-      document.head.appendChild(style);
-    }
-    // Update document title for SEO
-    if (post) document.title = `${post.title} | 해외송금 비교`;
-    return () => { document.title = "해외송금 수수료 비교 | 8개 서비스 실시간 비교"; };
-  }, [post]);
-
-  if (!post) return (
-    <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard',-apple-system,sans-serif",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:40}}>
-      <p style={{fontSize:48,margin:"0 0 16px"}}>📭</p>
-      <p style={{fontSize:18,fontWeight:600,margin:"0 0 8px"}}>포스트를 찾을 수 없습니다</p>
-      <p style={{color:"#71717A",margin:"0 0 24px"}}>요청하신 글이 존재하지 않거나 삭제되었습니다.</p>
-      <button onClick={()=>navigate("/blog")} style={{padding:"10px 24px",borderRadius:10,background:"rgba(96,165,250,0.15)",border:"1px solid rgba(96,165,250,0.3)",color:"#60A5FA",fontSize:14,fontWeight:600,cursor:"pointer"}}>블로그 목록으로</button>
-    </div>
-  );
-
-  return (
-    <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard','JetBrains Mono',-apple-system,sans-serif"}}>
-      <div style={{background:"rgba(255,255,255,0.02)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
-        <div style={{maxWidth:800,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <button onClick={()=>navigate("/blog")} style={{background:"none",border:"none",color:"#60A5FA",cursor:"pointer",fontSize:14,padding:0,display:"flex",alignItems:"center",gap:4}}>← 블로그</button>
-          <span style={{color:"#52525B",fontSize:12}}>{post.category}</span>
-          <div style={{width:60}}/>
-        </div>
-      </div>
-      <header style={{maxWidth:800,margin:"0 auto",padding:"32px 16px 24px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-          <span style={{fontSize:12,color:"#60A5FA",fontWeight:600,background:"rgba(96,165,250,0.1)",padding:"4px 12px",borderRadius:6}}>{post.category}</span>
-          <span style={{fontSize:13,color:"#52525B"}}>{post.date}</span>
-        </div>
-        <h1 style={{margin:0,fontSize:"clamp(22px,5.5vw,30px)",fontWeight:800,lineHeight:1.35,color:"#F4F4F5"}}>{post.title}</h1>
-        {post.summary && <p style={{margin:"14px 0 0",color:"#71717A",fontSize:"clamp(14px,3.5vw,15px)",lineHeight:1.7}}>{post.summary}</p>}
-      </header>
-      {post.contentHtml ? (
-        <article className="blog-article" style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px"}} dangerouslySetInnerHTML={{__html:post.contentHtml}} />
-      ) : (
-        <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px",textAlign:"center"}}>
-          <p style={{color:"#71717A",padding:40}}>본문을 불러오는 중입니다...</p>
-        </div>
-      )}
-      {/* CTA */}
-      <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 32px"}}>
-        <button onClick={()=>navigate("/")} style={{display:"block",width:"100%",padding:"16px",borderRadius:12,background:"linear-gradient(135deg,rgba(96,165,250,0.15),rgba(139,92,246,0.15))",border:"1px solid rgba(96,165,250,0.2)",color:"#60A5FA",fontSize:"clamp(14px,3.5vw,16px)",fontWeight:700,cursor:"pointer",textAlign:"center",transition:"all 0.2s"}} onMouseEnter={(e)=>e.target.style.background="linear-gradient(135deg,rgba(96,165,250,0.25),rgba(139,92,246,0.25))"} onMouseLeave={(e)=>e.target.style.background="linear-gradient(135deg,rgba(96,165,250,0.15),rgba(139,92,246,0.15))"}>⚖️ 8개 서비스 실시간 수수료 비교하기</button>
-      </div>
-      {/* Related Posts */}
-      {relatedPosts.length > 0 && (
-        <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px"}}>
-          <h3 style={{color:"#A1A1AA",fontSize:15,fontWeight:600,margin:"0 0 14px"}}>📌 관련 글</h3>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {relatedPosts.map(rp => (
-              <a key={rp.id} href={`/blog/${rp.slug}`} onClick={(e)=>{e.preventDefault();navigate(`/blog/${rp.slug}`)}}
-                style={{display:"block",padding:"12px 16px",borderRadius:10,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",textDecoration:"none",color:"inherit",transition:"background 0.2s"}}
-                onMouseEnter={(e)=>e.currentTarget.style.background="rgba(255,255,255,0.05)"} onMouseLeave={(e)=>e.currentTarget.style.background="rgba(255,255,255,0.02)"}>
-                <p style={{margin:0,color:"#E4E4E7",fontWeight:600,fontSize:14}}>{rp.title}</p>
-                <p style={{margin:"4px 0 0",color:"#52525B",fontSize:12}}>{rp.date}</p>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ═══════════════════════════════════════════════════
-// ABOUT PAGE
-// ═══════════════════════════════════════════════════
-const AboutPage = ({ onBack }) => (
-  <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard','JetBrains Mono',-apple-system,sans-serif"}}>
-    {/* 상단 네비게이션 */}
-    <div style={{background:"rgba(255,255,255,0.02)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
-      <div style={{maxWidth:1000,margin:"0 auto",display:"flex",alignItems:"center",gap:12}}>
-        <button
-          onClick={onBack}
-          style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:8,color:"#E4E4E7",padding:"8px 14px",cursor:"pointer",fontSize:14,fontWeight:600,display:"flex",alignItems:"center",gap:6,transition:"all 0.2s",whiteSpace:"nowrap"}}
-          onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.1)";}}
-          onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.06)";}}
-        >← 돌아가기</button>
-        <div>
-          <h1 style={{margin:0,fontSize:"clamp(16px,4vw,18px)",fontWeight:800}}>서비스 소개</h1>
-          <p style={{margin:0,fontSize:12,color:"#71717A"}}>해외송금 수수료 비교</p>
-        </div>
-      </div>
-    </div>
-
-    {/* 히어로 */}
-    <div style={{background:"linear-gradient(135deg,rgba(59,130,246,0.15) 0%,rgba(139,92,246,0.1) 100%)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"clamp(40px,8vw,80px) 16px",textAlign:"center"}}>
-      <div style={{maxWidth:700,margin:"0 auto"}}>
-        <div style={{fontSize:"clamp(40px,10vw,64px)",marginBottom:16}}>⚖️</div>
-        <h2 style={{fontSize:"clamp(22px,5vw,36px)",fontWeight:800,margin:"0 0 16px",lineHeight:1.2}}>해외송금, 편향 없이 공정하게 비교</h2>
-        <p style={{color:"#A1A1AA",fontSize:"clamp(15px,3.8vw,18px)",lineHeight:1.8,margin:0}}>
-          Wise, 토스, 센트비, 모인, 와이어바알리 등 8개 서비스의<br style={{display:"none"}}/>
-          수수료와 환율을 한눈에 비교해 가장 유리한 송금 방법을 찾아드립니다.
-        </p>
-      </div>
-    </div>
-
-    <div style={{maxWidth:1000,margin:"0 auto",padding:"32px 16px 64px"}}>
-
-      {/* 주요 기능 */}
-      <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:16,padding:"clamp(20px,4vw,36px)",marginBottom:16}}>
-        <h2 style={{color:"#60A5FA",fontSize:"clamp(18px,4.5vw,22px)",fontWeight:700,textAlign:"center",marginBottom:28}}>주요 기능</h2>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:16}}>
-          {[
-            {icon:"💰",title:"수수료 실시간 비교",desc:"Wise·토스·센트비·모인·와이어바알리·PayPal·하나·신한 8개 서비스의 송금 수수료를 한 화면에서 비교합니다."},
-            {icon:"📊",title:"환율 스프레드 분석",desc:"각 서비스가 적용하는 환율과 스프레드(환율 마진)를 투명하게 공개해 실제 수령액을 정확히 계산합니다."},
-            {icon:"📈",title:"5년 환율 히스토리",desc:"2020년부터 현재까지 USD·JPY·EUR·GBP·CNY·AUD·CAD·SGD 8개 통화의 월별 환율 데이터를 제공합니다."},
-            {icon:"⏰",title:"최적 송금 시기 분석",desc:"5년 평균 대비 현재 환율 위치를 분석해 지금이 송금하기 좋은 시기인지 신호로 알려드립니다."},
-            {icon:"🌍",title:"다중 통화 비교",desc:"여러 통화를 동시에 비교해 어떤 통화가 역사적으로 강세/약세인지 한눈에 파악할 수 있습니다."},
-            {icon:"📱",title:"PWA 앱 설치 지원",desc:"별도 앱 설치 없이 홈 화면에 추가하면 앱처럼 사용 가능합니다. iOS Safari와 Android Chrome 모두 지원합니다."},
-          ].map(f=>(
-            <div key={f.title}
-              style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:12,padding:20,transition:"all 0.2s",cursor:"default"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(96,165,250,0.4)";e.currentTarget.style.background="rgba(59,130,246,0.05)";}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.06)";e.currentTarget.style.background="rgba(255,255,255,0.02)";}}
-            >
-              <div style={{fontSize:32,marginBottom:12}}>{f.icon}</div>
-              <h3 style={{color:"#E4E4E7",fontSize:"clamp(14px,3.8vw,16px)",fontWeight:700,marginBottom:8}}>{f.title}</h3>
-              <p style={{color:"#A1A1AA",fontSize:"clamp(13px,3.5vw,14px)",lineHeight:1.7,margin:0}}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 숫자로 보는 서비스 */}
-      <div style={{background:"linear-gradient(135deg,rgba(59,130,246,0.12) 0%,rgba(139,92,246,0.1) 100%)",border:"1px solid rgba(96,165,250,0.2)",borderRadius:16,padding:"clamp(20px,4vw,36px)",marginBottom:16,textAlign:"center"}}>
-        <h2 style={{color:"#E4E4E7",fontSize:"clamp(18px,4.5vw,22px)",fontWeight:700,marginBottom:28}}>숫자로 보는 서비스</h2>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:24}}>
-          {[
-            {num:"8개",label:"비교 가능한 송금 서비스",sub:"Wise·토스·센트비·모인 등"},
-            {num:"8종",label:"지원 통화",sub:"USD·JPY·EUR·GBP 등"},
-            {num:"5년+",label:"환율 히스토리 데이터",sub:"2020년 1월부터 현재까지"},
-            {num:"주 2회",label:"데이터 자동 업데이트",sub:"매주 화·목 오전 9시 KST"},
-          ].map(s=>(
-            <div key={s.num} style={{padding:16}}>
-              <div style={{fontSize:"clamp(28px,7vw,40px)",fontWeight:800,color:"#60A5FA",marginBottom:6}}>{s.num}</div>
-              <div style={{color:"#E4E4E7",fontWeight:600,fontSize:"clamp(13px,3.5vw,15px)",marginBottom:4}}>{s.label}</div>
-              <div style={{color:"#71717A",fontSize:"clamp(11px,3vw,13px)"}}>{s.sub}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 왜 이 서비스를 써야 하나요 */}
-      <div style={{background:"rgba(234,179,8,0.05)",border:"1px solid rgba(234,179,8,0.2)",borderLeft:"4px solid #EAB308",borderRadius:"0 12px 12px 0",padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
-        <h2 style={{color:"#EAB308",fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,marginBottom:20}}>왜 이 서비스를 선택해야 하나요?</h2>
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          {[
-            {strong:"편향 없는 공정 비교",desc:"특정 송금 서비스와 어떠한 제휴·광고 관계도 없습니다. 오직 수수료와 환율 데이터만으로 순위를 매깁니다."},
-            {strong:"총 비용(수수료 + 환율 마진) 기준 정렬",desc:"수수료가 0원이어도 환율 스프레드가 높으면 손해입니다. 수수료와 스프레드를 합산한 실제 총 비용 기준으로 비교합니다."},
-            {strong:"5년 환율 데이터로 타이밍 판단",desc:"단순 현재 환율 표시를 넘어 5년 평균·최저·최고 구간을 보여줘 지금 송금하는 게 유리한지 판단할 수 있습니다."},
-            {strong:"회원가입 불필요·완전 무료",desc:"이메일 주소 하나 입력할 필요 없습니다. 사이트에 접속하는 순간 바로 비교가 가능합니다."},
-            {strong:"주 2회 자동 갱신",desc:"GitHub Actions를 통해 매주 화요일·목요일 오전 9시(KST)에 데이터를 자동 업데이트합니다. 최신 정보를 유지합니다."},
-            {strong:"오픈소스 투명 운영",desc:"서비스 코드가 GitHub에 공개되어 있어 데이터 수집 방식과 계산 로직을 누구나 확인할 수 있습니다."},
-          ].map(b=>(
-            <div key={b.strong} style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"14px 18px",display:"flex",alignItems:"flex-start",gap:14}}>
-              <span style={{background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",borderRadius:"50%",width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700,flexShrink:0,marginTop:1}}>✓</span>
-              <span style={{color:"#A1A1AA",fontSize:"clamp(13px,3.5vw,15px)",lineHeight:1.7}}><strong style={{color:"#E4E4E7"}}>{b.strong}:</strong> {b.desc}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 비교 대상 서비스 */}
-      <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:16,padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
-        <h2 style={{color:"#60A5FA",fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,textAlign:"center",marginBottom:20}}>비교 대상 8개 서비스</h2>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:10}}>
-          {[
-            {name:"Wise (와이즈)",tag:"글로벌 핀테크",color:"#22C55E"},
-            {name:"토스",tag:"국내 핀테크",color:"#3B82F6"},
-            {name:"SentBe (센트비)",tag:"아시아 특화",color:"#8B5CF6"},
-            {name:"MOIN (모인)",tag:"베트남·중국 특화",color:"#F59E0B"},
-            {name:"WireBarley (와이어바알리)",tag:"수수료 무료",color:"#06B6D4"},
-            {name:"PayPal (페이팔)",tag:"200개국 지원",color:"#EF4444"},
-            {name:"하나은행",tag:"시중 은행",color:"#71717A"},
-            {name:"신한은행",tag:"시중 은행",color:"#71717A"},
-          ].map(s=>(
-            <div key={s.name} style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
-              <div style={{width:4,height:36,borderRadius:2,background:s.color,flexShrink:0}}/>
-              <div>
-                <div style={{color:"#E4E4E7",fontWeight:600,fontSize:"clamp(13px,3.5vw,14px)"}}>{s.name}</div>
-                <div style={{color:"#71717A",fontSize:"clamp(11px,3vw,12px)",marginTop:2}}>{s.tag}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CTA */}
-      <div style={{textAlign:"center",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:16,padding:"clamp(28px,5vw,48px)"}}>
-        <h2 style={{color:"#E4E4E7",fontSize:"clamp(18px,4.5vw,24px)",fontWeight:800,marginBottom:12}}>지금 바로 비교해보세요!</h2>
-        <p style={{color:"#A1A1AA",fontSize:"clamp(14px,3.8vw,16px)",marginBottom:24,lineHeight:1.7}}>
-          100만원 송금 기준, 서비스마다 최대 수만 원 차이가 납니다.<br/>
-          몇 초만에 가장 저렴한 방법을 찾을 수 있습니다.
-        </p>
-        <button
-          onClick={onBack}
-          style={{background:"linear-gradient(135deg,#3B82F6,#8B5CF6)",color:"#fff",border:"none",borderRadius:50,padding:"clamp(12px,3vw,16px) clamp(28px,6vw,48px)",fontSize:"clamp(15px,4vw,18px)",fontWeight:700,cursor:"pointer",transition:"all 0.2s",boxShadow:"0 4px 20px rgba(59,130,246,0.3)"}}
-          onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 30px rgba(59,130,246,0.4)";}}
-          onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 20px rgba(59,130,246,0.3)";}}
-        >
-          ⚖️ 수수료 비교 시작하기
-        </button>
-      </div>
-    </div>
-
-    {/* 푸터 */}
-    <div style={{borderTop:"1px solid rgba(255,255,255,0.04)",padding:"16px",textAlign:"center"}}>
-      <p style={{color:"#3F3F46",fontSize:12,margin:0}}>© 2026 해외송금 수수료 비교. All rights reserved.</p>
-      <button onClick={onBack} style={{marginTop:8,background:"none",border:"none",color:"#60A5FA",fontSize:13,cursor:"pointer",textDecoration:"underline"}}>홈으로 돌아가기</button>
-    </div>
-  </div>
-);
-
-// ═══════════════════════════════════════════════════
-// PRIVACY POLICY PAGE
-// ═══════════════════════════════════════════════════
-const PrivacyPage = ({ onBack }) => (
-  <div style={{minHeight:"100vh",background:"#09090B",color:"#E4E4E7",fontFamily:"'Pretendard','JetBrains Mono',-apple-system,sans-serif"}}>
-    {/* 헤더 */}
-    <div style={{background:"rgba(255,255,255,0.02)",borderBottom:"1px solid rgba(255,255,255,0.06)",padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
-      <div style={{maxWidth:800,margin:"0 auto",display:"flex",alignItems:"center",gap:12}}>
-        <button
-          onClick={onBack}
-          style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:8,color:"#E4E4E7",padding:"8px 14px",cursor:"pointer",fontSize:14,fontWeight:600,display:"flex",alignItems:"center",gap:6,transition:"all 0.2s",whiteSpace:"nowrap"}}
-          onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.1)";}}
-          onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.06)";}}
-        >
-          ← 돌아가기
-        </button>
-        <div>
-          <h1 style={{margin:0,fontSize:"clamp(16px,4vw,18px)",fontWeight:800}}>개인정보 보호정책</h1>
-          <p style={{margin:0,fontSize:12,color:"#71717A"}}>해외송금 수수료 비교 서비스</p>
-        </div>
-      </div>
-    </div>
-
-    {/* 본문 */}
-    <div style={{maxWidth:800,margin:"0 auto",padding:"24px 16px 48px"}}>
-
-      {/* 섹션 카드 공통 스타일 helper */}
-      {[
-        {
-          num:"1",title:"개인정보의 수집 및 이용 목적",
-          content:(
-            <>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:16}}>본 웹사이트(https://cross-border-remittance-lookup.web.app/)는 이용자에게 해외송금 수수료 비교 정보를 제공하기 위해 최소한의 정보만을 수집합니다.</p>
-              <p style={{color:"#E4E4E7",fontWeight:600,marginBottom:8}}>수집하는 정보</p>
-              <ul style={{color:"#A1A1AA",lineHeight:2,paddingLeft:20,marginBottom:16}}>
-                <li><strong style={{color:"#E4E4E7"}}>자동 수집 정보:</strong> IP 주소, 쿠키, 방문 일시, 서비스 이용 기록, 브라우저 정보</li>
-                <li><strong style={{color:"#E4E4E7"}}>수집 목적:</strong> 웹사이트 분석, 서비스 개선, 광고 제공</li>
-              </ul>
-              <div style={{background:"rgba(59,130,246,0.08)",borderLeft:"4px solid #3B82F6",borderRadius:"0 8px 8px 0",padding:"14px 16px"}}>
-                <strong style={{color:"#60A5FA"}}>중요:</strong>
-                <span style={{color:"#A1A1AA",marginLeft:8}}>본 웹사이트는 회원가입 시스템이 없으며, 이름, 이메일, 전화번호 등 개인 식별 정보를 직접 수집하지 않습니다.</span>
-              </div>
-            </>
-          )
-        },
-        {
-          num:"2",title:"쿠키(Cookie) 사용",
-          content:(
-            <>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:16}}>본 웹사이트는 이용자의 편의와 맞춤형 서비스 제공을 위해 쿠키를 사용합니다.</p>
-              <p style={{color:"#E4E4E7",fontWeight:600,marginBottom:8}}>쿠키의 사용 목적</p>
-              <ul style={{color:"#A1A1AA",lineHeight:2,paddingLeft:20,marginBottom:16}}>
-                <li>웹사이트 방문 및 이용 형태 파악</li>
-                <li>맞춤형 광고 제공 (Google Adsense)</li>
-                <li>서비스 개선 및 사용자 경험 향상</li>
-              </ul>
-              <p style={{color:"#E4E4E7",fontWeight:600,marginBottom:8}}>쿠키 거부 방법</p>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:8}}>이용자는 브라우저 설정을 통해 쿠키 저장을 거부할 수 있습니다:</p>
-              <ul style={{color:"#A1A1AA",lineHeight:2,paddingLeft:20,marginBottom:12}}>
-                <li><strong style={{color:"#E4E4E7"}}>Chrome:</strong> 설정 → 개인정보 및 보안 → 쿠키 및 기타 사이트 데이터</li>
-                <li><strong style={{color:"#E4E4E7"}}>Safari:</strong> 환경설정 → 개인정보 보호 → 쿠키 차단</li>
-                <li><strong style={{color:"#E4E4E7"}}>Firefox:</strong> 설정 → 개인정보 보호 및 보안 → 쿠키 및 사이트 데이터</li>
-              </ul>
-              <p style={{color:"#71717A",fontSize:13,fontStyle:"italic"}}>단, 쿠키 설치를 거부할 경우 일부 서비스 이용에 제한이 있을 수 있습니다.</p>
-            </>
-          )
-        },
-        {
-          num:"3",title:"제3자 정보 공유 - Google Adsense",
-          content:(
-            <>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:16}}>본 웹사이트는 광고 게재를 위해 <strong style={{color:"#E4E4E7"}}>Google Adsense</strong>를 사용합니다.</p>
-              <p style={{color:"#E4E4E7",fontWeight:600,marginBottom:8}}>Google Adsense 정보 수집</p>
-              <ul style={{color:"#A1A1AA",lineHeight:2,paddingLeft:20,marginBottom:16}}>
-                <li>Google은 이용자의 관심사 기반 광고 제공을 위해 쿠키를 사용합니다</li>
-                <li>수집되는 정보: 방문 기록, 클릭 기록, 기기 정보</li>
-                <li>Google 개인정보 처리방침: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{color:"#60A5FA"}}>https://policies.google.com/privacy</a></li>
-              </ul>
-              <p style={{color:"#E4E4E7",fontWeight:600,marginBottom:8}}>맞춤 광고 설정 변경</p>
-              <ul style={{color:"#A1A1AA",lineHeight:2,paddingLeft:20}}>
-                <li>Google 광고 설정: <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" style={{color:"#60A5FA"}}>https://www.google.com/settings/ads</a></li>
-                <li>네트워크 광고 거부: <a href="http://optout.aboutads.info" target="_blank" rel="noopener noreferrer" style={{color:"#60A5FA"}}>http://optout.aboutads.info</a></li>
-              </ul>
-            </>
-          )
-        },
-        {
-          num:"4",title:"개인정보의 보유 및 이용 기간",
-          content:(
-            <>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:12}}>자동으로 수집되는 정보는 서비스 제공 기간 동안 보유되며, 다음의 경우 즉시 파기됩니다:</p>
-              <ul style={{color:"#A1A1AA",lineHeight:2,paddingLeft:20}}>
-                <li>이용자가 쿠키 삭제를 요청한 경우</li>
-                <li>수집 및 이용 목적이 달성된 경우</li>
-                <li>법령에서 정한 보존 기간이 경과한 경우</li>
-              </ul>
-            </>
-          )
-        },
-        {
-          num:"5",title:"이용자의 권리",
-          content:(
-            <>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:12}}>이용자는 다음과 같은 권리를 가집니다:</p>
-              <ul style={{color:"#A1A1AA",lineHeight:2,paddingLeft:20}}>
-                <li>쿠키 설정 및 삭제 권한</li>
-                <li>광고 맞춤 설정 변경 권한</li>
-                <li>개인정보 처리에 대한 문의 및 불만 제기 권한</li>
-              </ul>
-            </>
-          )
-        },
-        {
-          num:"6",title:"개인정보 보호책임자",
-          content:(
-            <>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:16}}>개인정보 처리에 관한 문의사항이 있으시면 아래로 연락 주시기 바랍니다:</p>
-              <div style={{background:"rgba(59,130,246,0.08)",borderLeft:"4px solid #3B82F6",borderRadius:"0 8px 8px 0",padding:"16px 20px",display:"flex",flexDirection:"column",gap:8}}>
-                <p style={{margin:0,color:"#E4E4E7"}}><strong style={{color:"#60A5FA"}}>이메일:</strong> <a href="mailto:the@designer-kyungho.com" style={{color:"#A1A1AA",textDecoration:"none"}}>the@designer-kyungho.com</a></p>
-                <p style={{margin:0,color:"#E4E4E7"}}><strong style={{color:"#60A5FA"}}>웹사이트:</strong> <a href="https://cross-border-remittance-lookup.web.app/" style={{color:"#A1A1AA",textDecoration:"none"}}>cross-border-remittance-lookup.web.app</a></p>
-              </div>
-            </>
-          )
-        },
-        {
-          num:"7",title:"개인정보 보호정책 변경",
-          content:(
-            <>
-              <p style={{color:"#A1A1AA",lineHeight:1.8,marginBottom:16}}>본 개인정보 보호정책은 관련 법령, 정부 지침 또는 서비스 정책 변경에 따라 수정될 수 있습니다. 변경사항은 웹사이트를 통해 공지됩니다.</p>
-              <p style={{color:"#71717A",fontSize:13,textAlign:"right"}}>시행일자: 2026년 2월 18일</p>
-            </>
-          )
-        },
-      ].map(sec => (
-        <div key={sec.num} style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:12,padding:"24px",marginBottom:12}}>
-          <h2 style={{color:"#60A5FA",fontSize:"clamp(15px,4vw,17px)",fontWeight:700,marginBottom:16,paddingBottom:10,borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
-            {sec.num}. {sec.title}
-          </h2>
-          {sec.content}
-        </div>
-      ))}
-    </div>
-
-    {/* 푸터 */}
-    <div style={{borderTop:"1px solid rgba(255,255,255,0.04)",padding:"16px",textAlign:"center"}}>
-      <p style={{color:"#3F3F46",fontSize:12,margin:0}}>© 2026 해외송금 수수료 비교. All rights reserved.</p>
-      <button onClick={onBack} style={{marginTop:8,background:"none",border:"none",color:"#60A5FA",fontSize:13,cursor:"pointer",textDecoration:"underline"}}>홈으로 돌아가기</button>
-    </div>
-  </div>
-);
+export { ErrorBoundary };
 
 // ═══════════════════════════════════════════════════
 // MAIN APP
@@ -736,7 +53,7 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPop);
   }, []);
   const [cur, setCur] = useState("USD");
-  const [amount, setAmount] = useState(1000000); // 원화 기준 (100만원)
+  const [amount, setAmount] = useState(1000000);
   const [direction, setDirection] = useState("outbound");
   const [selectedYear, setSelectedYear] = useState("all");
   const [multiCur, setMultiCur] = useState(["USD","JPY","EUR"]);
@@ -747,12 +64,12 @@ export default function App() {
   const [lastUpdate, setLastUpdate] = useState(null);
   const [bizDayBlocked, setBizDayBlocked] = useState(false);
 
-  // Fee data from fee-data.json (updated Mon/Wed/Fri via Claude API + Web Search)
+  // Fee data from fee-data.json
   const [feeData, setFeeData] = useState(null);
   const [feeDataMeta, setFeeDataMeta] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Posts from Notion CMS (posts.json)
+  // Posts from Notion CMS
   const [posts, setPosts] = useState([]);
 
   const ci = CURRENCIES[cur];
@@ -761,10 +78,9 @@ export default function App() {
   const avg = hist.length ? Math.round(hist.reduce((a,b)=>a+b.r,0)/hist.length) : 0;
   const mn = hist.length ? Math.min(...hist.map(d=>d.r)) : 0;
   const mx = hist.length ? Math.max(...hist.map(d=>d.r)) : 0;
-  const pct = mx!==mn ? Math.round(((curRate-mn)/(mx-mn))*100) : 50;
 
   // ═══════════════════════════════════════════════════
-  // LOAD FEE DATA (fixed snapshots from GitHub Actions)
+  // LOAD FEE DATA
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     const loadFeeData = async () => {
@@ -794,7 +110,7 @@ export default function App() {
   }, []);
 
   // ═══════════════════════════════════════════════════
-  // LOAD POSTS (Notion CMS → posts.json)
+  // LOAD POSTS
   // ═══════════════════════════════════════════════════
   useEffect(() => {
     fetch("/posts.json?" + Date.now())
@@ -804,17 +120,15 @@ export default function App() {
   }, []);
 
   // ═══════════════════════════════════════════════════
-  // REAL-TIME EXCHANGE RATE (클라이언트에서 직접 호출)
-  // open.er-api.com: 무료, API키 불필요, 1일 1회 갱신
+  // REAL-TIME EXCHANGE RATE
   // ═══════════════════════════════════════════════════
   const [liveRates, setLiveRates] = useState(null);
   const [rateLoading, setRateLoading] = useState(false);
   const [rateFetchedAt, setRateFetchedAt] = useState(null);
-  const rateCacheRef = useRef(null); // 5분 캐시
+  const rateCacheRef = useRef(null);
 
   const fetchLiveRates = useCallback(async () => {
-    // 5분 캐시 — 불필요한 반복 호출 방지
-    if (rateCacheRef.current && (Date.now() - rateCacheRef.current.time < 5 * 60 * 1000)) {
+    if (rateCacheRef.current && (Date.now() - rateCacheRef.current.time < RATE_CACHE_TTL)) {
       setLiveRates(rateCacheRef.current.rates);
       setRateFetchedAt(new Date(rateCacheRef.current.time));
       return rateCacheRef.current.rates;
@@ -843,7 +157,6 @@ export default function App() {
     } catch (err) {
       console.warn("Live rate fetch failed:", err.message);
       setRateLoading(false);
-      // Fallback to fee-data.json rates
       if (feeData?.rates?.[cur]) {
         return { [cur]: feeData.rates[cur].midRate };
       }
@@ -858,103 +171,57 @@ export default function App() {
 
   const refreshData = useCallback(async () => {
     setFetchMode("loading");
-    setBizDayBlocked(!isBusinessDay()); // 차단이 아닌 상태 표시용
+    setBizDayBlocked(!isBusinessDay());
 
-    // 1. 수수료 데이터 (fee-data.json)에서 서비스 정보 확인
-    const curData = feeData?.rates?.[cur];
-    if (!curData?.services) {
-      setFetchMode("error");
-      return;
-    }
-
-    // 2. 실시간 환율 시도 → 실패 시 fee-data.json 환율 사용
-    let liveMid = null;
-    let rateSource = "fallback";
     try {
-      const rates = await fetchLiveRates();
-      if (rates?.[cur]) {
-        liveMid = rates[cur];
-        rateSource = "live";
-      }
-    } catch {}
+      const result = await fetchAllAndCompute(cur, amount);
 
-    // Fallback: fee-data.json의 midRate 사용
-    if (!liveMid) {
-      liveMid = curData.midRate;
-      rateSource = "cached";
-    }
-
-    if (!liveMid) {
-      setFetchMode("error");
-      return;
-    }
-
-    setMidRate(liveMid);
-
-    // 3. 실시간(또는 캐시) 환율 + 금액 구간별 수수료/스프레드로 appliedRate 재계산
-    const services = curData.services
-      .filter(s => s.supported)
-      .map(svc => {
-        // 금액 구간별 수수료/스프레드 찾기
-        let fee = 0;
-        let spread = 0;
-
-        if (svc.feeStructure && Array.isArray(svc.feeStructure)) {
-          // 새로운 구간별 구조
-          const bracket = svc.feeStructure.find(b => amount >= b.min && amount < b.max);
-          if (bracket) {
-            fee = bracket.fee;
-            spread = bracket.spread;
-          }
+      if (!result.midRate) {
+        // 폴백: fee-data.json 사용
+        const curData = feeData?.rates?.[cur];
+        if (curData?.midRate) {
+          setMidRate(curData.midRate);
+          const services = (curData.services || []).filter(s => s.supported).map(svc => ({
+            ...svc,
+            avail: SVC_AVAIL[svc.id] || { weekend: false, holiday: false, label: "확인필요", processNote: "" },
+            source: "fallback",
+          }));
+          services.sort((a, b) => (a.totalCost || Infinity) - (b.totalCost || Infinity));
+          setSvcSnapshot(services);
+          setLastUpdate(new Date());
+          setFetchMode("cached");
         } else {
-          // 기존 고정 수수료 구조 (하위 호환)
-          fee = svc.fee || 0;
-          spread = svc.spread || 0;
+          setFetchMode("error");
         }
+        return;
+      }
 
-        // 환율에 스프레드 적용 → 적용환율
-        const appliedRate = Math.round(liveMid * (1 + spread / 100));
-        const netKRW = amount - fee;
-        const foreignAmount = netKRW > 0 ? +(netKRW / appliedRate).toFixed(2) : 0;
-        const spreadCost = Math.round(amount * spread / 100);
-        const totalCost = fee + spreadCost;
+      setMidRate(result.midRate);
 
-        return {
-          id: svc.id,
-          name: svc.name,
-          kr: svc.kr,
-          fee,
-          spread,
-          appliedRate,
-          totalCost,
-          foreignAmount,
-          speed: svc.speed,
-          promotions: svc.promotions || "",
-          note: svc.note || "",
-          avail: SVC_AVAIL[svc.id] || { weekend: false, holiday: false, label: "확인필요", processNote: "" },
-        };
-      });
+      const services = result.services.map(svc => ({
+        ...svc,
+        avail: SVC_AVAIL[svc.id] || { weekend: false, holiday: false, label: "확인필요", processNote: "" },
+      }));
 
-    services.sort((a, b) => a.totalCost - b.totalCost);
-    setSvcSnapshot(services);
-    setLastUpdate(new Date());
-    setFetchMode(rateSource === "live" ? "live" : "cached");
-  }, [cur, amount, feeData, fetchLiveRates]);
+      setSvcSnapshot(services);
+      setLastUpdate(new Date());
+      setFetchMode(result.sources.midRate === "live" ? "live" : "cached");
+    } catch (err) {
+      console.warn("refreshData failed:", err.message);
+      setFetchMode("error");
+    }
+  }, [cur, amount, feeData]);
 
   const handleRefresh = () => {
     if (amount <= 0) return;
-
-    // GA4 이벤트: 실시간 비교 버튼 클릭
     trackEvent('compare_rates', {
       currency: cur,
       amount: amount,
       amount_category: amount < 1000000 ? 'under_1M' : amount < 5000000 ? '1M_5M' : amount < 10000000 ? '5M_10M' : 'over_10M'
     });
-
     refreshData();
   };
 
-  // 통화 또는 금액 변경 시 비교 상태 초기화
   useEffect(() => {
     setFetchMode("idle");
     setSvcSnapshot([]);
@@ -997,7 +264,6 @@ export default function App() {
 
   const curOptions = Object.entries(CURRENCIES);
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (curOpen) {
       document.body.style.overflow = 'hidden';
@@ -1009,9 +275,12 @@ export default function App() {
 
   const CurPicker = () => (
     <>
-      {/* Trigger Button */}
       <div
         onClick={() => setCurOpen(true)}
+        role="button"
+        aria-label="수취 통화 선택"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setCurOpen(true); }}
         style={{
           display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,cursor:"pointer",
           border: "1px solid rgba(255,255,255,0.08)",
@@ -1027,10 +296,12 @@ export default function App() {
         <span style={{color:"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>▼</span>
       </div>
 
-      {/* Modal */}
       {curOpen && (
         <div
           onClick={() => setCurOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="통화 선택"
           style={{
             position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9999,
             background:"rgba(0,0,0,0.7)",
@@ -1049,7 +320,6 @@ export default function App() {
               animation:"slideUp 0.3s ease-out",
             }}
           >
-            {/* Header */}
             <div style={{
               padding:"20px",
               borderBottom:"1px solid rgba(255,255,255,0.1)",
@@ -1062,6 +332,7 @@ export default function App() {
               </h3>
               <button
                 onClick={() => setCurOpen(false)}
+                aria-label="닫기"
                 style={{
                   background:"transparent",
                   border:"none",
@@ -1076,13 +347,14 @@ export default function App() {
               </button>
             </div>
 
-            {/* Currency List */}
             <div style={{overflowY:"auto",maxHeight:"calc(70vh - 80px)",WebkitOverflowScrolling:"touch"}}>
               {curOptions.map(([code, info]) => (
                 <div
                   key={code}
+                  role="option"
+                  aria-selected={cur === code}
+                  tabIndex={0}
                   onClick={() => {
-                    console.log("Currency selected:", code);
                     trackEvent('currency_change', {
                       from_currency: cur,
                       to_currency: code,
@@ -1090,6 +362,12 @@ export default function App() {
                     });
                     setCur(code);
                     setCurOpen(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setCur(code);
+                      setCurOpen(false);
+                    }
                   }}
                   style={{
                     display:"flex",alignItems:"center",gap:12,padding:"16px 20px",cursor:"pointer",
@@ -1127,13 +405,12 @@ export default function App() {
   );
 
   // ═══════════════════════════════════════════════════
-  // TAB: FAIR COMPARE (JSX variable — not a component, prevents remount)
+  // TAB: FAIR COMPARE
   // ═══════════════════════════════════════════════════
   const compareContent = (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      {/* Non-business day info */}
       {bizDayBlocked && svcSnapshot.length > 0 && (
-        <div style={{padding:"12px 16px",borderRadius:12,background:"rgba(245,158,11,0.05)",border:"1px solid rgba(245,158,11,0.12)"}}>
+        <div role="alert" style={{padding:"12px 16px",borderRadius:12,background:"rgba(245,158,11,0.05)",border:"1px solid rgba(245,158,11,0.12)"}}>
           <p style={{color:"#F59E0B",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:"0 0 4px"}}>
             📅 현재 {getNonBusinessReason()}
           </p>
@@ -1143,15 +420,12 @@ export default function App() {
         </div>
       )}
 
-      {/* Controls */}
       <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"14px 16px",border:"1px solid rgba(255,255,255,0.04)"}}>
-        {/* Currency */}
         <div style={{marginBottom:14}}>
           <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 수취 통화</span>
           <CurPicker />
         </div>
 
-        {/* Amount */}
         <div style={{marginBottom:14}}>
           <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:4}}>
             <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600}}>💰 송금 금액</span>
@@ -1166,7 +440,6 @@ export default function App() {
           <AmountInput amount={amount} setAmount={setAmount} />
         </div>
 
-        {/* Compare button */}
         <style>{`
           @keyframes web3Shimmer {
             0% { background-position: 0% 50%; }
@@ -1179,7 +452,7 @@ export default function App() {
           }
           .web3-btn:active:not(:disabled) { transform: scale(0.98); }
         `}</style>
-        <button className="web3-btn" onClick={handleRefresh} disabled={dataLoading || fetchMode==="loading"} style={{
+        <button className="web3-btn" onClick={handleRefresh} disabled={dataLoading || fetchMode==="loading"} aria-label="실시간 수수료 비교 시작" style={{
           width:"100%", padding:"16px", borderRadius:14,
           border: (dataLoading || fetchMode==="loading") ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(6,182,212,0.3)",
           cursor:(dataLoading || fetchMode==="loading")?"not-allowed":"pointer",
@@ -1206,9 +479,8 @@ export default function App() {
         </button>
       </div>
 
-      {/* Status bar — compact (only show when data is loaded or loading) */}
       {(fetchMode !== "idle" || svcSnapshot.length > 0) && (
-        <div style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",borderRadius:10,background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.03)",flexWrap:"wrap"}}>
+        <div role="status" style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",borderRadius:10,background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.03)",flexWrap:"wrap"}}>
           <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.5)}}`}</style>
           {fetchMode==="loading" && <div style={{width:8,height:8,borderRadius:"50%",background:"#3B82F6",animation:"pulse 2s infinite",flexShrink:0}} />}
           {fetchMode==="live" && <div style={{width:8,height:8,borderRadius:"50%",background:"#22C55E",flexShrink:0}} />}
@@ -1225,7 +497,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Service cards (mobile-first) */}
       {svcSnapshot.length > 0 ? (
         <>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -1239,7 +510,6 @@ export default function App() {
                   border: isTop ? "1px solid rgba(34,197,94,0.15)" : "1px solid rgba(255,255,255,0.04)",
                   opacity: unavailable ? 0.45 : 1,
                 }}>
-                  {/* Row 1: Rank + Name + Amount received */}
                   <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
                     <div style={{display:"flex",alignItems:"flex-start",gap:8,flex:1,minWidth:0}}>
                       <span style={{fontSize:"clamp(16px, 4.5vw, 18px)",flexShrink:0}}>{isTop?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}`}</span>
@@ -1266,7 +536,6 @@ export default function App() {
                       <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>실수령</p>
                     </div>
                   </div>
-                  {/* Row 2: Details */}
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                     <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",background:"rgba(255,255,255,0.03)",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
                       수수료 {s.fee===0?<span style={{color:"#22C55E"}}>무료</span>:`₩${s.fee.toLocaleString()}`}
@@ -1278,7 +547,6 @@ export default function App() {
                       {s.speed}
                     </span>
                   </div>
-                  {/* Promotions */}
                   {s.promotions && (
                     <p style={{color:"#F59E0B",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.4}}>🏷️ {s.promotions}</p>
                   )}
@@ -1287,7 +555,6 @@ export default function App() {
             })}
           </div>
 
-          {/* Savings highlight */}
           {svcSnapshot.length >= 2 && (
             <div style={{padding:"14px 16px",borderRadius:14,background:"rgba(34,197,94,0.04)",border:"1px solid rgba(34,197,94,0.1)"}}>
               <p style={{color:"#22C55E",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:0,lineHeight:1.5}}>
@@ -1299,7 +566,6 @@ export default function App() {
             </div>
           )}
 
-          {/* Chart */}
           <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"12px 10px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
             <p style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>실수령 비교 · ₩{amount.toLocaleString()} → {cur}</p>
             <ResponsiveContainer width="100%" height={Math.max(260, svcSnapshot.length * 40)} minWidth={300}>
@@ -1317,15 +583,8 @@ export default function App() {
             </ResponsiveContainer>
           </div>
 
-          {/* Ad Slot 1: After comparison results */}
-          <AdSenseAd
-            slot="1234567890"
-            format="auto"
-            responsive={true}
-            style={{ minHeight: 90 }}
-          />
+          <AdSenseAd slot="1234567890" format="auto" responsive={true} style={{ minHeight: 90 }} />
 
-          {/* Disclaimer — minimal */}
           <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.6,padding:"0 4px"}}>
             ※ 환율은 조회 시점 실시간, 수수료는 자동 갱신 기반. 실제 금액은 각 서비스에서 확인하세요. <span style={{color:"#3B82F6"}}>특정 서비스를 추천하지 않습니다.</span>
           </p>
@@ -1355,7 +614,7 @@ export default function App() {
         <div style={{display:"flex",gap:1,alignItems:"center",flexWrap:"wrap"}}>
           <div style={{flex:"1 1 100%",marginBottom:8}}><CurPicker/></div>
           {["all","2020","2021","2022","2023","2024","2025"].map(y=>(
-            <button key={y} onClick={()=>setSelectedYear(y)} style={{
+            <button key={y} onClick={()=>setSelectedYear(y)} aria-pressed={selectedYear===y} style={{
               padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
               background:selectedYear===y?"rgba(255,255,255,0.08)":"rgba(255,255,255,0.02)",
               color:selectedYear===y?"#fff":"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
@@ -1413,14 +672,7 @@ export default function App() {
             </ResponsiveContainer>
           </div>
         </div>
-
-        {/* Ad Slot 3: In History tab */}
-        <AdSenseAd
-          slot="1122334455"
-          format="auto"
-          responsive={true}
-          style={{ minHeight: 90 }}
-        />
+        <AdSenseAd slot="1122334455" format="auto" responsive={true} style={{ minHeight: 90 }} />
       </div>
     );
   };
@@ -1435,7 +687,7 @@ export default function App() {
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
           {["outbound","inbound"].map(d=>(
-            <button key={d} onClick={()=>setDirection(d)} style={{
+            <button key={d} onClick={()=>setDirection(d)} aria-pressed={direction===d} style={{
               padding:"10px 14px",borderRadius:12,border:"none",cursor:"pointer",
               background:direction===d?"rgba(255,255,255,0.08)":"rgba(255,255,255,0.02)",
               color:direction===d?"#fff":"#52525B",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
@@ -1491,9 +743,9 @@ export default function App() {
   // ═══════════════════════════════════════════════════
   const MultiTab = () => (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+      <div role="group" aria-label="통화 선택" style={{display:"flex",gap:4,flexWrap:"wrap"}}>
         {Object.entries(CURRENCIES).map(([code,info])=>(
-          <button key={code} onClick={()=>setMultiCur(prev=>prev.includes(code)?prev.filter(c=>c!==code):[...prev,code])} style={{
+          <button key={code} onClick={()=>setMultiCur(prev=>prev.includes(code)?prev.filter(c=>c!==code):[...prev,code])} aria-pressed={multiCur.includes(code)} style={{
             padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
             background:multiCur.includes(code)?"rgba(255,255,255,0.08)":"rgba(255,255,255,0.02)",
             color:multiCur.includes(code)?"#fff":"#52525B",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
@@ -1529,16 +781,13 @@ export default function App() {
         </table>
       </div>
 
-      {/* Ad Slot 2: In Multi Currency tab */}
-      <AdSenseAd
-        slot="0987654321"
-        format="auto"
-        responsive={true}
-        style={{ minHeight: 90 }}
-      />
+      <AdSenseAd slot="0987654321" format="auto" responsive={true} style={{ minHeight: 90 }} />
     </div>
   );
 
+  // ═══════════════════════════════════════════════════
+  // PAGE ROUTING
+  // ═══════════════════════════════════════════════════
   if (page === "about") {
     return <AboutPage onBack={() => navigate("/")} />;
   }
@@ -1555,6 +804,9 @@ export default function App() {
     return <BlogPostPage slug={route.slug} posts={posts} navigate={navigate} />;
   }
 
+  // ═══════════════════════════════════════════════════
+  // MAIN PAGE
+  // ═══════════════════════════════════════════════════
   return (
     <div style={{minHeight:"100vh",background:"#09090B",color:"#fff",fontFamily:"'Pretendard','JetBrains Mono',-apple-system,sans-serif",overflowX:"hidden"}}>
       <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -1570,30 +822,20 @@ export default function App() {
             </div>
             <button
               onClick={() => {
-                // PWA 설치 프롬프트 트리거
                 if (window.deferredPrompt) {
-                  // 즉시 설치 프롬프트 표시
                   window.deferredPrompt.prompt();
                   window.deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                       trackEvent('pwa_install_from_button', { source: 'header' });
-                      console.log('PWA 설치 완료');
-                    } else {
-                      console.log('PWA 설치 취소');
                     }
                     window.deferredPrompt = null;
                   });
                 } else {
-                  // deferredPrompt가 없는 경우
                   if (window.matchMedia('(display-mode: standalone)').matches) {
-                    // 이미 설치됨
                     alert('이미 앱으로 설치되어 있습니다! 🎉');
                   } else {
-                    // 브라우저가 PWA를 지원하지 않거나 이미 프롬프트가 소진됨
-                    // iOS는 항상 수동 설치만 가능
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
                     const isAndroid = /Android/.test(navigator.userAgent);
-
                     if (isIOS) {
                       alert('앱 설치는 모바일 브라우저에서 가능합니다.\n\niOS: 공유(□↑) → "홈 화면에 추가"');
                     } else if (isAndroid) {
@@ -1604,20 +846,14 @@ export default function App() {
                   }
                 }
               }}
+              aria-label="앱 다운로드"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 12px',
-                borderRadius: 8,
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 12px', borderRadius: 8,
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                background: 'transparent',
-                color: '#E4E4E7',
-                fontSize: 'clamp(14px, 3.5vw, 14px)',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap'
+                background: 'transparent', color: '#E4E4E7',
+                fontSize: 'clamp(14px, 3.5vw, 14px)', fontWeight: 600,
+                cursor: 'pointer', transition: 'all 0.2s', whiteSpace: 'nowrap'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
@@ -1631,18 +867,14 @@ export default function App() {
               📱 <span style={{display: window.innerWidth >= 400 ? 'inline' : 'none'}}>앱 </span>다운로드
             </button>
           </div>
-          <div style={{display:"flex",gap:2,overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none"}}>
+          <nav aria-label="메인 탭 네비게이션" style={{display:"flex",gap:2,overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none"}}>
             <style>{`
               .tab-container::-webkit-scrollbar { display: none; }
             `}</style>
-            <div className="tab-container" style={{display:"flex",gap:2,minWidth:"100%"}}>
+            <div className="tab-container" role="tablist" style={{display:"flex",gap:2,minWidth:"100%"}}>
               {tabs.map(t=>(
-                <button key={t.id} onClick={()=>{
-                  // GA4 이벤트: 탭 변경
-                  trackEvent('tab_change', {
-                    from_tab: tab,
-                    to_tab: t.id
-                  });
+                <button key={t.id} role="tab" aria-selected={tab===t.id} onClick={()=>{
+                  trackEvent('tab_change', { from_tab: tab, to_tab: t.id });
                   setTab(t.id);
                 }} style={{
                   padding:"10px 12px",borderRadius:"6px 6px 0 0",border:"none",cursor:"pointer",
@@ -1653,18 +885,17 @@ export default function App() {
                 }}>{t.icon} {t.label}</button>
               ))}
             </div>
-          </div>
+          </nav>
         </div>
       </div>
-      <div style={{maxWidth:1100,margin:"0 auto",padding:"14px 16px 32px"}}>
-        <div style={{display: tab==="compare" ? "block" : "none"}}>{compareContent}</div>
-        <div style={{display: tab==="rate" ? "block" : "none"}}><RateTab/></div>
-        <div style={{display: tab==="timing" ? "block" : "none"}}><TimingTab/></div>
-        <div style={{display: tab==="multi" ? "block" : "none"}}><MultiTab/></div>
-      </div>
-      {/* ═══ Notion Posts Section ═══ */}
+      <main style={{maxWidth:1100,margin:"0 auto",padding:"14px 16px 32px"}}>
+        <div role="tabpanel" style={{display: tab==="compare" ? "block" : "none"}}>{compareContent}</div>
+        <div role="tabpanel" style={{display: tab==="rate" ? "block" : "none"}}><RateTab/></div>
+        <div role="tabpanel" style={{display: tab==="timing" ? "block" : "none"}}><TimingTab/></div>
+        <div role="tabpanel" style={{display: tab==="multi" ? "block" : "none"}}><MultiTab/></div>
+      </main>
       {posts.length > 0 && (
-        <section style={{maxWidth:1100,margin:"0 auto",padding:"20px 16px 8px"}}>
+        <section aria-label="해외송금 인사이트" style={{maxWidth:1100,margin:"0 auto",padding:"20px 16px 8px"}}>
           <h2 style={{color:"#E4E4E7",fontSize:"clamp(15px,4vw,17px)",fontWeight:700,margin:"0 0 12px",display:"flex",alignItems:"center",gap:8}}>
             <span style={{fontSize:18}}>📝</span> 해외송금 인사이트
           </h2>
@@ -1690,7 +921,7 @@ export default function App() {
         </section>
       )}
 
-      <div style={{borderTop:"1px solid rgba(255,255,255,0.02)",padding:"12px 16px",textAlign:"center"}}>
+      <footer style={{borderTop:"1px solid rgba(255,255,255,0.02)",padding:"12px 16px",textAlign:"center"}}>
         <p style={{color:"#3F3F46",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ 환율 API + Wise 비교 API · 자동 갱신 · 운영비 $0</p>
         <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.5}}>
           문의: <a href="mailto:the@designer-kyungho.com" style={{color:"#71717A",textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#A1A1AA"} onMouseLeave={(e) => e.target.style.color="#71717A"}>the@designer-kyungho.com</a>
@@ -1700,7 +931,7 @@ export default function App() {
           <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#71717A"} onMouseLeave={(e) => e.target.style.color="#52525B"}>블로그</button>
           <button onClick={() => navigate("/privacy")} style={{background:"none",border:"none",color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#71717A"} onMouseLeave={(e) => e.target.style.color="#52525B"}>개인정보 보호정책</button>
         </p>
-      </div>
+      </footer>
     </div>
   );
 }
