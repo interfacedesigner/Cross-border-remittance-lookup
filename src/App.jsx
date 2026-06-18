@@ -618,11 +618,25 @@ export default function App() {
             </ResponsiveContainer>
           </div>
 
-          <AdSenseAd slot="1234567890" format="auto" responsive={true} style={{ minHeight: 90 }} />
+          <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"16px",border:"1px solid rgba(255,255,255,0.04)"}}>
+            <h3 style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>해외송금 수수료, 왜 서비스마다 다를까?</h3>
+            <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+              해외송금 비용은 크게 <strong style={{color:"#E4E4E7"}}>고정 수수료</strong>와 <strong style={{color:"#E4E4E7"}}>환율 스프레드(마진)</strong> 두 가지로 구성됩니다.
+              핀테크 서비스(Wise, 토스, 센트비 등)는 고정 수수료가 낮지만 환율 마진이 있고,
+              은행(하나, 신한)은 고정 수수료가 높지만 고액 송금 시 환율 우대를 받을 수 있습니다.
+            </p>
+            <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+              송금 금액에 따라 최적의 서비스가 달라집니다. 100만원 이하 소액은 수수료 무료 서비스가 유리하고,
+              500만원 이상 유학비 등 고액 송금은 스프레드가 낮은 서비스가 총 비용에서 유리합니다.
+              위 비교 결과의 <strong style={{color:"#E4E4E7"}}>"실수령"</strong> 금액이 수수료+스프레드를 모두 반영한 실제 수령액입니다.
+            </p>
+            <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+              본 비교는 각 서비스 공식 API와 공시 환율을 기반으로 하며, 특정 서비스를 추천하지 않습니다.
+              실제 송금 시 금액은 각 서비스에서 직접 확인하세요.
+            </p>
+          </div>
 
-          <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.6,padding:"0 4px"}}>
-            ※ 환율은 조회 시점 실시간, 수수료는 자동 갱신 기반. 실제 금액은 각 서비스에서 확인하세요. <span style={{color:"#3B82F6"}}>특정 서비스를 추천하지 않습니다.</span>
-          </p>
+          <AdSenseAd slot="1234567890" format="auto" responsive={true} style={{ minHeight: 90 }} />
         </>
       ) : (
         <div style={{textAlign:"center",padding:"40px 20px",color:"#52525B"}}>
@@ -847,6 +861,25 @@ export default function App() {
             </ResponsiveContainer>
           </div>
         </div>
+        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"16px",border:"1px solid rgba(255,255,255,0.04)"}}>
+          <h3 style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>환율 분석 활용 가이드</h3>
+          <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+            환율은 경제 상황, 금리 차이, 국제 무역 수지 등 다양한 요인에 의해 변동합니다.
+            위 차트의 <strong style={{color:"#EAB308"}}>노란 점선</strong>은 장기 평균을 나타내며,
+            현재 환율이 평균보다 낮으면 해외송금(원화→외화)에 유리하고,
+            평균보다 높으면 해외에서 돈을 받는(외화→원화) 데 유리합니다.
+          </p>
+          <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+            <strong style={{color:"#E4E4E7"}}>유학비·생활비 송금 타이밍:</strong>{" "}
+            급하지 않다면 환율이 평균 이하일 때 송금하는 것이 유리합니다.
+            반대로 해외 급여를 한국으로 보내는 경우, 환율이 평균 이상일 때가 더 많은 원화를 받을 수 있습니다.
+          </p>
+          <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+            환율 데이터는 ECB(유럽중앙은행) 공시 기준환율과 open.er-api.com의 중간시장 환율을 사용합니다.
+            과거 데이터가 미래 환율을 보장하지 않으며, 투자 조언이 아닙니다.
+          </p>
+        </div>
+
         <AdSenseAd slot="1122334455" format="auto" responsive={true} style={{ minHeight: 90 }} />
       </div>
     );
@@ -1053,6 +1086,23 @@ export default function App() {
             return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(14px, 3.5vw, 14px)"}}>{info.flag}</span> <span style={{color:"#D4D4D8",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{code}</span></td><td style={{color:"#fff",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,padding:"8px 7px",fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:"#A1A1AA",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:"#3B82F6",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:"#EF4444",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?"#EF4444":"#22C55E",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{sg.i} {sg.s}</span></td></tr>);
           })}</tbody>
         </table>
+      </div>
+
+      <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"16px",border:"1px solid rgba(255,255,255,0.04)"}}>
+        <h3 style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>다중 통화 분석이란?</h3>
+        <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+          위 정규화 지수(2020년 1월 = 100)는 각 통화가 원화 대비 얼마나 강세/약세로 움직였는지를 한눈에 보여줍니다.
+          지수가 100 이상이면 2020년 초 대비 원화가 약세(해외송금 비용 증가), 100 미만이면 원화가 강세(해외송금 비용 감소)입니다.
+        </p>
+        <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+          <strong style={{color:"#E4E4E7"}}>활용 예시:</strong>{" "}
+          미국과 일본에 동시에 송금해야 하는 경우, USD 지수는 높은데 JPY 지수가 낮다면
+          일본 송금을 먼저 하고 미국 송금은 환율이 내려올 때 하는 전략을 세울 수 있습니다.
+          편차(%) 값이 클수록 현재 환율이 장기 평균에서 많이 벗어나 있다는 의미입니다.
+        </p>
+        <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+          모든 데이터는 정보 제공 목적이며, 환율 예측이나 투자 권유가 아닙니다.
+        </p>
       </div>
 
       <AdSenseAd slot="0987654321" format="auto" responsive={true} style={{ minHeight: 90 }} />
