@@ -285,6 +285,51 @@ async function main() {
       if (i < pages.length - 1) await sleep(400);
     }
 
+    // ── slug 중복 해소: 날짜 접미사 추가 ──
+    const slugCount = {};
+    for (const post of posts) {
+      if (!post.slug) continue;
+      if (!slugCount[post.slug]) {
+        slugCount[post.slug] = 0;
+      }
+      slugCount[post.slug]++;
+      if (slugCount[post.slug] > 1 && post.date) {
+        // 날짜 기반 고유 slug 생성 (예: overseas-remittance-fee-comparison-2026-06-09)
+        post.slug = `${post.slug}-${post.date}`;
+      }
+    }
+    // 첫 번째 slug도 중복이면 날짜 추가 (2개 이상 중복 시)
+    const slugSet = new Set();
+    for (const post of posts) {
+      if (slugSet.has(post.slug) && post.date) {
+        post.slug = `${post.slug}-${post.date}`;
+      }
+      slugSet.add(post.slug);
+    }
+    const uniqueSlugs = new Set(posts.map(p => p.slug));
+    console.log(`  🔗 Slugs: ${posts.length} posts → ${uniqueSlugs.size} unique slugs`);
+    if (uniqueSlugs.size < posts.length) {
+      console.warn(`  ⚠️ ${posts.length - uniqueSlugs.size} slug collisions remain (using page ID fallback)`);
+      // 최종 폴백: 여전히 중복이면 ID 사용
+      const finalSet = new Set();
+      for (const post of posts) {
+        if (finalSet.has(post.slug)) {
+          post.slug = `${post.slug}-${post.id.slice(0, 8)}`;
+        }
+        finalSet.add(post.slug);
+      }
+    }
+
+    // ── 품질 경고: 2000자 미만 포스트 ──
+    const shortPosts = posts.filter(p => {
+      const plainLen = (p.contentHtml || "").replace(/<[^>]*>/g, "").length;
+      return plainLen > 0 && plainLen < 2000;
+    });
+    if (shortPosts.length > 0) {
+      console.warn(`  ⚠️ ${shortPosts.length} post(s) under 2000 chars:`);
+      shortPosts.forEach(p => console.warn(`    - "${p.title.slice(0, 40)}..." (${(p.contentHtml || "").replace(/<[^>]*>/g, "").length} chars)`));
+    }
+
     const output = {
       updatedAt: new Date().toISOString(),
       posts,

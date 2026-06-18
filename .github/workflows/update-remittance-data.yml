@@ -45,7 +45,18 @@ jobs:
         continue-on-error: true
 
       # ═══════════════════════════════════════
-      # Step 2: 시장 컨텍스트 분석
+      # Step 2: histData.js 월별 환율 자동 갱신
+      # ═══════════════════════════════════════
+      - name: Update historical rate data
+        id: hist
+        run: |
+          echo "📈 Updating monthly historical rates..."
+          node scripts/update-hist-data.mjs
+          echo "hist_status=success" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      # ═══════════════════════════════════════
+      # Step 3: 시장 컨텍스트 분석
       # ═══════════════════════════════════════
       - name: Generate market context
         id: market
@@ -56,7 +67,7 @@ jobs:
         continue-on-error: true
 
       # ═══════════════════════════════════════
-      # Step 3: AI 블로그 포스트 생성 (시장 분석 기반)
+      # Step 4: AI 블로그 포스트 생성 (시장 분석 기반)
       # ═══════════════════════════════════════
       - name: Generate AI blog post (market-driven)
         if: steps.market.outputs.market_status == 'success'
@@ -70,7 +81,7 @@ jobs:
         continue-on-error: true
 
       # ═══════════════════════════════════════
-      # Step 4: Notion → posts.json 동기화
+      # Step 5: Notion → posts.json 동기화
       # ═══════════════════════════════════════
       - name: Sync posts from Notion
         run: node scripts/update-posts.mjs
@@ -80,17 +91,20 @@ jobs:
         continue-on-error: true
 
       # ═══════════════════════════════════════
-      # Step 5: 변경사항 커밋 & 배포
+      # Step 6: 변경사항 커밋 & 배포
       # ═══════════════════════════════════════
       - name: Check for data changes
         id: changes
         run: |
-          if git diff --quiet public/fee-data.json public/posts.json; then
+          if git diff --quiet public/fee-data.json public/posts.json src/utils/histData.js; then
             echo "No changes detected"
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "Data changed, will commit and deploy"
             echo "changed=true" >> $GITHUB_OUTPUT
+            # 변경 요약
+            echo "--- Change Summary ---"
+            git diff --stat public/fee-data.json public/posts.json src/utils/histData.js
           fi
 
       - name: Commit updated data
@@ -98,10 +112,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/fee-data.json public/posts.json public/sitemap.xml
+          git add public/fee-data.json public/posts.json public/sitemap.xml src/utils/histData.js
           git commit -m "chore: update remittance data - $(date -u +'%Y-%m-%d %H:%M UTC')
 
-          Auto-updated exchange rates, fees, and blog content
+          Auto-updated exchange rates, fees, historical data, and blog content
+          - fee-data: $([ -n "$(git diff --cached --name-only public/fee-data.json)" ] && echo 'updated' || echo 'unchanged')
+          - histData: $([ -n "$(git diff --cached --name-only src/utils/histData.js)" ] && echo 'updated' || echo 'unchanged')
+          - posts: $([ -n "$(git diff --cached --name-only public/posts.json)" ] && echo 'updated' || echo 'unchanged')
 
           Co-Authored-By: GitHub Actions <github-actions[bot]@users.noreply.github.com>"
           git push
@@ -122,7 +139,7 @@ jobs:
           channelId: live
 
       # ═══════════════════════════════════════
-      # Step 6: fixed-fees 경과 알림
+      # Step 7: fixed-fees 경과 알림
       # ═══════════════════════════════════════
       - name: Check fixed-fees staleness
         run: |
@@ -156,7 +173,23 @@ jobs:
         continue-on-error: true
 
       # ═══════════════════════════════════════
-      # Step 7: 실패 시 알림
+      # Step 8: 파이프라인 상태 리포트
+      # ═══════════════════════════════════════
+      - name: Pipeline status report
+        if: always()
+        run: |
+          echo "═══════════════════════════════════════"
+          echo "📋 PIPELINE STATUS REPORT"
+          echo "═══════════════════════════════════════"
+          echo "Fee data update: ${{ steps.update.outputs.update_status || 'failed' }}"
+          echo "Hist data update: ${{ steps.hist.outputs.hist_status || 'failed' }}"
+          echo "Market context:   ${{ steps.market.outputs.market_status || 'failed' }}"
+          echo "Data changed:     ${{ steps.changes.outputs.changed || 'unknown' }}"
+          echo "Fixed-fees age:   ${{ steps.fixed_fees.outputs.days_old || '?' }} days"
+          echo "═══════════════════════════════════════"
+
+      # ═══════════════════════════════════════
+      # Step 9: 실패 시 알림
       # ═══════════════════════════════════════
       - name: Create issue on failure
         if: failure()
@@ -167,6 +200,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: '⚠️ Daily Update Failed - ' + new Date().toISOString().split('T')[0],
-              body: `## Update Failure Report\n\n**Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n**Time:** ${new Date().toISOString()}\n\nCheck workflow logs.`,
+              body: `## Update Failure Report\n\n**Run:** ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}\n**Time:** ${new Date().toISOString()}\n\n### Step Results\n- Fee update: ${{ steps.update.outputs.update_status || 'FAILED' }}\n- Hist update: ${{ steps.hist.outputs.hist_status || 'FAILED' }}\n- Market context: ${{ steps.market.outputs.market_status || 'FAILED' }}\n\nCheck workflow logs for details.`,
               labels: ['automation', 'bug']
             })

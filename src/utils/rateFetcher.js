@@ -15,6 +15,75 @@ const WORKER_URL = import.meta.env.VITE_WORKER_URL || "";
 const SEND_AMOUNTS = [300000, 1000000, 3000000, 5000000, 10000000];
 
 // ═══════════════════════════════════════════════
+// 일별 환율 히스토리 (최근 3개월)
+// 우선순위: Worker API → Frankfurter (ECB) → 실패
+// ═══════════════════════════════════════════════
+let dailyHistCache = {};
+
+async function fetchFromWorkerHistory(currencyCode, days) {
+  if (!WORKER_URL) return null;
+  const resp = await fetch(
+    `${WORKER_URL}/api/history?currency=${currencyCode}&days=${days}`,
+    { signal: AbortSignal.timeout(5000) }
+  );
+  if (!resp.ok) return null;
+  const json = await resp.json();
+  return json.data?.length > 0 ? json.data : null;
+}
+
+async function fetchFromFrankfurter(currencyCode, months) {
+  const end = new Date();
+  const start = new Date();
+  start.setMonth(start.getMonth() - months);
+  const fmt = d => d.toISOString().slice(0, 10);
+
+  const unit = CURRENCIES[currencyCode]?.unit || 1;
+  const resp = await fetch(
+    `https://api.frankfurter.dev/${fmt(start)}..${fmt(end)}?from=${currencyCode}&to=KRW`
+  );
+  if (!resp.ok) throw new Error("Frankfurter HTTP " + resp.status);
+  const data = await resp.json();
+
+  return Object.entries(data.rates)
+    .map(([date, rates]) => ({
+      d: date,
+      r: Math.round(rates.KRW * unit),
+    }))
+    .sort((a, b) => a.d.localeCompare(b.d));
+}
+
+export async function fetchDailyHistory(currencyCode, months = 3) {
+  const cacheKey = `${currencyCode}_${months}`;
+  if (dailyHistCache[cacheKey] && Date.now() - dailyHistCache[cacheKey].time < 30 * 60 * 1000) {
+    return dailyHistCache[cacheKey].data;
+  }
+
+  const days = months * 31;
+  let result = null;
+
+  // 1차: Worker 히스토리 API (자체 KV 데이터)
+  try {
+    result = await fetchFromWorkerHistory(currencyCode, days);
+    if (result) console.log(`[dailyHistory] Worker: ${result.length} days`);
+  } catch { /* fallthrough */ }
+
+  // 2차: Frankfurter (ECB 기준환율)
+  if (!result) {
+    try {
+      result = await fetchFromFrankfurter(currencyCode, months);
+      if (result) console.log(`[dailyHistory] Frankfurter: ${result.length} days`);
+    } catch { /* fallthrough */ }
+  }
+
+  if (!result || result.length === 0) {
+    throw new Error("All daily history sources failed");
+  }
+
+  dailyHistCache[cacheKey] = { data: result, time: Date.now() };
+  return result;
+}
+
+// ═══════════════════════════════════════════════
 // Caches
 // ═══════════════════════════════════════════════
 let midRateCache = { rates: null, time: 0 };

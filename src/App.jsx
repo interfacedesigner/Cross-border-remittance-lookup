@@ -18,7 +18,7 @@ import { CURRENCIES, SVC_AVAIL } from "./utils/constants";
 import { HIST } from "./utils/histData";
 import { isBusinessDay, getNonBusinessReason } from "./utils/dateUtils";
 import { RATE_CACHE_TTL } from "./styles/theme";
-import { fetchAllAndCompute, fetchMidRates, fetchWorkerRates, loadFeePolicies } from "./utils/rateFetcher";
+import { fetchAllAndCompute, fetchMidRates, fetchWorkerRates, loadFeePolicies, fetchDailyHistory } from "./utils/rateFetcher";
 
 export { ErrorBoundary };
 
@@ -78,6 +78,10 @@ export default function App() {
   const avg = hist.length ? Math.round(hist.reduce((a,b)=>a+b.r,0)/hist.length) : 0;
   const mn = hist.length ? Math.min(...hist.map(d=>d.r)) : 0;
   const mx = hist.length ? Math.max(...hist.map(d=>d.r)) : 0;
+  const recentHist = hist.slice(-12);
+  const recent1YAvg = recentHist.length ? Math.round(recentHist.reduce((a,b)=>a+b.r,0)/recentHist.length) : 0;
+  const recent1YMin = recentHist.length ? Math.min(...recentHist.map(d=>d.r)) : 0;
+  const recent1YMax = recentHist.length ? Math.max(...recentHist.map(d=>d.r)) : 0;
 
   // ═══════════════════════════════════════════════════
   // LOAD FEE DATA
@@ -240,13 +244,44 @@ export default function App() {
     if(r>=a) return {s:"수취 적기",c:"#3B82F6",i:"🔵"};
     return {s:"대기 권장",c:"#EF4444",i:"🔴"};
   };
-  const sig = getSignal(curRate, avg);
+  const sig = getSignal(curRate, recent1YAvg);
 
   const seasonalData = useMemo(() => {
     const months = Array.from({length:12},(_,i)=>({m:i+1,label:`${i+1}월`,rates:[]}));
     hist.forEach(d=>{months[parseInt(d.d.split("-")[1])-1].rates.push(d.r);});
     return months.map(m=>({...m,avg:m.rates.length?Math.round(m.rates.reduce((a,b)=>a+b,0)/m.rates.length):0,min:m.rates.length?Math.min(...m.rates):0,max:m.rates.length?Math.max(...m.rates):0}));
   }, [hist]);
+
+  const recentSeasonalData = useMemo(() => {
+    const months = Array.from({length:12},(_,i)=>({m:i+1,label:`${i+1}월`,rate:null,change:null}));
+    recentHist.forEach(d=>{
+      const mi = parseInt(d.d.split("-")[1])-1;
+      months[mi].rate = d.r;
+    });
+    // 전월 대비 변화율 계산
+    for(let i=0;i<recentHist.length;i++){
+      if(i>0){
+        const mi = parseInt(recentHist[i].d.split("-")[1])-1;
+        const prev = recentHist[i-1].r;
+        months[mi].change = Math.round((recentHist[i].r - prev)/prev*10000)/100;
+      }
+    }
+    return months;
+  }, [recentHist]);
+
+  const recentTrend = useMemo(() => {
+    if(recentHist.length<2) return {direction:"flat",pct:0};
+    const first = recentHist[0].r, last = recentHist[recentHist.length-1].r;
+    const pct = Math.round((last-first)/first*10000)/100;
+    return {direction:pct>0?"up":pct<0?"down":"flat",pct};
+  }, [recentHist]);
+
+  const percentilePos = useMemo(() => {
+    if(!recentHist.length) return 50;
+    const sorted = [...recentHist].map(d=>d.r).sort((a,b)=>a-b);
+    const below = sorted.filter(r=>r<curRate).length;
+    return Math.round(below/sorted.length*100);
+  }, [recentHist, curRate]);
 
   const filteredHist = selectedYear==="all" ? hist : hist.filter(d=>d.d.startsWith(selectedYear));
 
@@ -600,11 +635,41 @@ export default function App() {
     </div>
   );
 
+  // ── 최근 3개월 일별 데이터 ──
+  const [dailyData, setDailyData] = useState([]);
+  const [dailyLoading, setDailyLoading] = useState(false);
+  const [dailyError, setDailyError] = useState(null);
+  const [dailyPeriod, setDailyPeriod] = useState(3);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDailyLoading(true);
+    setDailyError(null);
+    fetchDailyHistory(cur, dailyPeriod)
+      .then(data => { if (!cancelled) setDailyData(data); })
+      .catch(err => { if (!cancelled) setDailyError(err.message); })
+      .finally(() => { if (!cancelled) setDailyLoading(false); });
+    return () => { cancelled = true; };
+  }, [cur, dailyPeriod]);
+
+  const dailyStats = useMemo(() => {
+    if (!dailyData.length) return null;
+    const rates = dailyData.map(d => d.r);
+    const hi = Math.max(...rates);
+    const lo = Math.min(...rates);
+    const latest = rates[rates.length - 1];
+    const first = rates[0];
+    const chg = ((latest - first) / first * 100).toFixed(2);
+    const avg3m = Math.round(rates.reduce((a, b) => a + b, 0) / rates.length);
+    const pos = hi !== lo ? Math.round((latest - lo) / (hi - lo) * 100) : 50;
+    return { hi, lo, latest, first, chg, avg3m, pos };
+  }, [dailyData]);
+
   // ═══════════════════════════════════════════════════
   // TAB: RATE ANALYSIS
   // ═══════════════════════════════════════════════════
   const RateTab = () => {
-    const yearly = useMemo(()=>[2020,2021,2022,2023,2024,2025].map(y=>{
+    const yearly = useMemo(()=>[2020,2021,2022,2023,2024,2025,2026].map(y=>{
       const yd=hist.filter(d=>d.d.startsWith(String(y)));const rs=yd.map(d=>d.r);
       return{year:y,avg:rs.length?Math.round(rs.reduce((a,b)=>a+b,0)/rs.length):0,min:rs.length?Math.min(...rs):0,max:rs.length?Math.max(...rs):0,vol:rs.length?Math.max(...rs)-Math.min(...rs):0,chg:rs.length>1?((rs[rs.length-1]-rs[0])/rs[0]*100).toFixed(1):"0"};
     }),[hist]);
@@ -613,7 +678,116 @@ export default function App() {
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div style={{display:"flex",gap:1,alignItems:"center",flexWrap:"wrap"}}>
           <div style={{flex:"1 1 100%",marginBottom:8}}><CurPicker/></div>
-          {["all","2020","2021","2022","2023","2024","2025"].map(y=>(
+        </div>
+
+        {/* ── 최근 3개월 일별 추이 ── */}
+        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:14,padding:"14px 12px",border:"1px solid rgba(255,255,255,0.06)"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:8}}>
+            <p style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:0}}>
+              📊 최근 일별 환율 추이
+            </p>
+            <div style={{display:"flex",gap:4}}>
+              {[{v:1,l:"1개월"},{v:2,l:"2개월"},{v:3,l:"3개월"}].map(p=>(
+                <button key={p.v} onClick={()=>setDailyPeriod(p.v)} aria-pressed={dailyPeriod===p.v} style={{
+                  padding:"6px 10px",borderRadius:8,border:"none",cursor:"pointer",
+                  background:dailyPeriod===p.v?"rgba(255,255,255,0.1)":"rgba(255,255,255,0.02)",
+                  color:dailyPeriod===p.v?"#fff":"#52525B",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
+                  minHeight:32,
+                }}>{p.l}</button>
+              ))}
+            </div>
+          </div>
+
+          {dailyLoading ? (
+            <div style={{textAlign:"center",padding:"40px 0"}}>
+              <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+              <div style={{width:24,height:24,border:"2px solid rgba(255,255,255,0.1)",borderTop:`2px solid ${ci.color}`,borderRadius:"50%",animation:"spin 0.8s linear infinite",margin:"0 auto 12px"}} />
+              <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>일별 환율 조회 중...</p>
+            </div>
+          ) : dailyError ? (
+            <div style={{textAlign:"center",padding:"30px 0"}}>
+              <p style={{color:"#71717A",fontSize:"clamp(12px, 3vw, 13px)",margin:0,lineHeight:1.5}}>
+                일별 데이터를 불러올 수 없습니다<br/>
+                <span style={{color:"#52525B",fontSize:"clamp(11px, 2.8vw, 12px)"}}>아래 월별 차트를 참고해 주세요</span>
+              </p>
+            </div>
+          ) : dailyData.length > 0 && dailyStats ? (
+            <>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:6,marginBottom:12}}>
+                {[
+                  {l:"최고",v:`₩${dailyStats.hi.toLocaleString()}`,c:"#EF4444"},
+                  {l:"최저",v:`₩${dailyStats.lo.toLocaleString()}`,c:"#3B82F6"},
+                  {l:"평균",v:`₩${dailyStats.avg3m.toLocaleString()}`,c:"#A1A1AA"},
+                  {l:"변동",v:`${parseFloat(dailyStats.chg)>0?"+":""}${dailyStats.chg}%`,c:parseFloat(dailyStats.chg)>0?"#EF4444":"#22C55E"},
+                ].map((s,i)=>(
+                  <div key={i} style={{background:"rgba(255,255,255,0.02)",borderRadius:8,padding:"8px 6px",textAlign:"center"}}>
+                    <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{s.l}</p>
+                    <p style={{color:s.c,fontSize:"clamp(12px, 3.2vw, 14px)",fontWeight:700,margin:"2px 0 0",fontFamily:"'JetBrains Mono',monospace"}}>{s.v}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{marginBottom:12,padding:"0 4px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                  <span style={{color:"#3B82F6",fontSize:"clamp(10px, 2.5vw, 11px)"}}>저점 ₩{dailyStats.lo.toLocaleString()}</span>
+                  <span style={{color:"#EF4444",fontSize:"clamp(10px, 2.5vw, 11px)"}}>고점 ₩{dailyStats.hi.toLocaleString()}</span>
+                </div>
+                <div style={{position:"relative",height:6,background:"rgba(255,255,255,0.06)",borderRadius:3}}>
+                  <div style={{
+                    position:"absolute",top:0,left:0,height:"100%",borderRadius:3,
+                    width:`${dailyStats.pos}%`,
+                    background:`linear-gradient(90deg, #3B82F6, ${ci.color})`,
+                  }} />
+                  <div style={{
+                    position:"absolute",top:-3,
+                    left:`calc(${dailyStats.pos}% - 6px)`,
+                    width:12,height:12,borderRadius:"50%",
+                    background:ci.color,border:"2px solid #09090B",
+                  }} />
+                </div>
+                <p style={{color:"#A1A1AA",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"6px 0 0",textAlign:"center"}}>
+                  현재 ₩{dailyStats.latest.toLocaleString()} · 범위 내 {dailyStats.pos}% 위치
+                </p>
+              </div>
+
+              <div style={{overflowX:"auto"}}>
+                <ResponsiveContainer width="100%" height={260} minWidth={300}>
+                  <AreaChart data={dailyData} margin={{left:0,right:10,top:5,bottom:5}}>
+                    <defs>
+                      <linearGradient id="dailyGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={ci.color} stopOpacity={0.2}/>
+                        <stop offset="100%" stopColor={ci.color} stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)"/>
+                    <XAxis
+                      dataKey="d"
+                      tick={{fill:"#52525B",fontSize:"clamp(10px, 2.2vw, 11px)"}}
+                      tickFormatter={v => {const p=v.split("-"); return `${parseInt(p[1])}/${parseInt(p[2])}`;}}
+                      interval={dailyPeriod===1?4:dailyPeriod===2?9:14}
+                    />
+                    <YAxis
+                      tick={{fill:"#52525B",fontSize:"clamp(10px, 2.2vw, 11px)"}}
+                      domain={["dataMin-5","dataMax+5"]}
+                      tickFormatter={v=>`₩${v.toLocaleString()}`}
+                    />
+                    <Tooltip content={<CTooltip/>}/>
+                    <ReferenceLine y={dailyStats.avg3m} stroke="#EAB308" strokeDasharray="4 4" label={{value:"평균",fill:"#EAB308",fontSize:10,position:"right"}}/>
+                    <Area type="monotone" dataKey="r" stroke={ci.color} fill="url(#dailyGrad)" strokeWidth={2} name={`${ci.flag} ${cur}/KRW`} dot={false} activeDot={{r:4,fill:ci.color,stroke:"#09090B",strokeWidth:2}}/>
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"8px 0 0",textAlign:"right"}}>
+                출처: ECB 기준환율 · 영업일 기준 · {dailyData.length}일 데이터
+              </p>
+            </>
+          ) : null}
+        </div>
+
+        {/* ── 장기 분석 ── */}
+        <div style={{display:"flex",gap:1,alignItems:"center",flexWrap:"wrap"}}>
+          {["all","2020","2021","2022","2023","2024","2025","2026"].map(y=>(
             <button key={y} onClick={()=>setSelectedYear(y)} aria-pressed={selectedYear===y} style={{
               padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
               background:selectedYear===y?"rgba(255,255,255,0.08)":"rgba(255,255,255,0.02)",
@@ -623,7 +797,7 @@ export default function App() {
           ))}
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)",gap:8}}>
-          {[{l:"현재",v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:"5년 평균",v:`₩${avg.toLocaleString()}`,a:"#3B82F6"},{l:"최저/최고",v:`${mn}~${mx}`,a:"#EAB308"},{l:"시그널",v:sig.s,a:sig.c}].map((k,i)=>(
+          {[{l:"현재",v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:"평균",v:`₩${avg.toLocaleString()}`,a:"#3B82F6"},{l:"최저/최고",v:`${mn}~${mx}`,a:"#EAB308"},{l:"시그널",v:sig.s,a:sig.c}].map((k,i)=>(
             <div key={i} style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"12px",border:"1px solid rgba(255,255,255,0.04)",borderTop:`2px solid ${k.a}`}}>
               <p style={{color:"#52525B",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{k.l}</p>
               <p style={{color:"#fff",fontSize:"clamp(15px, 4.5vw, 18px)",fontWeight:700,margin:"4px 0 0",fontFamily:"'JetBrains Mono',sans-serif",wordBreak:"break-word"}}>{k.v}</p>
@@ -631,6 +805,7 @@ export default function App() {
           ))}
         </div>
         <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
+          <p style={{color:"#71717A",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>월별 장기 추이</p>
           <ResponsiveContainer width="100%" height={280} minWidth={300}>
             <AreaChart data={filteredHist} margin={{left:0,right:10,top:5,bottom:5}}>
               <defs><linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={ci.color} stopOpacity={0.15}/><stop offset="100%" stopColor={ci.color} stopOpacity={0}/></linearGradient></defs>
@@ -681,8 +856,12 @@ export default function App() {
   // TAB: TIMING
   // ═══════════════════════════════════════════════════
   const TimingTab = () => {
-    const bestSend=[...seasonalData].sort((a,b)=>a.avg-b.avg).slice(0,3);
-    const bestRecv=[...seasonalData].sort((a,b)=>b.avg-a.avg).slice(0,3);
+    const recentWithRate = recentSeasonalData.filter(m=>m.rate!==null);
+    const bestSendRecent=[...recentWithRate].sort((a,b)=>a.rate-b.rate).slice(0,3);
+    const bestRecvRecent=[...recentWithRate].sort((a,b)=>b.rate-a.rate).slice(0,3);
+    const trendColor = recentTrend.pct>0?"#EF4444":recentTrend.pct<0?"#22C55E":"#71717A";
+    const trendArrow = recentTrend.pct>0?"↑":recentTrend.pct<0?"↓":"→";
+    const periodLabel = recentHist.length>=2 ? `${recentHist[0].d} ~ ${recentHist[recentHist.length-1].d}` : "";
     return (
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
@@ -696,43 +875,138 @@ export default function App() {
           ))}
           <div style={{flex:"1 1 100%",marginTop:8}}><CurPicker/></div>
         </div>
-        <div style={{padding:"12px 14px",borderRadius:10,background:`${sig.c}08`,border:`1px solid ${sig.c}12`,display:"flex",alignItems:"center",gap:10}}>
-          <span style={{fontSize:"clamp(24px, 7vw, 28px)",flexShrink:0}}>{sig.i}</span>
-          <div style={{minWidth:0}}>
-            <p style={{color:sig.c,margin:0,fontSize:"clamp(16px, 4.5vw, 18px)",fontWeight:800}}>{sig.s}</p>
-            <p style={{color:"#71717A",margin:"2px 0 0",fontSize:"clamp(12px, 3vw, 12px)",lineHeight:1.4}}>{ci.flag} {cur} · ₩{curRate.toLocaleString()} · 평균 ₩{avg.toLocaleString()}</p>
+
+        {/* 시그널 카드 - 1년 기준 */}
+        <div style={{padding:"14px 16px",borderRadius:12,background:`${sig.c}08`,border:`1px solid ${sig.c}18`,display:"flex",alignItems:"center",gap:12}}>
+          <span style={{fontSize:"clamp(28px, 8vw, 32px)",flexShrink:0}}>{sig.i}</span>
+          <div style={{minWidth:0,flex:1}}>
+            <p style={{color:sig.c,margin:0,fontSize:"clamp(18px, 5vw, 20px)",fontWeight:800}}>{sig.s}</p>
+            <p style={{color:"#71717A",margin:"2px 0 0",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.4}}>
+              {ci.flag} {cur} 현재 ₩{curRate.toLocaleString()} · 1년 평균 ₩{recent1YAvg.toLocaleString()}
+            </p>
           </div>
         </div>
-        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)",overflowX:"auto"}}>
-          <ResponsiveContainer width="100%" height={240} minWidth={300}>
-            <ComposedChart data={seasonalData} margin={{left:0,right:10,top:5,bottom:5}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)"/>
-              <XAxis dataKey="label" tick={{fill:"#52525B",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
-              <YAxis tick={{fill:"#52525B",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-10","dataMax+10"]}/>
-              <Tooltip content={<CTooltip/>}/>
-              <Bar dataKey="avg" name="월별 평균" radius={[2,2,0,0]}>{seasonalData.map((e,i)=>{
-                const isBest=direction==="outbound"?bestSend.some(m=>m.m===e.m):bestRecv.some(m=>m.m===e.m);
-                return <Cell key={i} fill={isBest?"rgba(255,255,255,0.12)":"rgba(255,255,255,0.04)"}/>;
-              })}</Bar>
-              <Line type="monotone" dataKey="max" stroke="#EF4444" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최고"/>
-              <Line type="monotone" dataKey="min" stroke="#3B82F6" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최저"/>
-              <ReferenceLine y={avg} stroke="#EAB308" strokeDasharray="3 3"/>
-              <Legend wrapperStyle={{fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
-            </ComposedChart>
-          </ResponsiveContainer>
+
+        {/* 1년 핵심 지표 카드 */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+          <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"10px 12px",border:"1px solid rgba(255,255,255,0.04)"}}>
+            <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>1년 추세</p>
+            <p style={{color:trendColor,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"'JetBrains Mono',monospace"}}>{trendArrow} {recentTrend.pct>0?"+":""}{recentTrend.pct}%</p>
+          </div>
+          <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"10px 12px",border:"1px solid rgba(255,255,255,0.04)"}}>
+            <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>현재 위치</p>
+            <p style={{color:percentilePos>=70?"#EF4444":percentilePos<=30?"#22C55E":"#EAB308",fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"'JetBrains Mono',monospace"}}>
+              상위 {100-percentilePos}%
+            </p>
+          </div>
+          <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"10px 12px",border:"1px solid rgba(255,255,255,0.04)"}}>
+            <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>1년 최저</p>
+            <p style={{color:"#3B82F6",fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"'JetBrains Mono',monospace"}}>₩{recent1YMin.toLocaleString()}</p>
+          </div>
+          <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"10px 12px",border:"1px solid rgba(255,255,255,0.04)"}}>
+            <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>1년 최고</p>
+            <p style={{color:"#EF4444",fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"'JetBrains Mono',monospace"}}>₩{recent1YMax.toLocaleString()}</p>
+          </div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:12}}>
-          {[{t:"해외송금 BEST (환율 낮을 때)",d:bestSend},{t:"수취 BEST (환율 높을 때)",d:bestRecv}].map((sec,si)=>(
+
+        {/* 현재 위치 바 */}
+        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,padding:"12px 14px",border:"1px solid rgba(255,255,255,0.04)"}}>
+          <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 8px",fontWeight:600}}>1년 범위 내 현재 위치</p>
+          <div style={{position:"relative",height:24,background:"rgba(255,255,255,0.04)",borderRadius:6,overflow:"hidden"}}>
+            <div style={{
+              position:"absolute",left:0,top:0,height:"100%",borderRadius:6,
+              width:`${recent1YMax>recent1YMin?((curRate-recent1YMin)/(recent1YMax-recent1YMin)*100):50}%`,
+              background:`linear-gradient(90deg, #22C55E, #EAB308, #EF4444)`,opacity:0.3,
+            }}/>
+            <div style={{
+              position:"absolute",top:"50%",transform:"translate(-50%,-50%)",
+              left:`${recent1YMax>recent1YMin?Math.min(Math.max(((curRate-recent1YMin)/(recent1YMax-recent1YMin)*100),2),98):50}%`,
+              width:10,height:10,borderRadius:"50%",background:"#fff",boxShadow:"0 0 6px rgba(255,255,255,0.5)",
+            }}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
+            <span style={{color:"#3B82F6",fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"'JetBrains Mono',monospace"}}>₩{recent1YMin.toLocaleString()}</span>
+            <span style={{color:"#EF4444",fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"'JetBrains Mono',monospace"}}>₩{recent1YMax.toLocaleString()}</span>
+          </div>
+        </div>
+
+        {/* 최근 1년 월별 추이 차트 */}
+        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)"}}>
+          <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>최근 1년 월별 추이 ({periodLabel})</p>
+          <div style={{overflowX:"auto"}}>
+            <ResponsiveContainer width="100%" height={220} minWidth={300}>
+              <ComposedChart data={recentHist.map(d=>({...d,label:d.d.split("-")[1]+"월"}))} margin={{left:0,right:10,top:5,bottom:5}}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)"/>
+                <XAxis dataKey="label" tick={{fill:"#52525B",fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
+                <YAxis tick={{fill:"#52525B",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
+                <Tooltip content={<CTooltip/>}/>
+                <Area type="monotone" dataKey="r" stroke={ci.color} fill={ci.color} fillOpacity={0.08} strokeWidth={2} name="환율"/>
+                <ReferenceLine y={recent1YAvg} stroke="#EAB308" strokeDasharray="4 4" label={{value:"1Y 평균",fill:"#EAB308",fontSize:10,position:"insideTopRight"}}/>
+                <ReferenceLine y={curRate} stroke="#fff" strokeDasharray="2 2" strokeWidth={1}/>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* 전월 대비 변화 */}
+        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 8px",border:"1px solid rgba(255,255,255,0.04)"}}>
+          <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>전월 대비 변화율</p>
+          <div style={{overflowX:"auto"}}>
+            <ResponsiveContainer width="100%" height={160} minWidth={300}>
+              <BarChart data={recentHist.slice(1).map((d,i)=>{
+                const prev=recentHist[i].r;
+                const chg=Math.round((d.r-prev)/prev*10000)/100;
+                return {label:d.d.split("-")[1]+"월",change:chg};
+              })} margin={{left:0,right:10,top:5,bottom:5}}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)"/>
+                <XAxis dataKey="label" tick={{fill:"#52525B",fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
+                <YAxis tick={{fill:"#52525B",fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>`${v}%`}/>
+                <Tooltip content={<CTooltip/>} formatter={v=>[`${v}%`,"변화율"]}/>
+                <ReferenceLine y={0} stroke="rgba(255,255,255,0.1)"/>
+                <Bar dataKey="change" name="변화율" radius={[2,2,0,0]}>
+                  {recentHist.slice(1).map((d,i)=>{
+                    const prev=recentHist[i].r;
+                    const chg=d.r-prev;
+                    return <Cell key={i} fill={chg>0?"rgba(239,68,68,0.5)":"rgba(34,197,94,0.5)"}/>;
+                  })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* BEST 월 - 1년 기준 */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          {[{t:"송금 BEST",sub:"환율 낮은 달",d:bestSendRecent,icon:"📤"},{t:"수취 BEST",sub:"환율 높은 달",d:bestRecvRecent,icon:"📥"}].map((sec,si)=>(
             <div key={si} style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(255,255,255,0.04)"}}>
-              <p style={{color:"#71717A",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600}}>{sec.t}</p>
+              <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3vw, 13px)",margin:"0 0 8px",fontWeight:700}}>{sec.icon} {sec.t}</p>
+              <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 10px)",margin:"-4px 0 8px"}}>{sec.sub}</p>
               {sec.d.map((m,i)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 10px",borderRadius:6,marginBottom:4,background:"rgba(255,255,255,0.02)",gap:8}}>
-                  <span style={{color:"#A1A1AA",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600}}>{i+1}위 · {m.label}</span>
-                  <span style={{color:"#E4E4E7",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>₩{m.avg.toLocaleString()}</span>
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 8px",borderRadius:6,marginBottom:4,background:"rgba(255,255,255,0.02)",alignItems:"center"}}>
+                  <span style={{color:"#A1A1AA",fontSize:"clamp(12px, 3vw, 13px)",fontWeight:600}}>{["🥇","🥈","🥉"][i]} {m.label}</span>
+                  <span style={{color:"#E4E4E7",fontSize:"clamp(12px, 3vw, 13px)",fontWeight:700,fontFamily:"'JetBrains Mono',monospace",whiteSpace:"nowrap"}}>₩{m.rate.toLocaleString()}</span>
                 </div>
               ))}
             </div>
           ))}
+        </div>
+
+        {/* 분석 요약 */}
+        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"14px 16px",border:"1px solid rgba(255,255,255,0.04)"}}>
+          <p style={{color:"#A1A1AA",fontSize:"clamp(12px, 3vw, 13px)",margin:0,fontWeight:700}}>📊 1년 패턴 분석 요약</p>
+          <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:6}}>
+            <p style={{color:"#71717A",fontSize:"clamp(11px, 2.8vw, 12px)",margin:0,lineHeight:1.6}}>
+              {direction==="outbound"
+                ? curRate <= recent1YAvg
+                  ? `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 이하로, 해외송금에 유리한 시점입니다. 1년간 ${recentTrend.pct>0?"상승":"하락"} 추세(${recentTrend.pct>0?"+":""}${recentTrend.pct}%)를 보이고 있습니다.`
+                  : `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 대비 높은 수준입니다. 환율 하락을 기다리거나 분할 송금을 고려해보세요.`
+                : curRate >= recent1YAvg
+                  ? `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 이상으로, 해외에서 수취하기 유리한 시점입니다.`
+                  : `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 이하입니다. 가능하다면 환율 상승 시점까지 대기를 권장합니다.`
+              }
+            </p>
+            <p style={{color:"#52525B",fontSize:"clamp(10px, 2.5vw, 10px)",margin:0}}>※ 최근 1년({periodLabel}) 데이터 기준 · 투자 조언이 아닙니다</p>
+          </div>
         </div>
       </div>
     );

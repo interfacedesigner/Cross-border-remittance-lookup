@@ -19,6 +19,7 @@ const HANA_LABELS = {
   CNY: "중국 CNY", AUD: "호주 AUD", CAD: "캐나다 CAD", SGD: "싱가포르 SGD",
 };
 const KV_KEY = "live-rates";
+const KV_DAILY_PREFIX = "daily:"; // daily:2026-06-17 → {USD:1448,JPY:955,...}
 const FETCH_TIMEOUT = 8000;
 
 // ═══════════════════════════════════════════════
@@ -148,7 +149,7 @@ function jsonResponse(data, status = 200) {
 // Handlers
 // ═══════════════════════════════════════════════
 export default {
-  /** Cron Trigger: 5분마다 MOIN + 하나은행 데이터 수집 → KV 저장 */
+  /** Cron Trigger: 5분마다 MOIN + 하나은행 데이터 수집 → KV 저장 + 일별 스냅샷 */
   async scheduled(event, env, ctx) {
     console.log("⏰ Cron triggered:", new Date().toISOString());
 
@@ -166,6 +167,27 @@ export default {
     await env.RATES_KV.put(KV_KEY, JSON.stringify(data), {
       expirationTtl: 600, // 10분 TTL (안전장치)
     });
+
+    // ── 일별 스냅샷 저장 (하루 1회, 중간환율 기준) ──
+    const today = new Date().toISOString().slice(0, 10);
+    const dailyKey = KV_DAILY_PREFIX + today;
+    const existing = await env.RATES_KV.get(dailyKey, "json");
+    if (!existing && hana && Object.keys(hana).length > 0) {
+      const snapshot = {};
+      for (const cur of CURRENCIES) {
+        if (hana[cur]?.midRate) {
+          snapshot[cur] = Math.round(hana[cur].midRate);
+        } else if (moin[cur]?.[1000000]?.appliedRate) {
+          snapshot[cur] = Math.round(moin[cur][1000000].appliedRate);
+        }
+      }
+      if (Object.keys(snapshot).length > 0) {
+        await env.RATES_KV.put(dailyKey, JSON.stringify({ date: today, rates: snapshot }), {
+          expirationTtl: 86400 * 100, // 100일 보관
+        });
+        console.log(`📸 Daily snapshot saved: ${today} → ${Object.keys(snapshot).length} currencies`);
+      }
+    }
 
     console.log(`✅ KV updated: MOIN ${Object.keys(moin || {}).length} currencies, Hana ${Object.keys(hana || {}).length} currencies`);
   },
@@ -198,12 +220,55 @@ export default {
       return jsonResponse(cached);
     }
 
+    // ── 일별 히스토리 API ──
+    if (url.pathname === "/api/history") {
+      const currency = url.searchParams.get("currency") || "USD";
+      const days = Math.min(parseInt(url.searchParams.get("days") || "90"), 100);
+
+      if (!CURRENCIES.includes(currency)) {
+        return jsonResponse({ error: "Invalid currency" }, 400);
+      }
+
+      const results = [];
+      const now = new Date();
+      const promises = [];
+
+      for (let i = 0; i < days; i++) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().slice(0, 10);
+        // Skip weekends (no market data)
+        const dow = d.getDay();
+        if (dow === 0 || dow === 6) continue;
+        promises.push(
+          env.RATES_KV.get(KV_DAILY_PREFIX + dateStr, "json").then((v) => {
+            if (v?.rates?.[currency]) {
+              results.push({ d: v.date, r: v.rates[currency] });
+            }
+          })
+        );
+      }
+
+      await Promise.all(promises);
+      results.sort((a, b) => a.d.localeCompare(b.d));
+
+      return jsonResponse({
+        currency,
+        days,
+        count: results.length,
+        data: results,
+      });
+    }
+
     if (url.pathname === "/api/health") {
       const cached = await env.RATES_KV.get(KV_KEY, "json");
+      const today = new Date().toISOString().slice(0, 10);
+      const dailySnap = await env.RATES_KV.get(KV_DAILY_PREFIX + today, "json");
       return jsonResponse({
         status: "ok",
         lastUpdate: cached?.updatedAt || null,
         currencies: Object.keys(cached?.moin || {}),
+        dailySnapshot: dailySnap ? today : null,
       });
     }
 

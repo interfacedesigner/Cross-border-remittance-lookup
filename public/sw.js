@@ -65,25 +65,32 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // 데이터 파일 (fee-data.json) - Network First 전략
-  // 화/금 자동 업데이트 즉시 반영
+  // 데이터 파일 (fee-data.json) - Stale-While-Revalidate 전략
+  // 캐시가 있으면 즉시 반환 + 백그라운드에서 네트워크 업데이트
+  // 캐시가 없으면 네트워크에서 가져오기 (3초 타임아웃)
   if (DATA_FILES.some(file => url.pathname.endsWith(file))) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // 성공 시 캐시 업데이트
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(DATA_CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // 네트워크 실패 시 캐시에서 가져오기
-          return caches.match(request);
-        })
+      caches.match(request).then((cachedResponse) => {
+        const fetchPromise = fetch(request)
+          .then((response) => {
+            if (response.status === 200) {
+              const responseClone = response.clone();
+              caches.open(DATA_CACHE_NAME).then((cache) => {
+                cache.put(request, responseClone);
+              });
+            }
+            return response;
+          })
+          .catch(() => cachedResponse);
+
+        // 캐시가 있으면 즉시 반환 (빠른 응답), 없으면 네트워크 대기
+        if (cachedResponse) {
+          // 백그라운드에서 업데이트 (반환값은 무시)
+          fetchPromise.catch(() => {});
+          return cachedResponse;
+        }
+        return fetchPromise;
+      })
     );
     return;
   }
