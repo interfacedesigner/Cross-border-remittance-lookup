@@ -17,15 +17,15 @@ export const AdSenseAd = ({ slot, format = "auto", responsive = true, style = {}
     <aside aria-label="광고" style={{
       margin: "20px 0",
       padding: "12px",
-      background: "rgba(255,255,255,0.02)",
+      background: "#F7F8FA",
       borderRadius: 12,
-      border: "1px solid rgba(255,255,255,0.04)",
+      border: "1px solid #E5E7EB",
       minHeight: 100,
       overflow: "hidden",
       ...style
     }}>
       <p style={{
-        color: "#3F3F46",
+        color: "#B0B0B0",
         fontSize: 10,
         margin: "0 0 6px",
         textAlign: "center",

@@ -43,15 +43,15 @@ export const AmountInput = ({ amount, setAmount }) => {
     } else {
       e.target.value = "";
     }
-    e.target.style.borderColor = "rgba(255,255,255,0.08)";
+    e.target.style.borderColor = "#D1D5DB";
     e.target.style.boxShadow = "none";
   };
 
   const handleFocus = (e) => {
     const digits = e.target.value.replace(/[^0-9]/g, "");
     e.target.value = digits === "0" ? "" : digits;
-    e.target.style.borderColor = "rgba(59,130,246,0.5)";
-    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)";
+    e.target.style.borderColor = "#296CF2";
+    e.target.style.boxShadow = "0 0 0 3px rgba(41,108,242,0.1)";
     setTimeout(() => e.target.select(), 0);
   };
 
@@ -81,11 +81,11 @@ export const AmountInput = ({ amount, setAmount }) => {
       style={{
         width:"100%", boxSizing:"border-box",
         padding:"14px 16px", borderRadius:12,
-        border:"1.5px solid rgba(255,255,255,0.08)",
-        background:"rgba(255,255,255,0.04)",
-        color:"#E4E4E7",
+        border:"1.5px solid #D1D5DB",
+        background:"#FFFFFF",
+        color:"#222222",
         fontSize:"clamp(20px, 6vw, 28px)", fontWeight:700,
-        fontFamily:"'JetBrains Mono', 'SF Mono', monospace",
+        fontFamily:"Roboto, 'Noto Sans', sans-serif",
         textAlign:"right", outline:"none",
         transition:"border-color 0.2s, box-shadow 0.2s",
         WebkitAppearance:"none",

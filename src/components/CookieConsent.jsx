@@ -43,9 +43,9 @@ export const CookieConsent = () => {
         left: 0,
         right: 0,
         zIndex: 99999,
-        background: "rgba(12,12,16,0.97)",
-        borderTop: "1px solid rgba(255,255,255,0.08)",
-        backdropFilter: "blur(16px)",
+        background: "#FFFFFF",
+        borderTop: "1px solid #E5E7EB",
+        boxShadow: "0 -4px 20px rgba(0,0,0,0.08)",
         padding: "16px",
         animation: "slideUpBanner 0.3s ease-out",
       }}
@@ -67,7 +67,7 @@ export const CookieConsent = () => {
       }}>
         <div style={{ flex: "1 1 300px", minWidth: 0 }}>
           <p style={{
-            color: "#E4E4E7",
+            color: "#222222",
             fontSize: "clamp(13px, 3.2vw, 14px)",
             margin: 0,
             lineHeight: 1.6,
@@ -75,7 +75,7 @@ export const CookieConsent = () => {
             🍪 이 웹사이트는 서비스 개선과 맞춤 광고 제공을 위해 쿠키를 사용합니다.{" "}
             <a
               href="/privacy"
-              style={{ color: "#60A5FA", textDecoration: "underline", textUnderlineOffset: 2 }}
+              style={{ color: "#296CF2", textDecoration: "underline", textUnderlineOffset: 2 }}
             >
               개인정보 보호정책
             </a>
@@ -88,9 +88,9 @@ export const CookieConsent = () => {
             style={{
               padding: "8px 16px",
               borderRadius: 8,
-              border: "1px solid rgba(255,255,255,0.1)",
+              border: "1px solid #E5E7EB",
               background: "transparent",
-              color: "#71717A",
+              color: "#757575",
               fontSize: 13,
               fontWeight: 600,
               cursor: "pointer",
@@ -106,7 +106,7 @@ export const CookieConsent = () => {
               padding: "8px 20px",
               borderRadius: 8,
               border: "none",
-              background: "#3B82F6",
+              background: "#296CF2",
               color: "#fff",
               fontSize: 13,
               fontWeight: 700,
