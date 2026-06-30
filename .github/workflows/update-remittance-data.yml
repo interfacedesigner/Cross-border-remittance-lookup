@@ -45,6 +45,17 @@ jobs:
         continue-on-error: true
 
       # ═══════════════════════════════════════
+      # Step 1.5: 와이어바알리 크롤링 (Puppeteer)
+      # ═══════════════════════════════════════
+      - name: Crawl WireBarley rates
+        id: crawl
+        run: |
+          echo "🕷️ Crawling WireBarley exchange rates..."
+          node scripts/crawl-rates.mjs
+          echo "crawl_status=success" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      # ═══════════════════════════════════════
       # Step 2: histData.js 월별 환율 자동 갱신
       # ═══════════════════════════════════════
       - name: Update historical rate data
@@ -112,7 +123,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/fee-data.json public/posts.json public/sitemap.xml src/utils/histData.js
+          git add public/fee-data.json public/posts.json public/sitemap.xml src/utils/histData.js scripts/fixed-fees.json
           git commit -m "chore: update remittance data - $(date -u +'%Y-%m-%d %H:%M UTC')
 
           Auto-updated exchange rates, fees, historical data, and blog content
@@ -183,6 +194,7 @@ jobs:
           echo "═══════════════════════════════════════"
           echo "Fee data update: ${{ steps.update.outputs.update_status || 'failed' }}"
           echo "Hist data update: ${{ steps.hist.outputs.hist_status || 'failed' }}"
+          echo "WireBarley crawl: ${{ steps.crawl.outputs.crawl_status || 'failed' }}"
           echo "Market context:   ${{ steps.market.outputs.market_status || 'failed' }}"
           echo "Data changed:     ${{ steps.changes.outputs.changed || 'unknown' }}"
           echo "Fixed-fees age:   ${{ steps.fixed_fees.outputs.days_old || '?' }} days"
