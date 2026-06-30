@@ -166,6 +166,105 @@ const dict = {
   "common.won": { ko: "원", en: "KRW", ja: "ウォン" },
   "common.month": { ko: "월", en: "", ja: "月" },
 
+  // ── 비교 탭 추가 ──
+  "compare.currentBizDay": { ko: "현재", en: "Currently", ja: "現在" },
+  "compare.savings.save": { ko: "이용 시 최대", en: "Save up to", ja: "利用時最大" },
+  "compare.savings.saved": { ko: "절감", en: "saved", ja: "節約" },
+  "compare.barName": { ko: "실수령", en: "You receive", ja: "受取額" },
+  "compare.needCheck": { ko: "확인필요", en: "Check required", ja: "確認必要" },
+
+  // ── 환율 탭 추가 ──
+  "rate.all.label": { ko: "전체", en: "All", ja: "全体" },
+  "rate.changeRatePct": { ko: "변동률(%)", en: "Change (%)", ja: "変動率(%)" },
+  "rate.chartAvg": { ko: "평균", en: "Avg", ja: "平均" },
+
+  // ── 적정시기 탭 추가 ──
+  "timing.1yTrend": { ko: "1년 추세", en: "1Y Trend", ja: "1年トレンド" },
+  "timing.currentPos": { ko: "현재 위치", en: "Current Position", ja: "現在位置" },
+  "timing.top": { ko: "상위", en: "Top", ja: "上位" },
+  "timing.1yLow": { ko: "1년 최저", en: "1Y Low", ja: "1年最安" },
+  "timing.1yHigh": { ko: "1년 최고", en: "1Y High", ja: "1年最高" },
+  "timing.1yRangePos": { ko: "1년 범위 내 현재 위치", en: "Current position in 1Y range", ja: "1年レンジ内の現在位置" },
+  "timing.recent1yMonthly": { ko: "최근 1년 월별 추이", en: "Recent 1Y Monthly Trend", ja: "直近1年月別推移" },
+  "timing.rate": { ko: "환율", en: "Rate", ja: "為替" },
+  "timing.1yAvg": { ko: "1Y 평균", en: "1Y Avg", ja: "1年平均" },
+  "timing.momChange": { ko: "전월 대비 변화율", en: "Month-over-Month Change", ja: "前月比変化率" },
+  "timing.changeRate": { ko: "변화율", en: "Change", ja: "変化率" },
+  "timing.sendBestShort": { ko: "송금 BEST", en: "Send BEST", ja: "送金ベスト" },
+  "timing.recvBestShort": { ko: "수취 BEST", en: "Receive BEST", ja: "受取ベスト" },
+  "timing.lowRateMonth": { ko: "환율 낮은 달", en: "Low rate months", ja: "為替安い月" },
+  "timing.highRateMonth": { ko: "환율 높은 달", en: "High rate months", ja: "為替高い月" },
+  "timing.patternSummary": { ko: "1년 패턴 분석 요약", en: "1Y Pattern Analysis Summary", ja: "1年パターン分析まとめ" },
+  "timing.outboundFavorable": {
+    ko: "이 1년 평균 이하로, 해외송금에 유리한 시점입니다.",
+    en: " is below the 1Y average, a favorable time to send money abroad.",
+    ja: "が1年平均以下で、海外送金に有利な時点です。",
+  },
+  "timing.outboundHigh": {
+    ko: " 대비 높은 수준입니다. 환율 하락을 기다리거나 분할 송금을 고려해보세요.",
+    en: ". Consider waiting for a rate drop or splitting your transfer.",
+    ja: "より高い水準です。為替下落を待つか分割送金を検討してください。",
+  },
+  "timing.inboundFavorable": {
+    ko: " 이상으로, 해외에서 수취하기 유리한 시점입니다.",
+    en: ", a favorable time to receive money from abroad.",
+    ja: "以上で、海外から受取に有利な時点です。",
+  },
+  "timing.inboundLow": {
+    ko: " 이하입니다. 가능하다면 환율 상승 시점까지 대기를 권장합니다.",
+    en: ". If possible, consider waiting for rates to rise.",
+    ja: "以下です。可能であれば為替上昇まで待機をお勧めします。",
+  },
+  "timing.currentRate": { ko: "현재 환율", en: "Current rate", ja: "現在の為替" },
+  "timing.1yAvgLabel": { ko: "1년 평균", en: "1Y average", ja: "1年平均" },
+  "timing.trendUp": { ko: "상승", en: "upward", ja: "上昇" },
+  "timing.trendDown": { ko: "하락", en: "downward", ja: "下落" },
+  "timing.trendNote": { ko: "추세를 보이고 있습니다.", en: "trend.", ja: "トレンドです。" },
+  "timing.disclaimer": { ko: "최근 1년 데이터 기준 · 투자 조언이 아닙니다", en: "Based on recent 1Y data · Not investment advice", ja: "直近1年データ基準 · 投資助言ではありません" },
+
+  // ── 다중 통화 탭 추가 ──
+  "multi.editorialBody2": {
+    ko: "미국과 일본에 동시에 송금해야 하는 경우, USD 지수는 높은데 JPY 지수가 낮다면 일본 송금을 먼저 하고 미국 송금은 환율이 내려올 때 하는 전략을 세울 수 있습니다. 편차(%) 값이 클수록 현재 환율이 장기 평균에서 많이 벗어나 있다는 의미입니다.",
+    en: "If you need to send money to both the US and Japan, and the USD index is high while JPY is low, you could send to Japan first and wait for USD rates to drop. A larger deviation (%) means the current rate is further from the long-term average.",
+    ja: "米国と日本に同時に送金する場合、USD指数が高くJPY指数が低ければ、日本への送金を先に行い、米ドルの為替が下がった時に送金する戦略が立てられます。偏差(%)が大きいほど、現在の為替が長期平均から大きく離れていることを意味します。",
+  },
+  "multi.editorialUsage": { ko: "활용 예시:", en: "Usage example:", ja: "活用例:" },
+  "multi.editorialDisclaimer": {
+    ko: "모든 데이터는 정보 제공 목적이며, 환율 예측이나 투자 권유가 아닙니다.",
+    en: "All data is for informational purposes only and does not constitute rate predictions or investment advice.",
+    ja: "全データは情報提供目的であり、為替予測や投資勧誘ではありません。",
+  },
+
+  // ── 에디토리얼 추가 ──
+  "editorial.compareDisclaimerFull": {
+    ko: "본 비교는 각 서비스 공식 API와 공시 환율을 기반으로 하며, 특정 서비스를 추천하지 않습니다. 실제 송금 시 금액은 각 서비스에서 직접 확인하세요.",
+    en: "This comparison is based on official APIs and published rates. We do not recommend any specific service. Please verify actual amounts on each service.",
+    ja: "本比較は各サービスの公式APIと公示為替に基づいており、特定のサービスを推奨しません。実際の送金額は各サービスで直接ご確認ください。",
+  },
+  "editorial.rateBody2": {
+    ko: "급하지 않다면 환율이 평균 이하일 때 송금하는 것이 유리합니다. 반대로 해외 급여를 한국으로 보내는 경우, 환율이 평균 이상일 때가 더 많은 원화를 받을 수 있습니다.",
+    en: "If not urgent, sending when rates are below average is advantageous. Conversely, if receiving overseas salary in Korea, rates above average mean more KRW.",
+    ja: "急ぎでなければ、為替が平均以下の時に送金するのが有利です。逆に海外給与を韓国に送る場合、平均以上の時がより多くのウォンを受け取れます。",
+  },
+  "editorial.rateBody2Title": {
+    ko: "유학비·생활비 송금 타이밍:",
+    en: "Tuition & living costs timing:",
+    ja: "留学費・生活費送金タイミング:",
+  },
+  "editorial.rateDisclaimer": {
+    ko: "환율 데이터는 ECB(유럽중앙은행) 공시 기준환율과 open.er-api.com의 중간시장 환율을 사용합니다. 과거 데이터가 미래 환율을 보장하지 않으며, 투자 조언이 아닙니다.",
+    en: "Exchange rate data uses ECB published reference rates and open.er-api.com mid-market rates. Past data does not guarantee future rates. Not investment advice.",
+    ja: "為替データはECB（欧州中央銀行）公示基準為替とopen.er-api.comの中間市場為替を使用しています。過去のデータは将来の為替を保証せず、投資助言ではありません。",
+  },
+  "editorial.fixedFee": { ko: "고정 수수료", en: "fixed fees", ja: "固定手数料" },
+  "editorial.spreadMargin": { ko: "환율 스프레드(마진)", en: "exchange rate spreads (margins)", ja: "為替スプレッド（マージン）" },
+  "editorial.received": { ko: "실수령", en: "You receive", ja: "受取額" },
+  "editorial.yellowLine": { ko: "노란 점선", en: "yellow dashed line", ja: "黄色の点線" },
+
+  // ── 금액 읽기 ──
+  "amount.eok": { ko: "억", en: "B", ja: "億" },
+  "amount.man": { ko: "만", en: "M", ja: "万" },
+
   // ── PWA ──
   "pwa.alreadyInstalled": { ko: "이미 앱으로 설치되어 있습니다!", en: "Already installed as app!", ja: "すでにアプリとしてインストール済みです！" },
   "pwa.ios": { ko: "iOS: 공유(□↑) → \"홈 화면에 추가\"", en: "iOS: Share (□↑) → \"Add to Home Screen\"", ja: "iOS: 共有(□↑) → 「ホーム画面に追加」" },

@@ -192,7 +192,7 @@ export default function App() {
           setMidRate(curData.midRate);
           const services = (curData.services || []).filter(s => s.supported).map(svc => ({
             ...svc,
-            avail: SVC_AVAIL[svc.id] || { weekend: false, holiday: false, label: "확인필요", processNote: "" },
+            avail: SVC_AVAIL[svc.id] || { weekend: false, holiday: false, label: "check", processNote: "" },
             source: "fallback",
           }));
           services.sort((a, b) => (a.totalCost || Infinity) - (b.totalCost || Infinity));
@@ -209,7 +209,7 @@ export default function App() {
 
       const services = result.services.map(svc => ({
         ...svc,
-        avail: SVC_AVAIL[svc.id] || { weekend: false, holiday: false, label: "확인필요", processNote: "" },
+        avail: SVC_AVAIL[svc.id] || { weekend: false, holiday: false, label: "check", processNote: "" },
       }));
 
       setSvcSnapshot(services);
@@ -240,25 +240,25 @@ export default function App() {
 
   const getSignal = (r, a) => {
     if(direction==="outbound") {
-      if(r<=a*0.95) return {s:"적극 매수",c:"#00B442",i:"🟢"};
-      if(r<=a) return {s:"매수 적기",c:"#296CF2",i:"🔵"};
-      if(r<=a*1.05) return {s:"관망",c:"#FFA012",i:"🟡"};
-      return {s:"대기 권장",c:"#F34646",i:"🔴"};
+      if(r<=a*0.95) return {s:t("signal.strongBuy"),c:"#00B442",i:"🟢"};
+      if(r<=a) return {s:t("signal.buy"),c:"#296CF2",i:"🔵"};
+      if(r<=a*1.05) return {s:t("signal.hold"),c:"#FFA012",i:"🟡"};
+      return {s:t("signal.wait"),c:"#F34646",i:"🔴"};
     }
-    if(r>=a*1.05) return {s:"적극 수취",c:"#00B442",i:"🟢"};
-    if(r>=a) return {s:"수취 적기",c:"#296CF2",i:"🔵"};
-    return {s:"대기 권장",c:"#F34646",i:"🔴"};
+    if(r>=a*1.05) return {s:t("signal.strongRecv"),c:"#00B442",i:"🟢"};
+    if(r>=a) return {s:t("signal.recv"),c:"#296CF2",i:"🔵"};
+    return {s:t("signal.wait"),c:"#F34646",i:"🔴"};
   };
   const sig = getSignal(curRate, recent1YAvg);
 
   const seasonalData = useMemo(() => {
-    const months = Array.from({length:12},(_,i)=>({m:i+1,label:`${i+1}월`,rates:[]}));
+    const months = Array.from({length:12},(_,i)=>({m:i+1,label:`${i+1}${t("common.month")}`,rates:[]}));
     hist.forEach(d=>{months[parseInt(d.d.split("-")[1])-1].rates.push(d.r);});
     return months.map(m=>({...m,avg:m.rates.length?Math.round(m.rates.reduce((a,b)=>a+b,0)/m.rates.length):0,min:m.rates.length?Math.min(...m.rates):0,max:m.rates.length?Math.max(...m.rates):0}));
   }, [hist]);
 
   const recentSeasonalData = useMemo(() => {
-    const months = Array.from({length:12},(_,i)=>({m:i+1,label:`${i+1}월`,rate:null,change:null}));
+    const months = Array.from({length:12},(_,i)=>({m:i+1,label:`${i+1}${t("common.month")}`,rate:null,change:null}));
     recentHist.forEach(d=>{
       const mi = parseInt(d.d.split("-")[1])-1;
       months[mi].rate = d.r;
@@ -318,7 +318,7 @@ export default function App() {
       <div
         onClick={() => setCurOpen(true)}
         role="button"
-        aria-label="수취 통화 선택"
+        aria-label={t("compare.currencySelect")}
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setCurOpen(true); }}
         style={{
@@ -341,7 +341,7 @@ export default function App() {
           onClick={() => setCurOpen(false)}
           role="dialog"
           aria-modal="true"
-          aria-label="통화 선택"
+          aria-label={t("compare.currencySelect")}
           style={{
             position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9999,
             background:"rgba(0,0,0,0.45)",
@@ -368,11 +368,11 @@ export default function App() {
               alignItems:"center",
             }}>
               <h3 style={{color:"#222222",fontSize:"clamp(16px, 4.2vw, 18px)",fontWeight:700,margin:0}}>
-                수취 통화 선택
+                {t("compare.currencySelect")}
               </h3>
               <button
                 onClick={() => setCurOpen(false)}
-                aria-label="닫기"
+                aria-label={t("common.close")}
                 style={{
                   background:"transparent",
                   border:"none",
@@ -452,28 +452,28 @@ export default function App() {
       {bizDayBlocked && svcSnapshot.length > 0 && (
         <div role="alert" style={{padding:"12px 16px",borderRadius:12,background:"rgba(255,160,18,0.05)",border:"1px solid rgba(255,160,18,0.12)"}}>
           <p style={{color:"#FFA012",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:"0 0 4px"}}>
-            📅 현재 {getNonBusinessReason()}
+            📅 {t("compare.currentBizDay")} {getNonBusinessReason()}
           </p>
           <p style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,lineHeight:1.5}}>
-            🟢 핀테크: 신청 가능 (처리는 영업일) · 🔴 은행: 영업일만
+            {t("compare.bizDayNote")}
           </p>
         </div>
       )}
 
       <div style={{background:"#F7F8FA",borderRadius:14,padding:"14px 16px",border:"1px solid #F0F1F3"}}>
         <div style={{marginBottom:14}}>
-          <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 수취 통화</span>
+          <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 {t("compare.currency")}</span>
           <CurPicker />
         </div>
 
         <div style={{marginBottom:14}}>
           <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:4}}>
-            <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600}}>💰 송금 금액</span>
+            <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600}}>💰 {t("compare.amount")}</span>
             {amount > 0 && (
               <span style={{color:"#757575",fontSize:"clamp(14px, 3.5vw, 14px)"}}>
-                {amount >= 100000000 ? `${Math.floor(amount/100000000)}억 ` : ""}
-                {amount % 100000000 >= 10000 ? `${Math.floor((amount%100000000)/10000).toLocaleString()}만` : ""}
-                {amount % 10000 > 0 ? ` ${(amount%10000).toLocaleString()}` : ""}원
+                {amount >= 100000000 ? `${Math.floor(amount/100000000)}${t("amount.eok")} ` : ""}
+                {amount % 100000000 >= 10000 ? `${Math.floor((amount%100000000)/10000).toLocaleString()}${t("amount.man")}` : ""}
+                {amount % 10000 > 0 ? ` ${(amount%10000).toLocaleString()}` : ""}{t("common.won")}
               </span>
             )}
           </div>
@@ -492,7 +492,7 @@ export default function App() {
           }
           .web3-btn:active:not(:disabled) { transform: scale(0.98); }
         `}</style>
-        <button className="web3-btn" onClick={handleRefresh} disabled={dataLoading || fetchMode==="loading"} aria-label="실시간 수수료 비교 시작" style={{
+        <button className="web3-btn" onClick={handleRefresh} disabled={dataLoading || fetchMode==="loading"} aria-label={t("compare.btn.compare")} style={{
           width:"100%", padding:"16px", borderRadius:14,
           border: (dataLoading || fetchMode==="loading") ? "1px solid #E5E7EB" : "1px solid rgba(41,108,242,0.3)",
           cursor:(dataLoading || fetchMode==="loading")?"not-allowed":"pointer",
@@ -512,9 +512,9 @@ export default function App() {
             animation:"web3Shimmer 3s ease infinite", pointerEvents:"none",
           }} />}
           <span style={{position:"relative",zIndex:1}}>
-            {dataLoading ? "⏳ 로딩 중..." :
-             fetchMode==="loading" ? "🔄 환율 조회 중..." :
-             amount > 0 ? `⚖️ ₩${amount.toLocaleString()} → ${cur} 실시간 비교` : "금액을 입력하세요"}
+            {dataLoading ? `⏳ ${t("compare.btn.loading")}` :
+             fetchMode==="loading" ? `🔄 ${t("compare.btn.fetching")}` :
+             amount > 0 ? `⚖️ ₩${amount.toLocaleString()} → ${cur} ${t("compare.btn.compare")}` : t("compare.btn.enterAmount")}
           </span>
         </button>
       </div>
@@ -527,10 +527,10 @@ export default function App() {
           {fetchMode==="cached" && <div style={{width:8,height:8,borderRadius:"50%",background:"#FFA012",flexShrink:0}} />}
           {fetchMode==="error" && <div style={{width:8,height:8,borderRadius:"50%",background:"#F34646",flexShrink:0}} />}
           <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",lineHeight:1.4}}>
-            {fetchMode==="loading" ? "조회 중..." :
-             fetchMode==="live" ? "실시간 환율" :
-             fetchMode==="cached" ? "저장 환율" :
-             fetchMode==="error" ? "데이터 없음" : "대기"}
+            {fetchMode==="loading" ? t("compare.status.fetching") :
+             fetchMode==="live" ? t("compare.status.live") :
+             fetchMode==="cached" ? t("compare.status.cached") :
+             fetchMode==="error" ? t("compare.status.error") : t("compare.status.idle")}
             {midRate && <> · <strong style={{color:"#222222"}}>₩{midRate.toLocaleString()}</strong>/{cur}</>}
             {lastUpdate && <> · {lastUpdate.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})}</>}
           </span>
@@ -563,7 +563,7 @@ export default function App() {
                               color: s.avail.weekend ? "#00B442" : "#F34646",
                               whiteSpace:"nowrap",
                             }}>
-                              {s.avail.weekend ? "신청가능" : "영업일만"}
+                              {s.avail.weekend ? t("compare.available") : t("compare.bizOnly")}
                             </span>
                           )}
                         </div>
@@ -573,15 +573,15 @@ export default function App() {
                       <p style={{color:isTop?"#00B442":"#222222",fontSize:"clamp(15px, 4.2vw, 17px)",fontWeight:800,margin:0,fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>
                         {ci.symbol}{s.foreignAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
                       </p>
-                      <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>실수령</p>
+                      <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("compare.received")}</p>
                     </div>
                   </div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                     <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",background:"#F7F8FA",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
-                      수수료 {s.fee===0?<span style={{color:"#00B442"}}>무료</span>:`₩${s.fee.toLocaleString()}`}
+                      {t("compare.fee")} {s.fee===0?<span style={{color:"#00B442"}}>{t("compare.feeWaived")}</span>:`₩${s.fee.toLocaleString()}`}
                     </span>
                     <span style={{color:s.spread>2?"#F34646":s.spread>1?"#FFA012":"#00B442",fontSize:"clamp(14px, 3.5vw, 14px)",background:"#F7F8FA",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
-                      스프레드 {s.spread}%
+                      {t("compare.spread")} {s.spread}%
                     </span>
                     <span style={{color:"#757575",fontSize:"clamp(14px, 3.5vw, 14px)",background:"#F7F8FA",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
                       {s.speed}
@@ -598,23 +598,23 @@ export default function App() {
           {svcSnapshot.length >= 2 && (
             <div style={{padding:"14px 16px",borderRadius:14,background:"rgba(0,180,66,0.04)",border:"1px solid rgba(0,180,66,0.1)"}}>
               <p style={{color:"#00B442",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:0,lineHeight:1.5}}>
-                💡 {svcSnapshot[0].name} 이용 시 최대 ₩{(svcSnapshot[svcSnapshot.length-1].totalCost - svcSnapshot[0].totalCost).toLocaleString()} 절감
+                💡 {svcSnapshot[0].name} {t("compare.savings.save")} ₩{(svcSnapshot[svcSnapshot.length-1].totalCost - svcSnapshot[0].totalCost).toLocaleString()} {t("compare.savings.saved")}
               </p>
               <p style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"4px 0 0",lineHeight:1.4}}>
-                vs {svcSnapshot[svcSnapshot.length-1].name} 대비 · {ci.symbol}{(svcSnapshot[0].foreignAmount - svcSnapshot[svcSnapshot.length-1].foreignAmount).toFixed(2)} 더 수령
+                {t("compare.savingsVs")} {svcSnapshot[svcSnapshot.length-1].name} · {ci.symbol}{(svcSnapshot[0].foreignAmount - svcSnapshot[svcSnapshot.length-1].foreignAmount).toFixed(2)} {t("compare.moreReceived")}
               </p>
             </div>
           )}
 
           <div style={{background:"#F7F8FA",borderRadius:14,padding:"12px 10px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-            <p style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>실수령 비교 · ₩{amount.toLocaleString()} → {cur}</p>
+            <p style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("compare.receivedCompare")} · ₩{amount.toLocaleString()} → {cur}</p>
             <ResponsiveContainer width="100%" height={Math.max(260, svcSnapshot.length * 40)} minWidth={300}>
               <BarChart data={svcSnapshot} layout="vertical" margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
                 <XAxis type="number" tick={{fill:"#757575",fontSize:"clamp(12px, 3vw, 12px)"}} tickFormatter={v=>`${ci.symbol}${v.toFixed(0)}`}/>
                 <YAxis dataKey="kr" type="category" tick={{fill:"#4C4C4C",fontSize:"clamp(12px, 3vw, 12px)"}} width={60}/>
                 <Tooltip content={<CTooltip/>}/>
-                <Bar dataKey="foreignAmount" name={`실수령(${cur})`} radius={[0,4,4,0]}>
+                <Bar dataKey="foreignAmount" name={`${t("compare.barName")}(${cur})`} radius={[0,4,4,0]}>
                   {svcSnapshot.map((s,i) => (
                     <Cell key={s.id} fill={i===0?"#00B442":i<3?"#296CF2":"#949494"} />
                   ))}
@@ -624,20 +624,15 @@ export default function App() {
           </div>
 
           <div style={{background:"#F7F8FA",borderRadius:14,padding:"16px",border:"1px solid #F0F1F3"}}>
-            <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>해외송금 수수료, 왜 서비스마다 다를까?</h3>
+            <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.compareTitle")}</h3>
             <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-              해외송금 비용은 크게 <strong style={{color:"#222222"}}>고정 수수료</strong>와 <strong style={{color:"#222222"}}>환율 스프레드(마진)</strong> 두 가지로 구성됩니다.
-              핀테크 서비스(Wise, 토스, 센트비 등)는 고정 수수료가 낮지만 환율 마진이 있고,
-              은행(하나, 신한)은 고정 수수료가 높지만 고액 송금 시 환율 우대를 받을 수 있습니다.
+              {t("editorial.compareBody1")}
             </p>
             <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-              송금 금액에 따라 최적의 서비스가 달라집니다. 100만원 이하 소액은 수수료 무료 서비스가 유리하고,
-              500만원 이상 유학비 등 고액 송금은 스프레드가 낮은 서비스가 총 비용에서 유리합니다.
-              위 비교 결과의 <strong style={{color:"#222222"}}>"실수령"</strong> 금액이 수수료+스프레드를 모두 반영한 실제 수령액입니다.
+              {t("editorial.compareBody2")}
             </p>
             <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
-              본 비교는 각 서비스 공식 API와 공시 환율을 기반으로 하며, 특정 서비스를 추천하지 않습니다.
-              실제 송금 시 금액은 각 서비스에서 직접 확인하세요.
+              {t("editorial.compareDisclaimerFull")}
             </p>
           </div>
 
@@ -647,7 +642,7 @@ export default function App() {
         <div style={{textAlign:"center",padding:"40px 20px",color:"#949494"}}>
           <p style={{fontSize:"clamp(32px, 10vw, 40px)",margin:"0 0 12px"}}>⚖️</p>
           <p style={{fontSize:"clamp(14px, 3.8vw, 15px)",margin:0,fontWeight:600,lineHeight:1.5}}>
-            {dataLoading ? "데이터 로딩 중..." : fetchMode==="error" ? `${cur} 데이터 없음` : "금액 입력 후 비교 버튼을 눌러주세요"}
+            {dataLoading ? t("compare.emptyLoading") : fetchMode==="error" ? `${cur} ${t("compare.emptyNoData")}` : t("compare.emptyAction")}
           </p>
         </div>
       )}
@@ -703,10 +698,10 @@ export default function App() {
         <div style={{background:"#F7F8FA",borderRadius:14,padding:"14px 12px",border:"1px solid #E5E7EB"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:8}}>
             <p style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:0}}>
-              📊 최근 일별 환율 추이
+              📊 {t("rate.dailyTitle")}
             </p>
             <div style={{display:"flex",gap:4}}>
-              {[{v:1,l:"1개월"},{v:2,l:"2개월"},{v:3,l:"3개월"}].map(p=>(
+              {[{v:1,l:t("rate.1m")},{v:2,l:t("rate.2m")},{v:3,l:t("rate.3m")}].map(p=>(
                 <button key={p.v} onClick={()=>setDailyPeriod(p.v)} aria-pressed={dailyPeriod===p.v} style={{
                   padding:"6px 10px",borderRadius:8,border:"none",cursor:"pointer",
                   background:dailyPeriod===p.v?"#E5E7EB":"#F7F8FA",
@@ -721,23 +716,23 @@ export default function App() {
             <div style={{textAlign:"center",padding:"40px 0"}}>
               <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
               <div style={{width:24,height:24,border:"2px solid #E5E7EB",borderTop:`2px solid ${ci.color}`,borderRadius:"50%",animation:"spin 0.8s linear infinite",margin:"0 auto 12px"}} />
-              <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>일별 환율 조회 중...</p>
+              <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("rate.dailyLoading")}</p>
             </div>
           ) : dailyError ? (
             <div style={{textAlign:"center",padding:"30px 0"}}>
               <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 13px)",margin:0,lineHeight:1.5}}>
-                일별 데이터를 불러올 수 없습니다<br/>
-                <span style={{color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)"}}>아래 월별 차트를 참고해 주세요</span>
+                {t("rate.dailyError")}<br/>
+                <span style={{color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)"}}>{t("rate.dailyErrorSub")}</span>
               </p>
             </div>
           ) : dailyData.length > 0 && dailyStats ? (
             <>
               <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:6,marginBottom:12}}>
                 {[
-                  {l:"최고",v:`₩${dailyStats.hi.toLocaleString()}`,c:"#F34646"},
-                  {l:"최저",v:`₩${dailyStats.lo.toLocaleString()}`,c:"#296CF2"},
-                  {l:"평균",v:`₩${dailyStats.avg3m.toLocaleString()}`,c:"#4C4C4C"},
-                  {l:"변동",v:`${parseFloat(dailyStats.chg)>0?"+":""}${dailyStats.chg}%`,c:parseFloat(dailyStats.chg)>0?"#F34646":"#00B442"},
+                  {l:t("rate.high"),v:`₩${dailyStats.hi.toLocaleString()}`,c:"#F34646"},
+                  {l:t("rate.low"),v:`₩${dailyStats.lo.toLocaleString()}`,c:"#296CF2"},
+                  {l:t("rate.avg"),v:`₩${dailyStats.avg3m.toLocaleString()}`,c:"#4C4C4C"},
+                  {l:t("rate.change"),v:`${parseFloat(dailyStats.chg)>0?"+":""}${dailyStats.chg}%`,c:parseFloat(dailyStats.chg)>0?"#F34646":"#00B442"},
                 ].map((s,i)=>(
                   <div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:"8px 6px",textAlign:"center",border:"1px solid #F0F1F3"}}>
                     <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{s.l}</p>
@@ -748,8 +743,8 @@ export default function App() {
 
               <div style={{marginBottom:12,padding:"0 4px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                  <span style={{color:"#296CF2",fontSize:"clamp(10px, 2.5vw, 11px)"}}>저점 ₩{dailyStats.lo.toLocaleString()}</span>
-                  <span style={{color:"#F34646",fontSize:"clamp(10px, 2.5vw, 11px)"}}>고점 ₩{dailyStats.hi.toLocaleString()}</span>
+                  <span style={{color:"#296CF2",fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.lowPoint")} ₩{dailyStats.lo.toLocaleString()}</span>
+                  <span style={{color:"#F34646",fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.highPoint")} ₩{dailyStats.hi.toLocaleString()}</span>
                 </div>
                 <div style={{position:"relative",height:6,background:"#E5E7EB",borderRadius:3}}>
                   <div style={{
@@ -765,7 +760,7 @@ export default function App() {
                   }} />
                 </div>
                 <p style={{color:"#4C4C4C",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"6px 0 0",textAlign:"center"}}>
-                  현재 ₩{dailyStats.latest.toLocaleString()} · 범위 내 {dailyStats.pos}% 위치
+                  {t("rate.current")} ₩{dailyStats.latest.toLocaleString()} · {t("rate.posInRange")} {dailyStats.pos}% {t("rate.position")}
                 </p>
               </div>
 
@@ -791,14 +786,14 @@ export default function App() {
                       tickFormatter={v=>`₩${v.toLocaleString()}`}
                     />
                     <Tooltip content={<CTooltip/>}/>
-                    <ReferenceLine y={dailyStats.avg3m} stroke="#FFA012" strokeDasharray="4 4" label={{value:"평균",fill:"#FFA012",fontSize:10,position:"right"}}/>
+                    <ReferenceLine y={dailyStats.avg3m} stroke="#FFA012" strokeDasharray="4 4" label={{value:t("rate.avg"),fill:"#FFA012",fontSize:10,position:"right"}}/>
                     <Area type="monotone" dataKey="r" stroke={ci.color} fill="url(#dailyGrad)" strokeWidth={2} name={`${ci.flag} ${cur}/KRW`} dot={false} activeDot={{r:4,fill:ci.color,stroke:"#FFFFFF",strokeWidth:2}}/>
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
 
               <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"8px 0 0",textAlign:"right"}}>
-                출처: ECB 기준환율 · 영업일 기준 · {dailyData.length}일 데이터
+                {t("rate.source")} · {dailyData.length}{t("rate.dataCount")}
               </p>
             </>
           ) : null}
@@ -812,11 +807,11 @@ export default function App() {
               background:selectedYear===y?"#E5E7EB":"#F7F8FA",
               color:selectedYear===y?"#222222":"#949494",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
               minHeight:36,flex:"1 0 auto",
-            }}>{y==="all"?"전체":y}</button>
+            }}>{y==="all"?t("rate.all"):y}</button>
           ))}
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)",gap:8}}>
-          {[{l:"현재",v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:"평균",v:`₩${avg.toLocaleString()}`,a:"#296CF2"},{l:"최저/최고",v:`${mn}~${mx}`,a:"#FFA012"},{l:"시그널",v:sig.s,a:sig.c}].map((k,i)=>(
+          {[{l:t("rate.current"),v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:t("rate.5yAvg"),v:`₩${avg.toLocaleString()}`,a:"#296CF2"},{l:t("rate.minMax"),v:`${mn}~${mx}`,a:"#FFA012"},{l:t("rate.signal"),v:sig.s,a:sig.c}].map((k,i)=>(
             <div key={i} style={{background:"#F7F8FA",borderRadius:10,padding:"12px",border:"1px solid #F0F1F3",borderTop:`2px solid ${k.a}`}}>
               <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{k.l}</p>
               <p style={{color:"#222222",fontSize:"clamp(15px, 4.5vw, 18px)",fontWeight:700,margin:"4px 0 0",fontFamily:"Roboto, 'Noto Sans', sans-serif",wordBreak:"break-word"}}>{k.v}</p>
@@ -824,7 +819,7 @@ export default function App() {
           ))}
         </div>
         <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-          <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>월별 장기 추이</p>
+          <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.monthlyTrend")}</p>
           <ResponsiveContainer width="100%" height={280} minWidth={300}>
             <AreaChart data={filteredHist} margin={{left:0,right:10,top:5,bottom:5}}>
               <defs><linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={ci.color} stopOpacity={0.15}/><stop offset="100%" stopColor={ci.color} stopOpacity={0}/></linearGradient></defs>
@@ -839,49 +834,44 @@ export default function App() {
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:12}}>
           <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-            <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>연도별 변동률</p>
+            <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyChange")}</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <BarChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
                 <XAxis dataKey="year" tick={{fill:"#757575",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} unit="%"/>
                 <Tooltip content={<CTooltip/>}/>
-                <Bar dataKey="chg" name="변동률(%)" radius={[2,2,0,0]}>{yearly.map((e,i)=><Cell key={i} fill={parseFloat(e.chg)>0?"#F34646":"#00B442"} fillOpacity={0.6}/>)}</Bar>
+                <Bar dataKey="chg" name={t("rate.changeRatePct")} radius={[2,2,0,0]}>{yearly.map((e,i)=><Cell key={i} fill={parseFloat(e.chg)>0?"#F34646":"#00B442"} fillOpacity={0.6}/>)}</Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-            <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>연도별 평균·범위</p>
+            <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyAvgRange")}</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <ComposedChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
                 <XAxis dataKey="year" tick={{fill:"#757575",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
                 <Tooltip content={<CTooltip/>}/>
-                <Line type="monotone" dataKey="avg" stroke={ci.color} strokeWidth={2} dot={{r:2.5,fill:ci.color}} name="평균"/>
-                <Line type="monotone" dataKey="min" stroke="#296CF2" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최저"/>
-                <Line type="monotone" dataKey="max" stroke="#F34646" strokeWidth={1} strokeDasharray="3 3" dot={false} name="최고"/>
+                <Line type="monotone" dataKey="avg" stroke={ci.color} strokeWidth={2} dot={{r:2.5,fill:ci.color}} name={t("rate.avg")}/>
+                <Line type="monotone" dataKey="min" stroke="#296CF2" strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("rate.low")}/>
+                <Line type="monotone" dataKey="max" stroke="#F34646" strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("rate.high")}/>
                 <Legend wrapperStyle={{fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div style={{background:"#F7F8FA",borderRadius:14,padding:"16px",border:"1px solid #F0F1F3"}}>
-          <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>환율 분석 활용 가이드</h3>
+          <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.rateTitle")}</h3>
           <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-            환율은 경제 상황, 금리 차이, 국제 무역 수지 등 다양한 요인에 의해 변동합니다.
-            위 차트의 <strong style={{color:"#FFA012"}}>노란 점선</strong>은 장기 평균을 나타내며,
-            현재 환율이 평균보다 낮으면 해외송금(원화→외화)에 유리하고,
-            평균보다 높으면 해외에서 돈을 받는(외화→원화) 데 유리합니다.
+            {t("editorial.rateBody1")}
           </p>
           <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-            <strong style={{color:"#222222"}}>유학비·생활비 송금 타이밍:</strong>{" "}
-            급하지 않다면 환율이 평균 이하일 때 송금하는 것이 유리합니다.
-            반대로 해외 급여를 한국으로 보내는 경우, 환율이 평균 이상일 때가 더 많은 원화를 받을 수 있습니다.
+            <strong style={{color:"#222222"}}>{t("editorial.rateBody2Title")}</strong>{" "}
+            {t("editorial.rateBody2")}
           </p>
           <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
-            환율 데이터는 ECB(유럽중앙은행) 공시 기준환율과 open.er-api.com의 중간시장 환율을 사용합니다.
-            과거 데이터가 미래 환율을 보장하지 않으며, 투자 조언이 아닙니다.
+            {t("editorial.rateDisclaimer")}
           </p>
         </div>
 
@@ -909,7 +899,7 @@ export default function App() {
               background:direction===d?"#E5E7EB":"#F7F8FA",
               color:direction===d?"#222222":"#949494",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
               flex:"1 0 auto",minHeight:44,
-            }}>{d==="outbound"?"🇰🇷→ 해외송금":"→🇰🇷 수취"}</button>
+            }}>{d==="outbound"?t("timing.outbound"):t("timing.inbound")}</button>
           ))}
           <div style={{flex:"1 1 100%",marginTop:8}}><CurPicker/></div>
         </div>
@@ -920,7 +910,7 @@ export default function App() {
           <div style={{minWidth:0,flex:1}}>
             <p style={{color:sig.c,margin:0,fontSize:"clamp(18px, 5vw, 20px)",fontWeight:800}}>{sig.s}</p>
             <p style={{color:"#757575",margin:"2px 0 0",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.4}}>
-              {ci.flag} {cur} 현재 ₩{curRate.toLocaleString()} · 1년 평균 ₩{recent1YAvg.toLocaleString()}
+              {ci.flag} {cur} {t("rate.current")} ₩{curRate.toLocaleString()} · {t("timing.1yAvgLabel")} ₩{recent1YAvg.toLocaleString()}
             </p>
           </div>
         </div>
@@ -928,28 +918,28 @@ export default function App() {
         {/* 1년 핵심 지표 카드 */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
           <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>1년 추세</p>
+            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yTrend")}</p>
             <p style={{color:trendColor,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>{trendArrow} {recentTrend.pct>0?"+":""}{recentTrend.pct}%</p>
           </div>
           <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>현재 위치</p>
+            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.currentPos")}</p>
             <p style={{color:percentilePos>=70?"#F34646":percentilePos<=30?"#00B442":"#FFA012",fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>
-              상위 {100-percentilePos}%
+              {t("timing.top")} {100-percentilePos}%
             </p>
           </div>
           <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>1년 최저</p>
+            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yLow")}</p>
             <p style={{color:"#296CF2",fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMin.toLocaleString()}</p>
           </div>
           <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>1년 최고</p>
+            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yHigh")}</p>
             <p style={{color:"#F34646",fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMax.toLocaleString()}</p>
           </div>
         </div>
 
         {/* 현재 위치 바 */}
         <div style={{background:"#F7F8FA",borderRadius:10,padding:"12px 14px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 8px",fontWeight:600}}>1년 범위 내 현재 위치</p>
+          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 8px",fontWeight:600}}>{t("timing.1yRangePos")}</p>
           <div style={{position:"relative",height:24,background:"#E5E7EB",borderRadius:6,overflow:"hidden"}}>
             <div style={{
               position:"absolute",left:0,top:0,height:"100%",borderRadius:6,
@@ -970,16 +960,16 @@ export default function App() {
 
         {/* 최근 1년 월별 추이 차트 */}
         <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>최근 1년 월별 추이 ({periodLabel})</p>
+          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.recent1yMonthly")} ({periodLabel})</p>
           <div style={{overflowX:"auto"}}>
             <ResponsiveContainer width="100%" height={220} minWidth={300}>
-              <ComposedChart data={recentHist.map(d=>({...d,label:d.d.split("-")[1]+"월"}))} margin={{left:0,right:10,top:5,bottom:5}}>
+              <ComposedChart data={recentHist.map(d=>({...d,label:d.d.split("-")[1]+t("common.month")}))} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
                 <XAxis dataKey="label" tick={{fill:"#757575",fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
                 <Tooltip content={<CTooltip/>}/>
-                <Area type="monotone" dataKey="r" stroke={ci.color} fill={ci.color} fillOpacity={0.08} strokeWidth={2} name="환율"/>
-                <ReferenceLine y={recent1YAvg} stroke="#FFA012" strokeDasharray="4 4" label={{value:"1Y 평균",fill:"#FFA012",fontSize:10,position:"insideTopRight"}}/>
+                <Area type="monotone" dataKey="r" stroke={ci.color} fill={ci.color} fillOpacity={0.08} strokeWidth={2} name={t("timing.rate")}/>
+                <ReferenceLine y={recent1YAvg} stroke="#FFA012" strokeDasharray="4 4" label={{value:t("timing.1yAvg"),fill:"#FFA012",fontSize:10,position:"insideTopRight"}}/>
                 <ReferenceLine y={curRate} stroke="#222222" strokeDasharray="2 2" strokeWidth={1}/>
               </ComposedChart>
             </ResponsiveContainer>
@@ -988,20 +978,20 @@ export default function App() {
 
         {/* 전월 대비 변화 */}
         <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>전월 대비 변화율</p>
+          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.momChange")}</p>
           <div style={{overflowX:"auto"}}>
             <ResponsiveContainer width="100%" height={160} minWidth={300}>
               <BarChart data={recentHist.slice(1).map((d,i)=>{
                 const prev=recentHist[i].r;
                 const chg=Math.round((d.r-prev)/prev*10000)/100;
-                return {label:d.d.split("-")[1]+"월",change:chg};
+                return {label:d.d.split("-")[1]+t("common.month"),change:chg};
               })} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
                 <XAxis dataKey="label" tick={{fill:"#757575",fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>`${v}%`}/>
-                <Tooltip content={<CTooltip/>} formatter={v=>[`${v}%`,"변화율"]}/>
+                <Tooltip content={<CTooltip/>} formatter={v=>[`${v}%`,t("timing.changeRate")]}/>
                 <ReferenceLine y={0} stroke="#E5E7EB"/>
-                <Bar dataKey="change" name="변화율" radius={[2,2,0,0]}>
+                <Bar dataKey="change" name={t("timing.changeRate")} radius={[2,2,0,0]}>
                   {recentHist.slice(1).map((d,i)=>{
                     const prev=recentHist[i].r;
                     const chg=d.r-prev;
@@ -1015,7 +1005,7 @@ export default function App() {
 
         {/* BEST 월 - 1년 기준 */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          {[{t:"송금 BEST",sub:"환율 낮은 달",d:bestSendRecent,icon:"📤"},{t:"수취 BEST",sub:"환율 높은 달",d:bestRecvRecent,icon:"📥"}].map((sec,si)=>(
+          {[{t:t("timing.sendBestShort"),sub:t("timing.lowRateMonth"),d:bestSendRecent,icon:"📤"},{t:t("timing.recvBestShort"),sub:t("timing.highRateMonth"),d:bestRecvRecent,icon:"📥"}].map((sec,si)=>(
             <div key={si} style={{background:"#F7F8FA",borderRadius:12,padding:"12px 14px",border:"1px solid #F0F1F3"}}>
               <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 13px)",margin:"0 0 8px",fontWeight:700}}>{sec.icon} {sec.t}</p>
               <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 10px)",margin:"-4px 0 8px"}}>{sec.sub}</p>
@@ -1031,19 +1021,19 @@ export default function App() {
 
         {/* 분석 요약 */}
         <div style={{background:"#F7F8FA",borderRadius:12,padding:"14px 16px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 13px)",margin:0,fontWeight:700}}>📊 1년 패턴 분석 요약</p>
+          <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 13px)",margin:0,fontWeight:700}}>📊 {t("timing.patternSummary")}</p>
           <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:6}}>
             <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:0,lineHeight:1.6}}>
               {direction==="outbound"
                 ? curRate <= recent1YAvg
-                  ? `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 이하로, 해외송금에 유리한 시점입니다. 1년간 ${recentTrend.pct>0?"상승":"하락"} 추세(${recentTrend.pct>0?"+":""}${recentTrend.pct}%)를 보이고 있습니다.`
-                  : `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 대비 높은 수준입니다. 환율 하락을 기다리거나 분할 송금을 고려해보세요.`
+                  ? `${t("timing.currentRate")}(₩${curRate.toLocaleString()})${t("timing.1yAvgLabel")}(₩${recent1YAvg.toLocaleString()})${t("timing.outboundFavorable")} ${recentTrend.pct>0?t("timing.trendUp"):t("timing.trendDown")} ${t("timing.trendNote")}(${recentTrend.pct>0?"+":""}${recentTrend.pct}%)`
+                  : `${t("timing.currentRate")}(₩${curRate.toLocaleString()})${t("timing.1yAvgLabel")}(₩${recent1YAvg.toLocaleString()})${t("timing.outboundHigh")}`
                 : curRate >= recent1YAvg
-                  ? `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 이상으로, 해외에서 수취하기 유리한 시점입니다.`
-                  : `현재 환율(₩${curRate.toLocaleString()})이 1년 평균(₩${recent1YAvg.toLocaleString()}) 이하입니다. 가능하다면 환율 상승 시점까지 대기를 권장합니다.`
+                  ? `${t("timing.currentRate")}(₩${curRate.toLocaleString()})${t("timing.1yAvgLabel")}(₩${recent1YAvg.toLocaleString()})${t("timing.inboundFavorable")}`
+                  : `${t("timing.currentRate")}(₩${curRate.toLocaleString()})${t("timing.1yAvgLabel")}(₩${recent1YAvg.toLocaleString()})${t("timing.inboundLow")}`
               }
             </p>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 10px)",margin:0}}>※ 최근 1년({periodLabel}) 데이터 기준 · 투자 조언이 아닙니다</p>
+            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 10px)",margin:0}}>※ {t("timing.disclaimer")} ({periodLabel})</p>
           </div>
         </div>
       </div>
@@ -1055,7 +1045,7 @@ export default function App() {
   // ═══════════════════════════════════════════════════
   const MultiTab = () => (
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div role="group" aria-label="통화 선택" style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+      <div role="group" aria-label={t("multi.currencySelect")} style={{display:"flex",gap:4,flexWrap:"wrap"}}>
         {Object.entries(CURRENCIES).map(([code,info])=>(
           <button key={code} onClick={()=>setMultiCur(prev=>prev.includes(code)?prev.filter(c=>c!==code):[...prev,code])} aria-pressed={multiCur.includes(code)} style={{
             padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
@@ -1067,7 +1057,7 @@ export default function App() {
         ))}
       </div>
       <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-        <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>정규화 지수 (2020-01=100)</p>
+        <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("multi.normalizedIndex")}</p>
         <ResponsiveContainer width="100%" height={280} minWidth={300}>
           <LineChart data={(()=>{
             const dates=HIST.USD.map(d=>d.d);
@@ -1085,7 +1075,7 @@ export default function App() {
       </div>
       <div style={{background:"#F7F8FA",borderRadius:12,padding:"10px 8px",border:"1px solid #F0F1F3",overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
         <table style={{width:"100%",minWidth:550,borderCollapse:"separate",borderSpacing:"0 2px"}}>
-          <thead><tr>{["통화","현재","5년 평균","최저","최고","편차","시그널"].map(h=><th key={h} style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+          <thead><tr>{[t("multi.currency"),t("multi.current"),t("multi.5yAvg"),t("multi.min"),t("multi.max"),t("multi.deviation"),t("multi.signal")].map(h=><th key={h} style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
           <tbody>{Object.entries(CURRENCIES).map(([code,info])=>{
             const h=HIST[code]||[];const lr=info.base;const a=h.length?Math.round(h.reduce((s,d)=>s+d.r,0)/h.length):0;const n=h.length?Math.min(...h.map(d=>d.r)):0;const x=h.length?Math.max(...h.map(d=>d.r)):0;const sg=getSignal(lr,a);
             return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(14px, 3.5vw, 14px)"}}>{info.flag}</span> <span style={{color:"#222222",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{code}</span></td><td style={{color:"#222222",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,padding:"8px 7px",fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:"#296CF2",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:"#F34646",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?"#F34646":"#00B442",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{sg.i} {sg.s}</span></td></tr>);
@@ -1094,19 +1084,16 @@ export default function App() {
       </div>
 
       <div style={{background:"#F7F8FA",borderRadius:14,padding:"16px",border:"1px solid #F0F1F3"}}>
-        <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>다중 통화 분석이란?</h3>
+        <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.multiTitle")}</h3>
         <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-          위 정규화 지수(2020년 1월 = 100)는 각 통화가 원화 대비 얼마나 강세/약세로 움직였는지를 한눈에 보여줍니다.
-          지수가 100 이상이면 2020년 초 대비 원화가 약세(해외송금 비용 증가), 100 미만이면 원화가 강세(해외송금 비용 감소)입니다.
+          {t("editorial.multiBody1")}
         </p>
         <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-          <strong style={{color:"#222222"}}>활용 예시:</strong>{" "}
-          미국과 일본에 동시에 송금해야 하는 경우, USD 지수는 높은데 JPY 지수가 낮다면
-          일본 송금을 먼저 하고 미국 송금은 환율이 내려올 때 하는 전략을 세울 수 있습니다.
-          편차(%) 값이 클수록 현재 환율이 장기 평균에서 많이 벗어나 있다는 의미입니다.
+          <strong style={{color:"#222222"}}>{t("multi.editorialUsage")}</strong>{" "}
+          {t("multi.editorialBody2")}
         </p>
         <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
-          모든 데이터는 정보 제공 목적이며, 환율 예측이나 투자 권유가 아닙니다.
+          {t("multi.editorialDisclaimer")}
         </p>
       </div>
 
@@ -1231,9 +1218,9 @@ export default function App() {
         <div role="tabpanel" style={{display: tab==="multi" ? "block" : "none"}}><MultiTab/></div>
       </main>
       {posts.length > 0 && (
-        <section aria-label="해외송금 인사이트" style={{maxWidth:1100,margin:"0 auto",padding:"20px 16px 8px"}}>
+        <section aria-label={t("blog.insights")} style={{maxWidth:1100,margin:"0 auto",padding:"20px 16px 8px"}}>
           <h2 style={{color:"#222222",fontSize:"clamp(15px,4vw,17px)",fontWeight:700,margin:"0 0 12px",display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:18}}>📝</span> 해외송금 인사이트
+            <span style={{fontSize:18}}>📝</span> {t("blog.insights")}
           </h2>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {posts.slice(0,5).map(post => (
@@ -1252,20 +1239,20 @@ export default function App() {
                 )}
               </a>
             ))}
-            <button onClick={()=>navigate("/blog")} style={{display:"block",width:"100%",padding:"12px",borderRadius:10,background:"rgba(41,108,242,0.08)",border:"1px solid rgba(41,108,242,0.2)",color:"#296CF2",fontSize:"clamp(13px,3.5vw,14px)",fontWeight:600,cursor:"pointer",textAlign:"center",transition:"background 0.2s",marginTop:4}} onMouseEnter={(e)=>e.target.style.background="rgba(41,108,242,0.12)"} onMouseLeave={(e)=>e.target.style.background="rgba(41,108,242,0.08)"}>모든 글 보기 →</button>
+            <button onClick={()=>navigate("/blog")} style={{display:"block",width:"100%",padding:"12px",borderRadius:10,background:"rgba(41,108,242,0.08)",border:"1px solid rgba(41,108,242,0.2)",color:"#296CF2",fontSize:"clamp(13px,3.5vw,14px)",fontWeight:600,cursor:"pointer",textAlign:"center",transition:"background 0.2s",marginTop:4}} onMouseEnter={(e)=>e.target.style.background="rgba(41,108,242,0.12)"} onMouseLeave={(e)=>e.target.style.background="rgba(41,108,242,0.08)"}>{t("blog.viewAll")}</button>
           </div>
         </section>
       )}
 
       <footer style={{borderTop:"1px solid #F0F1F3",padding:"12px 16px",textAlign:"center"}}>
-        <p style={{color:"#B0B0B0",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ 환율 API + Wise 비교 API · 자동 갱신 · 운영비 $0</p>
+        <p style={{color:"#B0B0B0",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ {t("footer.apiNote")}</p>
         <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.5}}>
-          문의: <a href="mailto:the@designer-kyungho.com" style={{color:"#757575",textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#4C4C4C"} onMouseLeave={(e) => e.target.style.color="#757575"}>the@designer-kyungho.com</a>
+          {t("footer.contact")}: <a href="mailto:the@designer-kyungho.com" style={{color:"#757575",textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#4C4C4C"} onMouseLeave={(e) => e.target.style.color="#757575"}>the@designer-kyungho.com</a>
         </p>
         <p style={{margin:"6px 0 0"}}>
-          <button onClick={() => navigate("/about")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>서비스 소개</button>
-          <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>블로그</button>
-          <button onClick={() => navigate("/privacy")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>개인정보 보호정책</button>
+          <button onClick={() => navigate("/about")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>{t("footer.about")}</button>
+          <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>{t("footer.blog")}</button>
+          <button onClick={() => navigate("/privacy")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>{t("footer.privacy")}</button>
         </p>
       </footer>
     </div>
