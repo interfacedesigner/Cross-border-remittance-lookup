@@ -1,7 +1,9 @@
 import { useRef, useEffect } from "react";
 import { MAX_AMOUNT, DEBOUNCE_MS } from "../styles/theme";
+import { useTheme } from "../utils/useTheme";
 
 export const AmountInput = ({ amount, setAmount }) => {
+  const { c } = useTheme();
   const inputRef = useRef(null);
   const timerRef = useRef(null);
 
@@ -43,15 +45,15 @@ export const AmountInput = ({ amount, setAmount }) => {
     } else {
       e.target.value = "";
     }
-    e.target.style.borderColor = "#D1D5DB";
+    e.target.style.borderColor = c.borderInput;
     e.target.style.boxShadow = "none";
   };
 
   const handleFocus = (e) => {
     const digits = e.target.value.replace(/[^0-9]/g, "");
     e.target.value = digits === "0" ? "" : digits;
-    e.target.style.borderColor = "#296CF2";
-    e.target.style.boxShadow = "0 0 0 3px rgba(41,108,242,0.1)";
+    e.target.style.borderColor = c.accent;
+    e.target.style.boxShadow = `0 0 0 3px ${c.accentBorder}`;
     setTimeout(() => e.target.select(), 0);
   };
 
@@ -81,9 +83,9 @@ export const AmountInput = ({ amount, setAmount }) => {
       style={{
         width:"100%", boxSizing:"border-box",
         padding:"14px 16px", borderRadius:12,
-        border:"1.5px solid #D1D5DB",
-        background:"#FFFFFF",
-        color:"#222222",
+        border:`1.5px solid ${c.borderInput}`,
+        background:c.bgPrimary,
+        color:c.text,
         fontSize:"clamp(20px, 6vw, 28px)", fontWeight:700,
         fontFamily:"Roboto, 'Noto Sans', sans-serif",
         textAlign:"right", outline:"none",

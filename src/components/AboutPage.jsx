@@ -1,30 +1,33 @@
 import React from "react";
+import { useTheme } from "../utils/useTheme";
 
-export const AboutPage = ({ onBack }) => (
-  <div style={{minHeight:"100vh",background:"#FFFFFF",color:"#222222",fontFamily:"'Noto Sans', 'Noto Sans KR', sans-serif"}}>
+export const AboutPage = ({ onBack }) => {
+  const { c } = useTheme();
+  return (
+  <div style={{minHeight:"100vh",background:c.bgPrimary,color:c.text,fontFamily:"'Noto Sans', 'Noto Sans KR', sans-serif"}}>
     {/* 상단 네비게이션 */}
-    <div style={{background:"#F7F8FA",borderBottom:"1px solid #E5E7EB",padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
+    <div style={{background:c.bgCard,borderBottom:`1px solid ${c.border}`,padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
       <div style={{maxWidth:1000,margin:"0 auto",display:"flex",alignItems:"center",gap:12}}>
         <button
           onClick={onBack}
           aria-label="돌아가기"
-          style={{background:"#F7F8FA",border:"1px solid #E5E7EB",borderRadius:8,color:"#222222",padding:"8px 14px",cursor:"pointer",fontSize:14,fontWeight:600,display:"flex",alignItems:"center",gap:6,transition:"all 0.2s",whiteSpace:"nowrap"}}
-          onMouseEnter={e=>{e.currentTarget.style.background="#EFF0F3";}}
-          onMouseLeave={e=>{e.currentTarget.style.background="#F7F8FA";}}
+          style={{background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:8,color:c.text,padding:"8px 14px",cursor:"pointer",fontSize:14,fontWeight:600,display:"flex",alignItems:"center",gap:6,transition:"all 0.2s",whiteSpace:"nowrap"}}
+          onMouseEnter={e=>{e.currentTarget.style.background=c.bgCardHover;}}
+          onMouseLeave={e=>{e.currentTarget.style.background=c.bgCard;}}
         >← 돌아가기</button>
         <div>
           <h1 style={{margin:0,fontSize:"clamp(16px,4vw,18px)",fontWeight:800}}>서비스 소개</h1>
-          <p style={{margin:0,fontSize:12,color:"#757575"}}>해외송금 수수료 비교</p>
+          <p style={{margin:0,fontSize:12,color:c.textDim}}>해외송금 수수료 비교</p>
         </div>
       </div>
     </div>
 
     {/* 히어로 */}
-    <div style={{background:"linear-gradient(135deg,rgba(41,108,242,0.08) 0%,rgba(139,92,246,0.06) 100%)",borderBottom:"1px solid #E5E7EB",padding:"clamp(40px,8vw,80px) 16px",textAlign:"center"}}>
+    <div style={{background:"linear-gradient(135deg,rgba(41,108,242,0.08) 0%,rgba(139,92,246,0.06) 100%)",borderBottom:`1px solid ${c.border}`,padding:"clamp(40px,8vw,80px) 16px",textAlign:"center"}}>
       <div style={{maxWidth:700,margin:"0 auto"}}>
         <div style={{fontSize:"clamp(40px,10vw,64px)",marginBottom:16}}>⚖️</div>
         <h2 style={{fontSize:"clamp(22px,5vw,36px)",fontWeight:800,margin:"0 0 16px",lineHeight:1.2}}>해외송금, 편향 없이 공정하게 비교</h2>
-        <p style={{color:"#4C4C4C",fontSize:"clamp(15px,3.8vw,18px)",lineHeight:1.8,margin:0}}>
+        <p style={{color:c.textMuted,fontSize:"clamp(15px,3.8vw,18px)",lineHeight:1.8,margin:0}}>
           Wise, 토스, 센트비, 모인, 와이어바알리 등 8개 서비스의<br style={{display:"none"}}/>
           수수료와 환율을 한눈에 비교해 가장 유리한 송금 방법을 찾아드립니다.
         </p>
@@ -34,8 +37,8 @@ export const AboutPage = ({ onBack }) => (
     <div style={{maxWidth:1000,margin:"0 auto",padding:"32px 16px 64px"}}>
 
       {/* 주요 기능 */}
-      <div style={{background:"#F7F8FA",border:"1px solid #E5E7EB",borderRadius:16,padding:"clamp(20px,4vw,36px)",marginBottom:16}}>
-        <h2 style={{color:"#296CF2",fontSize:"clamp(18px,4.5vw,22px)",fontWeight:700,textAlign:"center",marginBottom:28}}>주요 기능</h2>
+      <div style={{background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:16,padding:"clamp(20px,4vw,36px)",marginBottom:16}}>
+        <h2 style={{color:c.accent,fontSize:"clamp(18px,4.5vw,22px)",fontWeight:700,textAlign:"center",marginBottom:28}}>주요 기능</h2>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:16}}>
           {[
             {icon:"💰",title:"수수료 실시간 비교",desc:"Wise·토스·센트비·모인·와이어바알리·PayPal·하나·신한 8개 서비스의 송금 수수료를 한 화면에서 비교합니다."},
@@ -46,21 +49,21 @@ export const AboutPage = ({ onBack }) => (
             {icon:"📱",title:"PWA 앱 설치 지원",desc:"별도 앱 설치 없이 홈 화면에 추가하면 앱처럼 사용 가능합니다. iOS Safari와 Android Chrome 모두 지원합니다."},
           ].map(f=>(
             <div key={f.title}
-              style={{background:"#FFFFFF",border:"1px solid #E5E7EB",borderRadius:12,padding:20,transition:"all 0.2s",cursor:"default"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(41,108,242,0.4)";e.currentTarget.style.background="rgba(41,108,242,0.03)";}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor="#E5E7EB";e.currentTarget.style.background="#FFFFFF";}}
+              style={{background:c.bgPrimary,border:`1px solid ${c.border}`,borderRadius:12,padding:20,transition:"all 0.2s",cursor:"default"}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor=c.accentBorder;e.currentTarget.style.background=c.accentBg;}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor=c.border;e.currentTarget.style.background=c.bgPrimary;}}
             >
               <div style={{fontSize:32,marginBottom:12}}>{f.icon}</div>
-              <h3 style={{color:"#222222",fontSize:"clamp(14px,3.8vw,16px)",fontWeight:700,marginBottom:8}}>{f.title}</h3>
-              <p style={{color:"#4C4C4C",fontSize:"clamp(13px,3.5vw,14px)",lineHeight:1.7,margin:0}}>{f.desc}</p>
+              <h3 style={{color:c.text,fontSize:"clamp(14px,3.8vw,16px)",fontWeight:700,marginBottom:8}}>{f.title}</h3>
+              <p style={{color:c.textMuted,fontSize:"clamp(13px,3.5vw,14px)",lineHeight:1.7,margin:0}}>{f.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* 숫자로 보는 서비스 */}
-      <div style={{background:"linear-gradient(135deg,rgba(41,108,242,0.06) 0%,rgba(139,92,246,0.05) 100%)",border:"1px solid rgba(41,108,242,0.2)",borderRadius:16,padding:"clamp(20px,4vw,36px)",marginBottom:16,textAlign:"center"}}>
-        <h2 style={{color:"#222222",fontSize:"clamp(18px,4.5vw,22px)",fontWeight:700,marginBottom:28}}>숫자로 보는 서비스</h2>
+      <div style={{background:"linear-gradient(135deg,rgba(41,108,242,0.06) 0%,rgba(139,92,246,0.05) 100%)",border:`1px solid ${c.accentBorder}`,borderRadius:16,padding:"clamp(20px,4vw,36px)",marginBottom:16,textAlign:"center"}}>
+        <h2 style={{color:c.text,fontSize:"clamp(18px,4.5vw,22px)",fontWeight:700,marginBottom:28}}>숫자로 보는 서비스</h2>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:24}}>
           {[
             {num:"8개",label:"비교 가능한 송금 서비스",sub:"Wise·토스·센트비·모인 등"},
@@ -69,17 +72,17 @@ export const AboutPage = ({ onBack }) => (
             {num:"주 2회",label:"데이터 자동 업데이트",sub:"매주 화·목 오전 9시 KST"},
           ].map(s=>(
             <div key={s.num} style={{padding:16}}>
-              <div style={{fontSize:"clamp(28px,7vw,40px)",fontWeight:800,color:"#296CF2",marginBottom:6}}>{s.num}</div>
-              <div style={{color:"#222222",fontWeight:600,fontSize:"clamp(13px,3.5vw,15px)",marginBottom:4}}>{s.label}</div>
-              <div style={{color:"#757575",fontSize:"clamp(11px,3vw,13px)"}}>{s.sub}</div>
+              <div style={{fontSize:"clamp(28px,7vw,40px)",fontWeight:800,color:c.accent,marginBottom:6}}>{s.num}</div>
+              <div style={{color:c.text,fontWeight:600,fontSize:"clamp(13px,3.5vw,15px)",marginBottom:4}}>{s.label}</div>
+              <div style={{color:c.textDim,fontSize:"clamp(11px,3vw,13px)"}}>{s.sub}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* 왜 이 서비스를 써야 하나요 */}
-      <div style={{background:"rgba(255,160,18,0.05)",border:"1px solid rgba(255,160,18,0.2)",borderLeft:"4px solid #FFA012",borderRadius:"0 12px 12px 0",padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
-        <h2 style={{color:"#FFA012",fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,marginBottom:20}}>왜 이 서비스를 선택해야 하나요?</h2>
+      <div style={{background:"rgba(255,160,18,0.05)",border:"1px solid rgba(255,160,18,0.2)",borderLeft:`4px solid ${c.warning}`,borderRadius:"0 12px 12px 0",padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
+        <h2 style={{color:c.warning,fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,marginBottom:20}}>왜 이 서비스를 선택해야 하나요?</h2>
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           {[
             {strong:"편향 없는 공정 비교",desc:"특정 송금 서비스와 어떠한 제휴·광고 관계도 없습니다. 오직 수수료와 환율 데이터만으로 순위를 매깁니다."},
@@ -89,17 +92,17 @@ export const AboutPage = ({ onBack }) => (
             {strong:"주 2회 자동 갱신",desc:"GitHub Actions를 통해 매주 화요일·목요일 오전 9시(KST)에 데이터를 자동 업데이트합니다. 최신 정보를 유지합니다."},
             {strong:"오픈소스 투명 운영",desc:"서비스 코드가 GitHub에 공개되어 있어 데이터 수집 방식과 계산 로직을 누구나 확인할 수 있습니다."},
           ].map(b=>(
-            <div key={b.strong} style={{background:"#FFFFFF",borderRadius:10,padding:"14px 18px",display:"flex",alignItems:"flex-start",gap:14}}>
-              <span style={{background:"linear-gradient(135deg,#296CF2,#8B5CF6)",borderRadius:"50%",width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700,flexShrink:0,marginTop:1}}>✓</span>
-              <span style={{color:"#4C4C4C",fontSize:"clamp(13px,3.5vw,15px)",lineHeight:1.7}}><strong style={{color:"#222222"}}>{b.strong}:</strong> {b.desc}</span>
+            <div key={b.strong} style={{background:c.bgPrimary,borderRadius:10,padding:"14px 18px",display:"flex",alignItems:"flex-start",gap:14}}>
+              <span style={{background:`linear-gradient(135deg,${c.accent},#8B5CF6)`,borderRadius:"50%",width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:700,flexShrink:0,marginTop:1}}>✓</span>
+              <span style={{color:c.textMuted,fontSize:"clamp(13px,3.5vw,15px)",lineHeight:1.7}}><strong style={{color:c.text}}>{b.strong}:</strong> {b.desc}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* 비교 대상 서비스 */}
-      <div style={{background:"#F7F8FA",border:"1px solid #E5E7EB",borderRadius:16,padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
-        <h2 style={{color:"#296CF2",fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,textAlign:"center",marginBottom:20}}>비교 대상 8개 서비스</h2>
+      <div style={{background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:16,padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
+        <h2 style={{color:c.accent,fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,textAlign:"center",marginBottom:20}}>비교 대상 8개 서비스</h2>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:10}}>
           {[
             {name:"Wise (와이즈)",tag:"글로벌 핀테크",color:"#00B442"},
@@ -111,11 +114,11 @@ export const AboutPage = ({ onBack }) => (
             {name:"하나은행",tag:"시중 은행",color:"#757575"},
             {name:"신한은행",tag:"시중 은행",color:"#757575"},
           ].map(s=>(
-            <div key={s.name} style={{background:"#FFFFFF",border:"1px solid #E5E7EB",borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
+            <div key={s.name} style={{background:c.bgPrimary,border:`1px solid ${c.border}`,borderRadius:10,padding:"12px 16px",display:"flex",alignItems:"center",gap:10}}>
               <div style={{width:4,height:36,borderRadius:2,background:s.color,flexShrink:0}}/>
               <div>
-                <div style={{color:"#222222",fontWeight:600,fontSize:"clamp(13px,3.5vw,14px)"}}>{s.name}</div>
-                <div style={{color:"#757575",fontSize:"clamp(11px,3vw,12px)",marginTop:2}}>{s.tag}</div>
+                <div style={{color:c.text,fontWeight:600,fontSize:"clamp(13px,3.5vw,14px)"}}>{s.name}</div>
+                <div style={{color:c.textDim,fontSize:"clamp(11px,3vw,12px)",marginTop:2}}>{s.tag}</div>
               </div>
             </div>
           ))}
@@ -123,8 +126,8 @@ export const AboutPage = ({ onBack }) => (
       </div>
 
       {/* 데이터 출처 & 투명성 (E-E-A-T) */}
-      <div style={{background:"#F7F8FA",border:"1px solid #E5E7EB",borderRadius:16,padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
-        <h2 style={{color:"#296CF2",fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,textAlign:"center",marginBottom:20}}>데이터 출처 및 투명성</h2>
+      <div style={{background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:16,padding:"clamp(20px,4vw,32px)",marginBottom:16}}>
+        <h2 style={{color:c.accent,fontSize:"clamp(17px,4.2vw,20px)",fontWeight:700,textAlign:"center",marginBottom:20}}>데이터 출처 및 투명성</h2>
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           {[
             {icon:"📊",title:"환율 데이터",desc:"open.er-api.com의 무료 중간시장 환율 API를 사용합니다. 매일 자동 갱신되며, 특정 금융기관의 환율이 아닌 시장 중간값(mid-market rate)을 기준으로 합니다."},
@@ -132,11 +135,11 @@ export const AboutPage = ({ onBack }) => (
             {icon:"🤖",title:"블로그 콘텐츠",desc:"AI(Groq Llama 3.3)가 실시간 시장 데이터를 기반으로 초안을 작성하며, 모든 수치는 실제 API 데이터에서 인용됩니다. 투기 조언이나 특정 서비스 추천을 하지 않습니다."},
             {icon:"🔄",title:"업데이트 주기",desc:"환율·수수료·블로그 콘텐츠가 매일 오전 9시(KST)에 GitHub Actions를 통해 자동 갱신됩니다. 모든 소스 코드는 GitHub에 공개되어 있습니다."},
           ].map(item=>(
-            <div key={item.title} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"12px 14px",background:"#FFFFFF",borderRadius:10}}>
+            <div key={item.title} style={{display:"flex",alignItems:"flex-start",gap:12,padding:"12px 14px",background:c.bgPrimary,borderRadius:10}}>
               <span style={{fontSize:24,flexShrink:0}}>{item.icon}</span>
               <div>
-                <p style={{color:"#222222",fontWeight:600,fontSize:"clamp(13px,3.5vw,15px)",margin:"0 0 4px"}}>{item.title}</p>
-                <p style={{color:"#4C4C4C",fontSize:"clamp(12px,3vw,13px)",lineHeight:1.7,margin:0}}>{item.desc}</p>
+                <p style={{color:c.text,fontWeight:600,fontSize:"clamp(13px,3.5vw,15px)",margin:"0 0 4px"}}>{item.title}</p>
+                <p style={{color:c.textMuted,fontSize:"clamp(12px,3vw,13px)",lineHeight:1.7,margin:0}}>{item.desc}</p>
               </div>
             </div>
           ))}
@@ -145,8 +148,8 @@ export const AboutPage = ({ onBack }) => (
 
       {/* 면책 조항 */}
       <div style={{background:"rgba(243,70,70,0.04)",border:"1px solid rgba(243,70,70,0.12)",borderRadius:12,padding:"clamp(16px,3vw,24px)",marginBottom:16}}>
-        <h3 style={{color:"#F34646",fontSize:"clamp(14px,3.5vw,16px)",fontWeight:700,margin:"0 0 10px"}}>⚠️ 면책 조항</h3>
-        <ul style={{color:"#4C4C4C",fontSize:"clamp(12px,3vw,13px)",lineHeight:1.8,paddingLeft:18,margin:0}}>
+        <h3 style={{color:c.danger,fontSize:"clamp(14px,3.5vw,16px)",fontWeight:700,margin:"0 0 10px"}}>⚠️ 면책 조항</h3>
+        <ul style={{color:c.textMuted,fontSize:"clamp(12px,3vw,13px)",lineHeight:1.8,paddingLeft:18,margin:0}}>
           <li>본 서비스는 정보 제공 목적이며, 특정 송금 서비스를 추천하거나 보증하지 않습니다.</li>
           <li>표시된 환율·수수료는 조회 시점 기준이며, 실제 송금 시 차이가 발생할 수 있습니다.</li>
           <li>투자·금융 의사결정은 반드시 각 서비스의 공식 정보를 확인한 후 진행하세요.</li>
@@ -155,17 +158,17 @@ export const AboutPage = ({ onBack }) => (
       </div>
 
       {/* CTA */}
-      <div style={{textAlign:"center",background:"#F7F8FA",border:"1px solid #E5E7EB",borderRadius:16,padding:"clamp(28px,5vw,48px)"}}>
-        <h2 style={{color:"#222222",fontSize:"clamp(18px,4.5vw,24px)",fontWeight:800,marginBottom:12}}>지금 바로 비교해보세요!</h2>
-        <p style={{color:"#4C4C4C",fontSize:"clamp(14px,3.8vw,16px)",marginBottom:24,lineHeight:1.7}}>
+      <div style={{textAlign:"center",background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:16,padding:"clamp(28px,5vw,48px)"}}>
+        <h2 style={{color:c.text,fontSize:"clamp(18px,4.5vw,24px)",fontWeight:800,marginBottom:12}}>지금 바로 비교해보세요!</h2>
+        <p style={{color:c.textMuted,fontSize:"clamp(14px,3.8vw,16px)",marginBottom:24,lineHeight:1.7}}>
           100만원 송금 기준, 서비스마다 최대 수만 원 차이가 납니다.<br/>
           몇 초만에 가장 저렴한 방법을 찾을 수 있습니다.
         </p>
         <button
           onClick={onBack}
-          style={{background:"linear-gradient(135deg,#296CF2,#8B5CF6)",color:"#fff",border:"none",borderRadius:50,padding:"clamp(12px,3vw,16px) clamp(28px,6vw,48px)",fontSize:"clamp(15px,4vw,18px)",fontWeight:700,cursor:"pointer",transition:"all 0.2s",boxShadow:"0 4px 20px rgba(41,108,242,0.3)"}}
-          onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 30px rgba(41,108,242,0.4)";}}
-          onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 20px rgba(41,108,242,0.3)";}}
+          style={{background:`linear-gradient(135deg,${c.accent},#8B5CF6)`,color:"#fff",border:"none",borderRadius:50,padding:"clamp(12px,3vw,16px) clamp(28px,6vw,48px)",fontSize:"clamp(15px,4vw,18px)",fontWeight:700,cursor:"pointer",transition:"all 0.2s",boxShadow:`0 4px 20px ${c.accentBorder}`}}
+          onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow=`0 8px 30px ${c.accentBorder}`;}}
+          onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow=`0 4px 20px ${c.accentBorder}`;}}
         >
           ⚖️ 수수료 비교 시작하기
         </button>
@@ -173,14 +176,15 @@ export const AboutPage = ({ onBack }) => (
     </div>
 
     {/* 푸터 */}
-    <div style={{borderTop:"1px solid #E5E7EB",padding:"16px",textAlign:"center"}}>
-      <p style={{color:"#B0B0B0",fontSize:12,margin:0}}>© 2026 해외송금 수수료 비교. All rights reserved.</p>
+    <div style={{borderTop:`1px solid ${c.border}`,padding:"16px",textAlign:"center"}}>
+      <p style={{color:c.textDarker,fontSize:12,margin:0}}>© 2026 해외송금 수수료 비교. All rights reserved.</p>
       <p style={{margin:"8px 0 0",display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
-        <button onClick={onBack} style={{background:"none",border:"none",color:"#296CF2",fontSize:13,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0}}>홈으로</button>
-        <a href="/blog" style={{color:"#949494",fontSize:13,textDecoration:"underline",textUnderlineOffset:3}}>블로그</a>
-        <a href="/privacy" style={{color:"#949494",fontSize:13,textDecoration:"underline",textUnderlineOffset:3}}>개인정보 보호정책</a>
+        <button onClick={onBack} style={{background:"none",border:"none",color:c.accent,fontSize:13,cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0}}>홈으로</button>
+        <a href="/blog" style={{color:c.textDark,fontSize:13,textDecoration:"underline",textUnderlineOffset:3}}>블로그</a>
+        <a href="/privacy" style={{color:c.textDark,fontSize:13,textDecoration:"underline",textUnderlineOffset:3}}>개인정보 보호정책</a>
       </p>
-      <p style={{color:"#B0B0B0",fontSize:11,margin:"8px 0 0"}}>문의: the@designer-kyungho.com</p>
+      <p style={{color:c.textDarker,fontSize:11,margin:"8px 0 0"}}>문의: the@designer-kyungho.com</p>
     </div>
   </div>
-);
+  );
+};

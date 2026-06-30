@@ -1,6 +1,8 @@
 import { useRef, useEffect } from "react";
+import { useTheme } from "../utils/useTheme";
 
 export const AdSenseAd = ({ slot, format = "auto", responsive = true, style = {} }) => {
+  const { c } = useTheme();
   const adRef = useRef(null);
 
   useEffect(() => {
@@ -17,15 +19,15 @@ export const AdSenseAd = ({ slot, format = "auto", responsive = true, style = {}
     <aside aria-label="광고" style={{
       margin: "20px 0",
       padding: "12px",
-      background: "#F7F8FA",
+      background: c.bgCard,
       borderRadius: 12,
-      border: "1px solid #E5E7EB",
+      border: `1px solid ${c.border}`,
       minHeight: 100,
       overflow: "hidden",
       ...style
     }}>
       <p style={{
-        color: "#B0B0B0",
+        color: c.textDarker,
         fontSize: 10,
         margin: "0 0 6px",
         textAlign: "center",
