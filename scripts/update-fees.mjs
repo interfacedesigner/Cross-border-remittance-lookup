@@ -240,7 +240,82 @@ async function fetchHanaRates() {
 }
 
 // ═══════════════════════════════════════════════
-// 5. Korean service fixed fees (수동 관리)
+// 5. SentBe API (oxygen.sentbe.com, CryptoJS AES)
+// ═══════════════════════════════════════════════
+import crypto from "crypto";
+
+const SENTBE_KEY = "cXdqZmlvcWVqd2xd2pmam9pZaG9nZnFl";
+const SENTBE_MAP = {
+  USD: { country: 239, currency: 2 },  JPY: { country: 112, currency: 11 },
+  EUR: { country: 83, currency: 19 },  GBP: { country: 237, currency: 17 },
+  CNY: { country: 47, currency: 9 },   AUD: { country: 14, currency: 15 },
+  CAD: { country: 41, currency: 16 },  SGD: { country: 201, currency: 21 },
+};
+
+function sentbeEvpKDF(password, salt) {
+  const pass = Buffer.from(password, "utf-8");
+  let derived = Buffer.alloc(0), block = Buffer.alloc(0);
+  while (derived.length < 48) {
+    block = crypto.createHash("md5").update(Buffer.concat([block, pass, salt])).digest();
+    derived = Buffer.concat([derived, block]);
+  }
+  return { key: derived.slice(0, 32), iv: derived.slice(32, 48) };
+}
+
+function sentbeEncrypt(text) {
+  const salt = crypto.randomBytes(8);
+  const { key, iv } = sentbeEvpKDF(SENTBE_KEY, salt);
+  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+  let enc = cipher.update(text, "utf8");
+  enc = Buffer.concat([enc, cipher.final()]);
+  return Buffer.concat([Buffer.from("Salted__"), salt, enc]).toString("base64");
+}
+
+function sentbeDecrypt(b64) {
+  const data = Buffer.from(b64, "base64");
+  const salt = data.slice(8, 16), ct = data.slice(16);
+  const { key, iv } = sentbeEvpKDF(SENTBE_KEY, salt);
+  const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
+  return Buffer.concat([decipher.update(ct), decipher.final()]).toString("utf8");
+}
+
+async function fetchSentBeRates() {
+  const results = {};
+  for (const cur of CURRENCIES) {
+    const m = SENTBE_MAP[cur];
+    if (!m) continue;
+    try {
+      const payload = { platform: 1, pid: null, country: m.country, currency: m.currency, source_country: 209, source_currency: 1 };
+      const encrypted = sentbeEncrypt(JSON.stringify(payload));
+      const resp = await fetch("https://oxygen.sentbe.com/web/landing/page", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", "Accept": "application/json",
+          "Origin": "https://www.sentbe.com", "Referer": "https://www.sentbe.com/",
+          "locale": "2", "platform": "1", "api_version": "1.94",
+        },
+        body: JSON.stringify({ data: encrypted }),
+      });
+      const respJson = await resp.json();
+      if (typeof respJson.data === "string") {
+        const dec = JSON.parse(sentbeDecrypt(respJson.data));
+        const banks = (dec.delivery_method || []).filter(m => (m.label || "").toLowerCase().includes("bank"));
+        results[cur] = {
+          baseRate: dec.base_rate,
+          expressFee: banks.find(m => m.fee?.fixed === 5000)?.fee?.fixed ?? 5000,
+          standardFee: banks.find(m => m.fee?.fixed === 2500)?.fee?.fixed ?? 2500,
+          feeRate: banks[0]?.fee?.rate ?? 0,
+        };
+      }
+    } catch (err) {
+      console.warn(`    ⚠️ SentBe ${cur}: ${err.message}`);
+    }
+  }
+  return Object.keys(results).length > 0 ? results : null;
+}
+
+// ═══════════════════════════════════════════════
+// 6. Korean service fixed fees (수동 관리)
 //    API가 없는 한국 서비스의 고정 수수료
 // ═══════════════════════════════════════════════
 function loadFixedFees() {
@@ -253,7 +328,7 @@ function loadFixedFees() {
 // ═══════════════════════════════════════════════
 // Merge: Wise API data + Korean fixed fees
 // ═══════════════════════════════════════════════
-function buildServiceList(wiseProviders, fixedFees, currency, midRate, moinQuotes, hanaRates) {
+function buildServiceList(wiseProviders, fixedFees, currency, midRate, moinQuotes, hanaRates, sentbeRates) {
   const unit = CURRENCY_META[currency]?.unit || 1;
 
   // Map of known service IDs
@@ -362,6 +437,25 @@ function buildServiceList(wiseProviders, fixedFees, currency, midRate, moinQuote
       promotions: "인터넷뱅킹 환율우대 50%",
       note: `매매기준율 ₩${h.midRate.toLocaleString()}, 전신료 포함`,
       source: "hana-api",
+    };
+  }
+
+  // Step 1.8: Add SentBe live rate data
+  if (sentbeRates?.[currency]) {
+    const sb = sentbeRates[currency];
+    const appliedRateKRW = unit === 100 ? Math.round(sb.baseRate * unit) : Math.round(sb.baseRate);
+    const spread = midRate > 0 ? +((appliedRateKRW / midRate - 1) * 100).toFixed(3) : 0;
+    result["sentbe"] = {
+      id: "sentbe",
+      ...SERVICE_META["sentbe"],
+      supported: true,
+      fee: sb.standardFee || 2500,
+      spread: Math.max(0, spread),
+      appliedRate: appliedRateKRW,
+      speed: "5분~2일",
+      promotions: "",
+      note: `스탠다드 ₩${sb.standardFee} / 익스프레스 ₩${sb.expressFee}`,
+      source: "sentbe-api",
     };
   }
 
@@ -498,6 +592,7 @@ async function main() {
   const rates = {};
   let successCount = 0;
   let hanaRates = null; // 하나은행: 한 번만 조회 (전 통화 포함)
+  let sentbeRates = null; // 센드비: 한 번만 조회
 
   for (const currency of CURRENCIES) {
     const midRate = midRates[currency];
@@ -511,13 +606,21 @@ async function main() {
 
     console.log(`\n  🔍 ${CURRENCY_META[currency].flag} ${currency} (midRate: ₩${midRate.toLocaleString()})...`);
 
-    // Fetch Wise + MOIN + Hana in parallel
+    // Fetch Hana + SentBe (1회만, 전 통화)
     if (!hanaRates) {
       hanaRates = await fetchHanaRates();
       if (hanaRates) {
         console.log(`    📡 하나은행: ${Object.keys(hanaRates).length} currencies loaded`);
       } else {
         console.log("    📂 하나은행: no data, using fixed fees");
+      }
+    }
+    if (!sentbeRates) {
+      sentbeRates = await fetchSentBeRates();
+      if (sentbeRates) {
+        console.log(`    📡 센드비: ${Object.keys(sentbeRates).length} currencies loaded`);
+      } else {
+        console.log("    📂 센드비: no data, using fixed fees");
       }
     }
 
@@ -547,7 +650,7 @@ async function main() {
     }
 
     // Merge
-    const services = buildServiceList(wiseProviders, fixedFees, currency, midRate, moinData, hanaRates);
+    const services = buildServiceList(wiseProviders, fixedFees, currency, midRate, moinData, hanaRates, sentbeRates);
     console.log(`    ✅ ${services.filter(s => s.supported).length} services compiled`);
 
     rates[currency] = {
@@ -580,6 +683,27 @@ async function main() {
   };
 
   writeFileSync(OUT_PATH, JSON.stringify(output, null, 2));
+
+  // Worker KV에 센드비 데이터 업로드 (Worker에서 MD5 지원 안 되므로 배치에서 갱신)
+  if (sentbeRates && process.env.CLOUDFLARE_API_TOKEN && process.env.CF_ACCOUNT_ID && process.env.CF_KV_NAMESPACE_ID) {
+    try {
+      const kvData = await fetch(`https://remittance-rates.remittance-app.workers.dev/api/rates`).then(r => r.json());
+      kvData.sentbe = sentbeRates;
+      kvData.updatedAt = now.toISOString();
+      const putResp = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${process.env.CF_ACCOUNT_ID}/storage/kv/namespaces/${process.env.CF_KV_NAMESPACE_ID}/values/live-rates`,
+        {
+          method: "PUT",
+          headers: { "Authorization": `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`, "Content-Type": "application/json" },
+          body: JSON.stringify(kvData),
+        }
+      );
+      if (putResp.ok) console.log("  📤 Worker KV: SentBe data uploaded");
+      else console.warn("  ⚠️ Worker KV upload failed:", putResp.status);
+    } catch (err) {
+      console.warn("  ⚠️ Worker KV upload error:", err.message);
+    }
+  }
 
   console.log("\n═══════════════════════════════════════════");
   console.log(`  ✅ Done: ${successCount}/${CURRENCIES.length} currencies`);

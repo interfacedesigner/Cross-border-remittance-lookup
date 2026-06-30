@@ -204,11 +204,24 @@ export function computeComparison(currency, amount, midRate, workerData, policie
     });
   }
 
-  // ── 고정 정책 서비스 (센드비, 와이어바알리, 신한, wise, paypal) ──
-  const fixedServices = ["sentbe", "wirebarley", "shinhan", "wise", "paypal"];
-  // moin, toss, hana: Worker에서 없으면 폴백
+  // ── 센드비 (Worker 실시간) ──
+  const sentbeData = workerData?.sentbe?.[currency];
+  if (sentbeData) {
+    const sbRate = unit === 100 ? Math.round(sentbeData.baseRate * unit) : Math.round(sentbeData.baseRate);
+    const spread = midRate > 0 ? +((sbRate / midRate - 1) * 100).toFixed(3) : 0;
+    addService("sentbe", "SentBe", "센트비", {
+      fee: sentbeData.standardFee || 2500, spread: Math.max(0, spread), appliedRate: sbRate,
+      speed: "5분~2일", source: "live",
+      note: `스탠다드 ₩${sentbeData.standardFee} / 익스프레스 ₩${sentbeData.expressFee}`,
+    });
+  }
+
+  // ── 고정 정책 서비스 (와이어바알리, 신한, wise, paypal) ──
+  const fixedServices = ["wirebarley", "shinhan", "wise", "paypal"];
+  // Worker에서 없으면 폴백
   if (!moinData) fixedServices.push("moin", "toss");
   if (!hanaData) fixedServices.push("hana");
+  if (!sentbeData) fixedServices.push("sentbe");
 
   for (const id of fixedServices) {
     const svc = policies?.services?.[id];
