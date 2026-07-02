@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import DOMPurify from "dompurify";
 import { AdSenseAd } from "./AdSenseAd";
 import { useTheme } from "../utils/useTheme";
+import { fonts, fontWeight as fw, lineHeight as lh, spacing, radius, typeScale } from "../styles/theme";
 
 const getBlogArticleStyles = (c) => `
 .blog-article h1{color:${c.text};font-size:clamp(20px,5vw,24px);font-weight:800;margin:28px 0 14px;line-height:1.4}
@@ -37,30 +38,30 @@ export const BlogPostPage = ({ slug, posts, navigate }) => {
   }, [post, c]);
 
   if (!post) return (
-    <div style={{minHeight:"100vh",background:c.bgPrimary,color:c.text,fontFamily:"'Noto Sans', 'Noto Sans KR', sans-serif",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:40}}>
-      <p style={{fontSize:48,margin:"0 0 16px"}}>📭</p>
-      <p style={{fontSize:18,fontWeight:600,margin:"0 0 8px"}}>포스트를 찾을 수 없습니다</p>
+    <div style={{minHeight:"100vh",background:c.bgPrimary,color:c.text,fontFamily:fonts.primary,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:40}}>
+      <p style={{fontSize:typeScale["5xl"],margin:"0 0 16px"}}>📭</p>
+      <p style={{fontSize:18,fontWeight:fw.semibold,margin:"0 0 8px"}}>포스트를 찾을 수 없습니다</p>
       <p style={{color:c.textDim,margin:"0 0 24px"}}>요청하신 글이 존재하지 않거나 삭제되었습니다.</p>
-      <button onClick={()=>navigate("/blog")} style={{padding:"10px 24px",borderRadius:10,background:c.accentBg,border:`1px solid ${c.accentBorder}`,color:c.accent,fontSize:14,fontWeight:600,cursor:"pointer"}}>블로그 목록으로</button>
+      <button onClick={()=>navigate("/blog")} style={{padding:"10px 24px",borderRadius:radius.xl,background:c.accentBg,border:`1px solid ${c.accentBorder}`,color:c.accent,fontSize:typeScale.lg,fontWeight:fw.semibold,cursor:"pointer"}}>블로그 목록으로</button>
     </div>
   );
 
   return (
-    <div style={{minHeight:"100vh",background:c.bgPrimary,color:c.text,fontFamily:"'Noto Sans', 'Noto Sans KR', sans-serif"}}>
+    <div style={{minHeight:"100vh",background:c.bgPrimary,color:c.text,fontFamily:fonts.primary}}>
       <div style={{background:c.bgCard,borderBottom:`1px solid ${c.border}`,padding:"16px",position:"sticky",top:0,zIndex:10,backdropFilter:"blur(12px)"}}>
         <div style={{maxWidth:800,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <button onClick={()=>navigate("/blog")} aria-label="블로그 목록으로" style={{background:"none",border:"none",color:c.accent,cursor:"pointer",fontSize:14,padding:0,display:"flex",alignItems:"center",gap:4}}>← 블로그</button>
-          <span style={{color:c.textDark,fontSize:12}}>{post.category}</span>
+          <button onClick={()=>navigate("/blog")} aria-label="블로그 목록으로" style={{background:"none",border:"none",color:c.accent,cursor:"pointer",fontSize:typeScale.lg,padding:0,display:"flex",alignItems:"center",gap:spacing.xs}}>← 블로그</button>
+          <span style={{color:c.textDark,fontSize:typeScale.base}}>{post.category}</span>
           <div style={{width:60}}/>
         </div>
       </div>
       <header style={{maxWidth:800,margin:"0 auto",padding:"32px 16px 24px"}}>
-        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-          <span style={{fontSize:12,color:c.accent,fontWeight:600,background:c.accentBg,padding:"4px 12px",borderRadius:6}}>{post.category}</span>
-          <span style={{fontSize:13,color:c.textDark}}>{post.date}</span>
+        <div style={{display:"flex",alignItems:"center",gap:spacing.lg,marginBottom:spacing["2xl"]}}>
+          <span style={{fontSize:typeScale.base,color:c.accent,fontWeight:fw.semibold,background:c.accentBg,padding:"4px 12px",borderRadius:radius.md}}>{post.category}</span>
+          <span style={{fontSize:typeScale.md,color:c.textDark}}>{post.date}</span>
         </div>
-        <h1 style={{margin:0,fontSize:"clamp(22px,5.5vw,30px)",fontWeight:800,lineHeight:1.35,color:c.text}}>{post.title}</h1>
-        {post.summary && <p style={{margin:"14px 0 0",color:c.textDim,fontSize:"clamp(14px,3.5vw,15px)",lineHeight:1.7}}>{post.summary}</p>}
+        <h1 style={{margin:0,fontSize:"clamp(22px,5.5vw,30px)",fontWeight:fw.extrabold,lineHeight:1.35,color:c.text}}>{post.title}</h1>
+        {post.summary && <p style={{margin:"14px 0 0",color:c.textDim,fontSize:"clamp(14px,3.5vw,15px)",lineHeight:lh.spacious}}>{post.summary}</p>}
       </header>
       {post.contentHtml ? (
         <article className="blog-article" style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px"}} dangerouslySetInnerHTML={{__html:DOMPurify.sanitize(post.contentHtml)}} />
@@ -73,18 +74,18 @@ export const BlogPostPage = ({ slug, posts, navigate }) => {
         <AdSenseAd slot="5566778899" format="auto" responsive={true} style={{ minHeight: 90 }} />
       </div>
       <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 32px"}}>
-        <button onClick={()=>navigate("/")} style={{display:"block",width:"100%",padding:"16px",borderRadius:12,background:"linear-gradient(135deg,rgba(41,108,242,0.08),rgba(139,92,246,0.08))",border:"1px solid rgba(41,108,242,0.2)",color:c.accent,fontSize:"clamp(14px,3.5vw,16px)",fontWeight:700,cursor:"pointer",textAlign:"center",transition:"all 0.2s"}} onMouseEnter={(e)=>e.target.style.background="linear-gradient(135deg,rgba(41,108,242,0.15),rgba(139,92,246,0.15))"} onMouseLeave={(e)=>e.target.style.background="linear-gradient(135deg,rgba(41,108,242,0.08),rgba(139,92,246,0.08))"}>⚖️ 8개 서비스 실시간 수수료 비교하기</button>
+        <button onClick={()=>navigate("/")} style={{display:"block",width:"100%",padding:"16px",borderRadius:radius["2xl"],background:`linear-gradient(135deg,${c.accentBgSoft},${c.accentBg})`,border:`1px solid ${c.accentBorderSoft}`,color:c.accent,fontSize:"clamp(14px,3.5vw,16px)",fontWeight:fw.bold,cursor:"pointer",textAlign:"center",transition:"all 0.2s"}} onMouseEnter={(e)=>e.target.style.background=`linear-gradient(135deg,${c.accentBg},${c.accentBg})`} onMouseLeave={(e)=>e.target.style.background=`linear-gradient(135deg,${c.accentBgSoft},${c.accentBg})`}>⚖️ 8개 서비스 실시간 수수료 비교하기</button>
       </div>
       {relatedPosts.length > 0 && (
         <div style={{maxWidth:800,margin:"0 auto",padding:"0 16px 40px"}}>
-          <h3 style={{color:c.textMuted,fontSize:15,fontWeight:600,margin:"0 0 14px"}}>📌 관련 글</h3>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <h3 style={{color:c.textMuted,fontSize:15,fontWeight:fw.semibold,margin:"0 0 14px"}}>📌 관련 글</h3>
+          <div style={{display:"flex",flexDirection:"column",gap:spacing.lg}}>
             {relatedPosts.map(rp => (
               <a key={rp.id} href={`/blog/${rp.slug}`} onClick={(e)=>{e.preventDefault();navigate(`/blog/${rp.slug}`)}}
-                style={{display:"block",padding:"12px 16px",borderRadius:10,background:c.bgCard,border:`1px solid ${c.border}`,textDecoration:"none",color:"inherit",transition:"background 0.2s"}}
+                style={{display:"block",padding:"12px 16px",borderRadius:radius.xl,background:c.bgCard,border:`1px solid ${c.border}`,textDecoration:"none",color:"inherit",transition:"background 0.2s"}}
                 onMouseEnter={(e)=>e.currentTarget.style.background=c.bgCardHover} onMouseLeave={(e)=>e.currentTarget.style.background=c.bgCard}>
-                <p style={{margin:0,color:c.text,fontWeight:600,fontSize:14}}>{rp.title}</p>
-                <p style={{margin:"4px 0 0",color:c.textDark,fontSize:12}}>{rp.date}</p>
+                <p style={{margin:0,color:c.text,fontWeight:fw.semibold,fontSize:typeScale.lg}}>{rp.title}</p>
+                <p style={{margin:"4px 0 0",color:c.textDark,fontSize:typeScale.base}}>{rp.date}</p>
               </a>
             ))}
           </div>

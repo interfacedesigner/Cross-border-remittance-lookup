@@ -322,7 +322,7 @@ export default function App() {
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setCurOpen(true); }}
         style={{
-          display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,cursor:"pointer",
+          display:"flex",alignItems:"center",gap:spacing.lg,padding:"12px 14px",borderRadius:radius["2xl"],cursor:"pointer",
           border: `1px solid ${c.border}`,
           background: c.bgCard,
           transition:"all 0.2s", minHeight:48,
@@ -330,8 +330,8 @@ export default function App() {
       >
         <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{ci.flag}</span>
         <div style={{flex:1,minWidth:0}}>
-          <span style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
-          <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{ci.name}</span>
+          <span style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:fw.bold}}>{cur}</span>
+          <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:spacing.md}}>{ci.name}</span>
         </div>
         <span style={{color:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>▼</span>
       </div>
@@ -344,7 +344,7 @@ export default function App() {
           aria-label={t("compare.currencySelect")}
           style={{
             position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9999,
-            background:"rgba(0,0,0,0.45)",
+            background:c.bgOverlay,
             display:"flex",alignItems:"flex-end",
             animation:"fadeIn 0.2s ease-out",
           }}
@@ -367,7 +367,7 @@ export default function App() {
               justifyContent:"space-between",
               alignItems:"center",
             }}>
-              <h3 style={{color:c.text,fontSize:"clamp(16px, 4.2vw, 18px)",fontWeight:700,margin:0}}>
+              <h3 style={{color:c.text,fontSize:"clamp(16px, 4.2vw, 18px)",fontWeight:fw.bold,margin:0}}>
                 {t("compare.currencySelect")}
               </h3>
               <button
@@ -380,7 +380,7 @@ export default function App() {
                   fontSize:"clamp(24px, 6vw, 28px)",
                   cursor:"pointer",
                   padding:"0 8px",
-                  lineHeight:1,
+                  lineHeight:lh.none,
                 }}
               >
                 ×
@@ -410,8 +410,8 @@ export default function App() {
                     }
                   }}
                   style={{
-                    display:"flex",alignItems:"center",gap:12,padding:"16px 20px",cursor:"pointer",
-                    background: cur === code ? "rgba(41,108,242,0.08)" : "transparent",
+                    display:"flex",alignItems:"center",gap:spacing.xl,padding:"16px 20px",cursor:"pointer",
+                    background: cur === code ? c.accentBgSoft : "transparent",
                     borderLeft: cur === code ? `4px solid ${c.accent}` : "4px solid transparent",
                     transition:"background 0.15s",
                   }}
@@ -420,8 +420,8 @@ export default function App() {
                 >
                   <span style={{fontSize:"clamp(24px, 6vw, 28px)",flexShrink:0}}>{info.flag}</span>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{color: cur===code ? c.accent : c.text, fontSize:"clamp(15px, 4vw, 16px)", fontWeight:700}}>{code}</div>
-                    <div style={{color:c.textMuted,fontSize:"clamp(13px, 3.5vw, 14px)",marginTop:2}}>{info.name}</div>
+                    <div style={{color: cur===code ? c.accent : c.text, fontSize:"clamp(15px, 4vw, 16px)", fontWeight:fw.bold}}>{code}</div>
+                    <div style={{color:c.textMuted,fontSize:"clamp(13px, 3.5vw, 14px)",marginTop:spacing["2xs"]}}>{info.name}</div>
                   </div>
                   {cur === code && <span style={{color:c.accent,fontSize:"clamp(20px, 5vw, 24px)",flexShrink:0}}>✓</span>}
                 </div>
@@ -448,27 +448,27 @@ export default function App() {
   // TAB: FAIR COMPARE
   // ═══════════════════════════════════════════════════
   const compareContent = (
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+    <div style={{display:"flex",flexDirection:"column",gap:spacing["2xl"]}}>
       {bizDayBlocked && svcSnapshot.length > 0 && (
-        <div role="alert" style={{padding:"12px 16px",borderRadius:12,background:"rgba(255,160,18,0.05)",border:"1px solid rgba(255,160,18,0.12)"}}>
-          <p style={{color:c.warning,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:"0 0 4px"}}>
+        <div role="alert" style={{padding:"12px 16px",borderRadius:radius["2xl"],background:c.warningBgSoft,border:`1px solid ${c.warningBorderSoft}`}}>
+          <p style={{color:c.warning,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:fw.bold,margin:"0 0 4px"}}>
             📅 {t("compare.currentBizDay")} {getNonBusinessReason()}
           </p>
-          <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,lineHeight:1.5}}>
+          <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,lineHeight:lh.relaxed}}>
             {t("compare.bizDayNote")}
           </p>
         </div>
       )}
 
-      <div style={{background:c.bgCard,borderRadius:14,padding:"14px 16px",border:`1px solid ${c.borderLight}`}}>
-        <div style={{marginBottom:14}}>
-          <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 {t("compare.currency")}</span>
+      <div style={{background:c.bgCard,borderRadius:radius["3xl"],padding:"14px 16px",border:`1px solid ${c.borderLight}`}}>
+        <div style={{marginBottom:spacing["2xl"]}}>
+          <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:fw.semibold,display:"block",marginBottom:spacing.md}}>🌍 {t("compare.currency")}</span>
           <CurPicker />
         </div>
 
-        <div style={{marginBottom:14}}>
-          <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:4}}>
-            <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600}}>💰 {t("compare.amount")}</span>
+        <div style={{marginBottom:spacing["2xl"]}}>
+          <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:spacing.md,flexWrap:"wrap",gap:spacing.xs}}>
+            <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:fw.semibold}}>💰 {t("compare.amount")}</span>
             {amount > 0 && (
               <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)"}}>
                 {amount >= 100000000 ? `${Math.floor(amount/100000000)}${t("amount.eok")} ` : ""}
@@ -487,28 +487,28 @@ export default function App() {
             100% { background-position: 0% 50%; }
           }
           @keyframes borderGlow {
-            0%, 100% { border-color: rgba(41,108,242,0.3); box-shadow: 0 0 12px rgba(41,108,242,0.1); }
-            50% { border-color: rgba(41,108,242,0.5); box-shadow: 0 0 16px rgba(41,108,242,0.15); }
+            0%, 100% { border-color: ${c.accentBorder}; box-shadow: 0 0 12px ${c.accentBgSoft}; }
+            50% { border-color: ${c.accent}80; box-shadow: 0 0 16px ${c.accentBgSoft}; }
           }
           .web3-btn:active:not(:disabled) { transform: scale(0.98); }
         `}</style>
         <button className="web3-btn" onClick={handleRefresh} disabled={dataLoading || fetchMode==="loading"} aria-label={t("compare.btn.compare")} style={{
-          width:"100%", padding:"16px", borderRadius:14,
-          border: (dataLoading || fetchMode==="loading") ? `1px solid ${c.border}` : "1px solid rgba(41,108,242,0.3)",
+          width:"100%", padding:"16px", borderRadius:radius["3xl"],
+          border: (dataLoading || fetchMode==="loading") ? `1px solid ${c.border}` : `1px solid ${c.accentBorder}`,
           cursor:(dataLoading || fetchMode==="loading")?"not-allowed":"pointer",
           background: (dataLoading || fetchMode==="loading")
             ? c.bgCard
-            : "linear-gradient(135deg, rgba(41,108,242,0.08), rgba(41,108,242,0.12), rgba(41,108,242,0.08))",
+            : `linear-gradient(135deg, ${c.accentBgSoft}, ${c.accentBg}, ${c.accentBgSoft})`,
           backgroundSize: "400% 400%",
           animation: (dataLoading || fetchMode==="loading") ? "none" : "web3Shimmer 6s ease infinite, borderGlow 4s ease infinite",
           color: (dataLoading || fetchMode==="loading") ? c.textDark : c.text,
-          fontSize:15, fontWeight:700,
+          fontSize:15, fontWeight:fw.bold,
           opacity: (dataLoading || fetchMode==="loading") ? 0.5 : 1,
           minHeight:54, position:"relative", overflow:"hidden",
         }}>
           {!(dataLoading || fetchMode==="loading") && <span style={{
             position:"absolute", top:0, left:"-100%", width:"200%", height:"100%",
-            background:"linear-gradient(90deg, transparent, rgba(0,0,0,0.03), transparent)",
+            background:`linear-gradient(90deg, transparent, ${c.shimmer}, transparent)`,
             animation:"web3Shimmer 3s ease infinite", pointerEvents:"none",
           }} />}
           <span style={{position:"relative",zIndex:1}}>
@@ -520,13 +520,13 @@ export default function App() {
       </div>
 
       {(fetchMode !== "idle" || svcSnapshot.length > 0) && (
-        <div role="status" style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",borderRadius:10,background:c.bgCard,border:`1px solid ${c.borderLight}`,flexWrap:"wrap"}}>
+        <div role="status" style={{display:"flex",alignItems:"center",gap:spacing.md,padding:"10px 14px",borderRadius:radius.xl,background:c.bgCard,border:`1px solid ${c.borderLight}`,flexWrap:"wrap"}}>
           <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.5)}}`}</style>
           {fetchMode==="loading" && <div style={{width:8,height:8,borderRadius:"50%",background:c.accent,animation:"pulse 2s infinite",flexShrink:0}} />}
           {fetchMode==="live" && <div style={{width:8,height:8,borderRadius:"50%",background:c.success,flexShrink:0}} />}
           {fetchMode==="cached" && <div style={{width:8,height:8,borderRadius:"50%",background:c.warning,flexShrink:0}} />}
           {fetchMode==="error" && <div style={{width:8,height:8,borderRadius:"50%",background:c.danger,flexShrink:0}} />}
-          <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",lineHeight:1.4}}>
+          <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",lineHeight:lh.normal}}>
             {fetchMode==="loading" ? t("compare.status.fetching") :
              fetchMode==="live" ? t("compare.status.live") :
              fetchMode==="cached" ? t("compare.status.cached") :
@@ -539,27 +539,27 @@ export default function App() {
 
       {svcSnapshot.length > 0 ? (
         <>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <div style={{display:"flex",flexDirection:"column",gap:spacing.md}}>
             {svcSnapshot.map((s,i)=>{
               const unavailable = bizDayBlocked && !s.avail.weekend;
               const isTop = i === 0;
               return (
                 <div key={s.id} style={{
-                  padding:"14px 16px", borderRadius:14,
-                  background: isTop ? "rgba(0,180,66,0.04)" : c.bgCard,
-                  border: isTop ? "1px solid rgba(0,180,66,0.15)" : `1px solid ${c.borderLight}`,
+                  padding:"14px 16px", borderRadius:radius["3xl"],
+                  background: isTop ? c.successBgSoft : c.bgCard,
+                  border: isTop ? `1px solid ${c.successBorderSoft}` : `1px solid ${c.borderLight}`,
                   opacity: unavailable ? 0.45 : 1,
                 }}>
-                  <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
-                    <div style={{display:"flex",alignItems:"flex-start",gap:8,flex:1,minWidth:0}}>
+                  <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:spacing.md,gap:spacing.md}}>
+                    <div style={{display:"flex",alignItems:"flex-start",gap:spacing.md,flex:1,minWidth:0}}>
                       <span style={{fontSize:"clamp(16px, 4.5vw, 18px)",flexShrink:0}}>{isTop?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}`}</span>
                       <div style={{minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
-                          <span style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{s.name}</span>
+                        <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:spacing.sm}}>
+                          <span style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:fw.bold}}>{s.name}</span>
                           {bizDayBlocked && (
                             <span style={{
-                              padding:"3px 7px", borderRadius:4, fontSize:"clamp(12px, 3vw, 12px)", fontWeight:600,
-                              background: s.avail.weekend ? "rgba(0,180,66,0.1)" : "rgba(243,70,70,0.1)",
+                              padding:"3px 7px", borderRadius:radius.sm, fontSize:"clamp(12px, 3vw, 12px)", fontWeight:fw.semibold,
+                              background: s.avail.weekend ? c.successBgMed : c.dangerBgSoft,
                               color: s.avail.weekend ? c.success : c.danger,
                               whiteSpace:"nowrap",
                             }}>
@@ -570,25 +570,25 @@ export default function App() {
                       </div>
                     </div>
                     <div style={{textAlign:"right",flexShrink:0}}>
-                      <p style={{color:isTop?c.success:c.text,fontSize:"clamp(15px, 4.2vw, 17px)",fontWeight:800,margin:0,fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>
+                      <p style={{color:isTop?c.success:c.text,fontSize:"clamp(15px, 4.2vw, 17px)",fontWeight:fw.extrabold,margin:0,fontFamily:fonts.numeric,whiteSpace:"nowrap"}}>
                         {ci.symbol}{s.foreignAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
                       </p>
                       <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("compare.received")}</p>
                     </div>
                   </div>
-                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                    <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                  <div style={{display:"flex",gap:spacing.sm,flexWrap:"wrap"}}>
+                    <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:radius.md,whiteSpace:"nowrap"}}>
                       {t("compare.fee")} {s.fee===0?<span style={{color:c.success}}>{t("compare.feeWaived")}</span>:`₩${s.fee.toLocaleString()}`}
                     </span>
-                    <span style={{color:s.spread>2?c.danger:s.spread>1?c.warning:c.success,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                    <span style={{color:s.spread>2?c.danger:s.spread>1?c.warning:c.success,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:radius.md,whiteSpace:"nowrap"}}>
                       {t("compare.spread")} {s.spread}%
                     </span>
-                    <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                    <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:radius.md,whiteSpace:"nowrap"}}>
                       {s.speed}
                     </span>
                   </div>
                   {s.promotions && (
-                    <p style={{color:c.warning,fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.4}}>🏷️ {s.promotions}</p>
+                    <p style={{color:c.warning,fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:lh.normal}}>🏷️ {s.promotions}</p>
                   )}
                 </div>
               );
@@ -596,21 +596,21 @@ export default function App() {
           </div>
 
           {svcSnapshot.length >= 2 && (
-            <div style={{padding:"14px 16px",borderRadius:14,background:"rgba(0,180,66,0.04)",border:"1px solid rgba(0,180,66,0.1)"}}>
-              <p style={{color:c.success,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:0,lineHeight:1.5}}>
+            <div style={{padding:"14px 16px",borderRadius:radius["3xl"],background:c.successBgSoft,border:`1px solid ${c.successBorderSoft}`}}>
+              <p style={{color:c.success,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:fw.bold,margin:0,lineHeight:lh.relaxed}}>
                 💡 {svcSnapshot[0].name} {t("compare.savings.save")} ₩{(svcSnapshot[svcSnapshot.length-1].totalCost - svcSnapshot[0].totalCost).toLocaleString()} {t("compare.savings.saved")}
               </p>
-              <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:"4px 0 0",lineHeight:1.4}}>
+              <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:"4px 0 0",lineHeight:lh.normal}}>
                 {t("compare.savingsVs")} {svcSnapshot[svcSnapshot.length-1].name} · {ci.symbol}{(svcSnapshot[0].foreignAmount - svcSnapshot[svcSnapshot.length-1].foreignAmount).toFixed(2)} {t("compare.moreReceived")}
               </p>
             </div>
           )}
 
-          <div style={{background:c.bgCard,borderRadius:14,padding:"12px 10px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
-            <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("compare.receivedCompare")} · ₩{amount.toLocaleString()} → {cur}</p>
+          <div style={{background:c.bgCard,borderRadius:radius["3xl"],padding:"12px 10px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+            <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:fw.semibold,paddingLeft:spacing.xs}}>{t("compare.receivedCompare")} · ₩{amount.toLocaleString()} → {cur}</p>
             <ResponsiveContainer width="100%" height={Math.max(260, svcSnapshot.length * 40)} minWidth={300}>
               <BarChart data={svcSnapshot} layout="vertical" margin={{left:0,right:10,top:5,bottom:5}}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
                 <XAxis type="number" tick={{fill:c.textDim,fontSize:"clamp(12px, 3vw, 12px)"}} tickFormatter={v=>`${ci.symbol}${v.toFixed(0)}`}/>
                 <YAxis dataKey="kr" type="category" tick={{fill:c.textMuted,fontSize:"clamp(12px, 3vw, 12px)"}} width={60}/>
                 <Tooltip content={<CTooltip/>}/>
@@ -623,15 +623,15 @@ export default function App() {
             </ResponsiveContainer>
           </div>
 
-          <div style={{background:c.bgCard,borderRadius:14,padding:"16px",border:`1px solid ${c.borderLight}`}}>
-            <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.compareTitle")}</h3>
-            <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+          <div style={{background:c.bgCard,borderRadius:radius["3xl"],padding:"16px",border:`1px solid ${c.borderLight}`}}>
+            <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:fw.bold,margin:"0 0 10px"}}>{t("editorial.compareTitle")}</h3>
+            <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:lh.airy,margin:"0 0 10px"}}>
               {t("editorial.compareBody1")}
             </p>
-            <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+            <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:lh.airy,margin:"0 0 10px"}}>
               {t("editorial.compareBody2")}
             </p>
-            <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+            <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:lh.loose,margin:0}}>
               {t("editorial.compareDisclaimerFull")}
             </p>
           </div>
@@ -641,7 +641,7 @@ export default function App() {
       ) : (
         <div style={{textAlign:"center",padding:"40px 20px",color:c.textDark}}>
           <p style={{fontSize:"clamp(32px, 10vw, 40px)",margin:"0 0 12px"}}>⚖️</p>
-          <p style={{fontSize:"clamp(14px, 3.8vw, 15px)",margin:0,fontWeight:600,lineHeight:1.5}}>
+          <p style={{fontSize:"clamp(14px, 3.8vw, 15px)",margin:0,fontWeight:fw.semibold,lineHeight:lh.relaxed}}>
             {dataLoading ? t("compare.emptyLoading") : fetchMode==="error" ? `${cur} ${t("compare.emptyNoData")}` : t("compare.emptyAction")}
           </p>
         </div>
@@ -689,23 +689,23 @@ export default function App() {
     }),[hist]);
 
     return (
-      <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div style={{display:"flex",flexDirection:"column",gap:spacing["2xl"]}}>
         <div style={{display:"flex",gap:1,alignItems:"center",flexWrap:"wrap"}}>
-          <div style={{flex:"1 1 100%",marginBottom:8}}><CurPicker/></div>
+          <div style={{flex:"1 1 100%",marginBottom:spacing.md}}><CurPicker/></div>
         </div>
 
         {/* ── 최근 3개월 일별 추이 ── */}
-        <div style={{background:c.bgCard,borderRadius:14,padding:"14px 12px",border:`1px solid ${c.border}`}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:8}}>
-            <p style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:0}}>
+        <div style={{background:c.bgCard,borderRadius:radius["3xl"],padding:"14px 12px",border:`1px solid ${c.border}`}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:spacing.xl,flexWrap:"wrap",gap:spacing.md}}>
+            <p style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:fw.bold,margin:0}}>
               📊 {t("rate.dailyTitle")}
             </p>
-            <div style={{display:"flex",gap:4}}>
+            <div style={{display:"flex",gap:spacing.xs}}>
               {[{v:1,l:t("rate.1m")},{v:2,l:t("rate.2m")},{v:3,l:t("rate.3m")}].map(p=>(
                 <button key={p.v} onClick={()=>setDailyPeriod(p.v)} aria-pressed={dailyPeriod===p.v} style={{
-                  padding:"6px 10px",borderRadius:8,border:"none",cursor:"pointer",
+                  padding:"6px 10px",borderRadius:radius.lg,border:"none",cursor:"pointer",
                   background:dailyPeriod===p.v?c.border:c.bgCard,
-                  color:dailyPeriod===p.v?c.text:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
+                  color:dailyPeriod===p.v?c.text:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:fw.semibold,
                   minHeight:32,
                 }}>{p.l}</button>
               ))}
@@ -720,29 +720,29 @@ export default function App() {
             </div>
           ) : dailyError ? (
             <div style={{textAlign:"center",padding:"30px 0"}}>
-              <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 13px)",margin:0,lineHeight:1.5}}>
+              <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 13px)",margin:0,lineHeight:lh.relaxed}}>
                 {t("rate.dailyError")}<br/>
                 <span style={{color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)"}}>{t("rate.dailyErrorSub")}</span>
               </p>
             </div>
           ) : dailyData.length > 0 && dailyStats ? (
             <>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:6,marginBottom:12}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:spacing.sm,marginBottom:spacing.xl}}>
                 {[
                   {l:t("rate.high"),v:`₩${dailyStats.hi.toLocaleString()}`,c:c.danger},
                   {l:t("rate.low"),v:`₩${dailyStats.lo.toLocaleString()}`,c:c.accent},
                   {l:t("rate.avg"),v:`₩${dailyStats.avg3m.toLocaleString()}`,c:c.textMuted},
                   {l:t("rate.change"),v:`${parseFloat(dailyStats.chg)>0?"+":""}${dailyStats.chg}%`,c:parseFloat(dailyStats.chg)>0?c.danger:c.success},
                 ].map((s,i)=>(
-                  <div key={i} style={{background:c.bgPrimary,borderRadius:8,padding:"8px 6px",textAlign:"center",border:`1px solid ${c.borderLight}`}}>
+                  <div key={i} style={{background:c.bgPrimary,borderRadius:radius.lg,padding:"8px 6px",textAlign:"center",border:`1px solid ${c.borderLight}`}}>
                     <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{s.l}</p>
-                    <p style={{color:s.c,fontSize:"clamp(12px, 3.2vw, 14px)",fontWeight:700,margin:"2px 0 0",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>{s.v}</p>
+                    <p style={{color:s.c,fontSize:"clamp(12px, 3.2vw, 14px)",fontWeight:fw.bold,margin:"2px 0 0",fontFamily:fonts.numeric}}>{s.v}</p>
                   </div>
                 ))}
               </div>
 
-              <div style={{marginBottom:12,padding:"0 4px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+              <div style={{marginBottom:spacing.xl,padding:"0 4px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:spacing.xs}}>
                   <span style={{color:c.accent,fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.lowPoint")} ₩{dailyStats.lo.toLocaleString()}</span>
                   <span style={{color:c.danger,fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.highPoint")} ₩{dailyStats.hi.toLocaleString()}</span>
                 </div>
@@ -773,7 +773,7 @@ export default function App() {
                         <stop offset="100%" stopColor={ci.color} stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+                    <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
                     <XAxis
                       dataKey="d"
                       tick={{fill:c.textDim,fontSize:"clamp(10px, 2.2vw, 11px)"}}
@@ -786,7 +786,7 @@ export default function App() {
                       tickFormatter={v=>`₩${v.toLocaleString()}`}
                     />
                     <Tooltip content={<CTooltip/>}/>
-                    <ReferenceLine y={dailyStats.avg3m} stroke={c.warning} strokeDasharray="4 4" label={{value:t("rate.avg"),fill:c.warning,fontSize:10,position:"right"}}/>
+                    <ReferenceLine y={dailyStats.avg3m} stroke={c.warning} strokeDasharray="4 4" label={{value:t("rate.avg"),fill:c.warning,fontSize:typeScale.xs,position:"right"}}/>
                     <Area type="monotone" dataKey="r" stroke={ci.color} fill="url(#dailyGrad)" strokeWidth={2} name={`${ci.flag} ${cur}/KRW`} dot={false} activeDot={{r:4,fill:ci.color,stroke:c.bgPrimary,strokeWidth:2}}/>
                   </AreaChart>
                 </ResponsiveContainer>
@@ -803,27 +803,27 @@ export default function App() {
         <div style={{display:"flex",gap:1,alignItems:"center",flexWrap:"wrap"}}>
           {["all","2020","2021","2022","2023","2024","2025","2026"].map(y=>(
             <button key={y} onClick={()=>setSelectedYear(y)} aria-pressed={selectedYear===y} style={{
-              padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
+              padding:"8px 10px",borderRadius:radius.xl,border:"none",cursor:"pointer",
               background:selectedYear===y?c.border:c.bgCard,
-              color:selectedYear===y?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
+              color:selectedYear===y?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:fw.semibold,
               minHeight:36,flex:"1 0 auto",
             }}>{y==="all"?t("rate.all"):y}</button>
           ))}
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)",gap:8}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)",gap:spacing.md}}>
           {[{l:t("rate.current"),v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:t("rate.5yAvg"),v:`₩${avg.toLocaleString()}`,a:c.accent},{l:t("rate.minMax"),v:`${mn}~${mx}`,a:c.warning},{l:t("rate.signal"),v:sig.s,a:sig.c}].map((k,i)=>(
-            <div key={i} style={{background:c.bgCard,borderRadius:10,padding:"12px",border:`1px solid ${c.borderLight}`,borderTop:`2px solid ${k.a}`}}>
+            <div key={i} style={{background:c.bgCard,borderRadius:radius.xl,padding:"12px",border:`1px solid ${c.borderLight}`,borderTop:`2px solid ${k.a}`}}>
               <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{k.l}</p>
-              <p style={{color:c.text,fontSize:"clamp(15px, 4.5vw, 18px)",fontWeight:700,margin:"4px 0 0",fontFamily:"Roboto, 'Noto Sans', sans-serif",wordBreak:"break-word"}}>{k.v}</p>
+              <p style={{color:c.text,fontSize:"clamp(15px, 4.5vw, 18px)",fontWeight:fw.bold,margin:"4px 0 0",fontFamily:fonts.numeric,wordBreak:"break-word"}}>{k.v}</p>
             </div>
           ))}
         </div>
-        <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
-          <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.monthlyTrend")}</p>
+        <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+          <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:fw.semibold,paddingLeft:spacing.sm}}>{t("rate.monthlyTrend")}</p>
           <ResponsiveContainer width="100%" height={280} minWidth={300}>
             <AreaChart data={filteredHist} margin={{left:0,right:10,top:5,bottom:5}}>
               <defs><linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={ci.color} stopOpacity={0.15}/><stop offset="100%" stopColor={ci.color} stopOpacity={0}/></linearGradient></defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+              <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
               <XAxis dataKey="d" tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}} tickFormatter={v=>v.slice(2)} interval={selectedYear==="all"?5:0}/>
               <YAxis tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}} domain={["dataMin-15","dataMax+15"]}/>
               <Tooltip content={<CTooltip/>}/>
@@ -832,12 +832,12 @@ export default function App() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:12}}>
-          <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
-            <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyChange")}</p>
+        <div style={{display:"grid",gridTemplateColumns:"1fr",gap:spacing.xl}}>
+          <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+            <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:fw.semibold,paddingLeft:spacing.sm}}>{t("rate.yearlyChange")}</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <BarChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
                 <XAxis dataKey="year" tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} unit="%"/>
                 <Tooltip content={<CTooltip/>}/>
@@ -845,11 +845,11 @@ export default function App() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
-            <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyAvgRange")}</p>
+          <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+            <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:fw.semibold,paddingLeft:spacing.sm}}>{t("rate.yearlyAvgRange")}</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <ComposedChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
                 <XAxis dataKey="year" tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
                 <Tooltip content={<CTooltip/>}/>
@@ -861,16 +861,16 @@ export default function App() {
             </ResponsiveContainer>
           </div>
         </div>
-        <div style={{background:c.bgCard,borderRadius:14,padding:"16px",border:`1px solid ${c.borderLight}`}}>
-          <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.rateTitle")}</h3>
-          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+        <div style={{background:c.bgCard,borderRadius:radius["3xl"],padding:"16px",border:`1px solid ${c.borderLight}`}}>
+          <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:fw.bold,margin:"0 0 10px"}}>{t("editorial.rateTitle")}</h3>
+          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:lh.airy,margin:"0 0 10px"}}>
             {t("editorial.rateBody1")}
           </p>
-          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:lh.airy,margin:"0 0 10px"}}>
             <strong style={{color:c.text}}>{t("editorial.rateBody2Title")}</strong>{" "}
             {t("editorial.rateBody2")}
           </p>
-          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:lh.loose,margin:0}}>
             {t("editorial.rateDisclaimer")}
           </p>
         </div>
@@ -891,85 +891,85 @@ export default function App() {
     const trendArrow = recentTrend.pct>0?"↑":recentTrend.pct<0?"↓":"→";
     const periodLabel = recentHist.length>=2 ? `${recentHist[0].d} ~ ${recentHist[recentHist.length-1].d}` : "";
     return (
-      <div style={{display:"flex",flexDirection:"column",gap:14}}>
-        <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+      <div style={{display:"flex",flexDirection:"column",gap:spacing["2xl"]}}>
+        <div style={{display:"flex",gap:spacing.sm,flexWrap:"wrap",alignItems:"center"}}>
           {["outbound","inbound"].map(d=>(
             <button key={d} onClick={()=>setDirection(d)} aria-pressed={direction===d} style={{
-              padding:"10px 14px",borderRadius:12,border:"none",cursor:"pointer",
+              padding:"10px 14px",borderRadius:radius["2xl"],border:"none",cursor:"pointer",
               background:direction===d?c.border:c.bgCard,
-              color:direction===d?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
+              color:direction===d?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:fw.semibold,
               flex:"1 0 auto",minHeight:44,
             }}>{d==="outbound"?t("timing.outbound"):t("timing.inbound")}</button>
           ))}
-          <div style={{flex:"1 1 100%",marginTop:8}}><CurPicker/></div>
+          <div style={{flex:"1 1 100%",marginTop:spacing.md}}><CurPicker/></div>
         </div>
 
         {/* 시그널 카드 - 1년 기준 */}
-        <div style={{padding:"14px 16px",borderRadius:12,background:`${sig.c}08`,border:`1px solid ${sig.c}18`,display:"flex",alignItems:"center",gap:12}}>
+        <div style={{padding:"14px 16px",borderRadius:radius["2xl"],background:`${sig.c}08`,border:`1px solid ${sig.c}18`,display:"flex",alignItems:"center",gap:spacing.xl}}>
           <span style={{fontSize:"clamp(28px, 8vw, 32px)",flexShrink:0}}>{sig.i}</span>
           <div style={{minWidth:0,flex:1}}>
-            <p style={{color:sig.c,margin:0,fontSize:"clamp(18px, 5vw, 20px)",fontWeight:800}}>{sig.s}</p>
-            <p style={{color:c.textDim,margin:"2px 0 0",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.4}}>
+            <p style={{color:sig.c,margin:0,fontSize:"clamp(18px, 5vw, 20px)",fontWeight:fw.extrabold}}>{sig.s}</p>
+            <p style={{color:c.textDim,margin:"2px 0 0",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:lh.normal}}>
               {ci.flag} {cur} {t("rate.current")} ₩{curRate.toLocaleString()} · {t("timing.1yAvgLabel")} ₩{recent1YAvg.toLocaleString()}
             </p>
           </div>
         </div>
 
         {/* 1년 핵심 지표 카드 */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:spacing.md}}>
+          <div style={{background:c.bgCard,borderRadius:radius.xl,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
             <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yTrend")}</p>
-            <p style={{color:trendColor,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>{trendArrow} {recentTrend.pct>0?"+":""}{recentTrend.pct}%</p>
+            <p style={{color:trendColor,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:fw.extrabold,fontFamily:fonts.numeric}}>{trendArrow} {recentTrend.pct>0?"+":""}{recentTrend.pct}%</p>
           </div>
-          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+          <div style={{background:c.bgCard,borderRadius:radius.xl,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
             <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.currentPos")}</p>
-            <p style={{color:percentilePos>=70?c.danger:percentilePos<=30?c.success:c.warning,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>
+            <p style={{color:percentilePos>=70?c.danger:percentilePos<=30?c.success:c.warning,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:fw.extrabold,fontFamily:fonts.numeric}}>
               {t("timing.top")} {100-percentilePos}%
             </p>
           </div>
-          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+          <div style={{background:c.bgCard,borderRadius:radius.xl,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
             <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yLow")}</p>
-            <p style={{color:c.accent,fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMin.toLocaleString()}</p>
+            <p style={{color:c.accent,fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:fw.bold,fontFamily:fonts.numeric}}>₩{recent1YMin.toLocaleString()}</p>
           </div>
-          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+          <div style={{background:c.bgCard,borderRadius:radius.xl,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
             <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yHigh")}</p>
-            <p style={{color:c.danger,fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMax.toLocaleString()}</p>
+            <p style={{color:c.danger,fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:fw.bold,fontFamily:fonts.numeric}}>₩{recent1YMax.toLocaleString()}</p>
           </div>
         </div>
 
         {/* 현재 위치 바 */}
-        <div style={{background:c.bgCard,borderRadius:10,padding:"12px 14px",border:`1px solid ${c.borderLight}`}}>
-          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 8px",fontWeight:600}}>{t("timing.1yRangePos")}</p>
-          <div style={{position:"relative",height:24,background:c.border,borderRadius:6,overflow:"hidden"}}>
+        <div style={{background:c.bgCard,borderRadius:radius.xl,padding:"12px 14px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 8px",fontWeight:fw.semibold}}>{t("timing.1yRangePos")}</p>
+          <div style={{position:"relative",height:24,background:c.border,borderRadius:radius.md,overflow:"hidden"}}>
             <div style={{
-              position:"absolute",left:0,top:0,height:"100%",borderRadius:6,
+              position:"absolute",left:0,top:0,height:"100%",borderRadius:radius.md,
               width:`${recent1YMax>recent1YMin?((curRate-recent1YMin)/(recent1YMax-recent1YMin)*100):50}%`,
               background:`linear-gradient(90deg, ${c.success}, ${c.warning}, ${c.danger})`,opacity:0.3,
             }}/>
             <div style={{
               position:"absolute",top:"50%",transform:"translate(-50%,-50%)",
               left:`${recent1YMax>recent1YMin?Math.min(Math.max(((curRate-recent1YMin)/(recent1YMax-recent1YMin)*100),2),98):50}%`,
-              width:10,height:10,borderRadius:"50%",background:c.text,boxShadow:"0 0 6px rgba(0,0,0,0.2)",
+              width:10,height:10,borderRadius:"50%",background:c.text,boxShadow:`0 0 6px ${c.shadowStrong}`,
             }}/>
           </div>
-          <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
-            <span style={{color:c.accent,fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMin.toLocaleString()}</span>
-            <span style={{color:c.danger,fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMax.toLocaleString()}</span>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:spacing.xs}}>
+            <span style={{color:c.accent,fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:fonts.numeric}}>₩{recent1YMin.toLocaleString()}</span>
+            <span style={{color:c.danger,fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:fonts.numeric}}>₩{recent1YMax.toLocaleString()}</span>
           </div>
         </div>
 
         {/* 최근 1년 월별 추이 차트 */}
-        <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`}}>
-          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.recent1yMonthly")} ({periodLabel})</p>
+        <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"12px 8px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:fw.semibold}}>{t("timing.recent1yMonthly")} ({periodLabel})</p>
           <div style={{overflowX:"auto"}}>
             <ResponsiveContainer width="100%" height={220} minWidth={300}>
               <ComposedChart data={recentHist.map(d=>({...d,label:d.d.split("-")[1]+t("common.month")}))} margin={{left:0,right:10,top:5,bottom:5}}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
                 <XAxis dataKey="label" tick={{fill:c.textDim,fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
                 <Tooltip content={<CTooltip/>}/>
                 <Area type="monotone" dataKey="r" stroke={ci.color} fill={ci.color} fillOpacity={0.08} strokeWidth={2} name={t("timing.rate")}/>
-                <ReferenceLine y={recent1YAvg} stroke={c.warning} strokeDasharray="4 4" label={{value:t("timing.1yAvg"),fill:c.warning,fontSize:10,position:"insideTopRight"}}/>
+                <ReferenceLine y={recent1YAvg} stroke={c.warning} strokeDasharray="4 4" label={{value:t("timing.1yAvg"),fill:c.warning,fontSize:typeScale.xs,position:"insideTopRight"}}/>
                 <ReferenceLine y={curRate} stroke={c.text} strokeDasharray="2 2" strokeWidth={1}/>
               </ComposedChart>
             </ResponsiveContainer>
@@ -977,8 +977,8 @@ export default function App() {
         </div>
 
         {/* 전월 대비 변화 */}
-        <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`}}>
-          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.momChange")}</p>
+        <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"12px 8px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:fw.semibold}}>{t("timing.momChange")}</p>
           <div style={{overflowX:"auto"}}>
             <ResponsiveContainer width="100%" height={160} minWidth={300}>
               <BarChart data={recentHist.slice(1).map((d,i)=>{
@@ -986,7 +986,7 @@ export default function App() {
                 const chg=Math.round((d.r-prev)/prev*10000)/100;
                 return {label:d.d.split("-")[1]+t("common.month"),change:chg};
               })} margin={{left:0,right:10,top:5,bottom:5}}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
                 <XAxis dataKey="label" tick={{fill:c.textDim,fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
                 <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>`${v}%`}/>
                 <Tooltip content={<CTooltip/>} formatter={v=>[`${v}%`,t("timing.changeRate")]}/>
@@ -995,7 +995,7 @@ export default function App() {
                   {recentHist.slice(1).map((d,i)=>{
                     const prev=recentHist[i].r;
                     const chg=d.r-prev;
-                    return <Cell key={i} fill={chg>0?"rgba(243,70,70,0.5)":"rgba(0,180,66,0.5)"}/>;
+                    return <Cell key={i} fill={chg>0?c.dangerBarFill:c.successBarFill}/>;
                   })}
                 </Bar>
               </BarChart>
@@ -1004,15 +1004,15 @@ export default function App() {
         </div>
 
         {/* BEST 월 - 1년 기준 */}
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:spacing.lg}}>
           {[{t:t("timing.sendBestShort"),sub:t("timing.lowRateMonth"),d:bestSendRecent,icon:"📤"},{t:t("timing.recvBestShort"),sub:t("timing.highRateMonth"),d:bestRecvRecent,icon:"📥"}].map((sec,si)=>(
-            <div key={si} style={{background:c.bgCard,borderRadius:12,padding:"12px 14px",border:`1px solid ${c.borderLight}`}}>
-              <p style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",margin:"0 0 8px",fontWeight:700}}>{sec.icon} {sec.t}</p>
+            <div key={si} style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"12px 14px",border:`1px solid ${c.borderLight}`}}>
+              <p style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",margin:"0 0 8px",fontWeight:fw.bold}}>{sec.icon} {sec.t}</p>
               <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 10px)",margin:"-4px 0 8px"}}>{sec.sub}</p>
               {sec.d.map((m,i)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 8px",borderRadius:6,marginBottom:4,background:c.bgPrimary,alignItems:"center",border:`1px solid ${c.borderLight}`}}>
-                  <span style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",fontWeight:600}}>{["🥇","🥈","🥉"][i]} {m.label}</span>
-                  <span style={{color:c.text,fontSize:"clamp(12px, 3vw, 13px)",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>₩{m.rate.toLocaleString()}</span>
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 8px",borderRadius:radius.md,marginBottom:spacing.xs,background:c.bgPrimary,alignItems:"center",border:`1px solid ${c.borderLight}`}}>
+                  <span style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",fontWeight:fw.semibold}}>{["🥇","🥈","🥉"][i]} {m.label}</span>
+                  <span style={{color:c.text,fontSize:"clamp(12px, 3vw, 13px)",fontWeight:fw.bold,fontFamily:fonts.numeric,whiteSpace:"nowrap"}}>₩{m.rate.toLocaleString()}</span>
                 </div>
               ))}
             </div>
@@ -1020,10 +1020,10 @@ export default function App() {
         </div>
 
         {/* 분석 요약 */}
-        <div style={{background:c.bgCard,borderRadius:12,padding:"14px 16px",border:`1px solid ${c.borderLight}`}}>
-          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",margin:0,fontWeight:700}}>📊 {t("timing.patternSummary")}</p>
-          <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:6}}>
-            <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:0,lineHeight:1.6}}>
+        <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"14px 16px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",margin:0,fontWeight:fw.bold}}>📊 {t("timing.patternSummary")}</p>
+          <div style={{marginTop:spacing.md,display:"flex",flexDirection:"column",gap:spacing.sm}}>
+            <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:0,lineHeight:lh.loose}}>
               {direction==="outbound"
                 ? curRate <= recent1YAvg
                   ? `${t("timing.currentRate")}(₩${curRate.toLocaleString()})${t("timing.1yAvgLabel")}(₩${recent1YAvg.toLocaleString()})${t("timing.outboundFavorable")} ${recentTrend.pct>0?t("timing.trendUp"):t("timing.trendDown")} ${t("timing.trendNote")}(${recentTrend.pct>0?"+":""}${recentTrend.pct}%)`
@@ -1044,26 +1044,26 @@ export default function App() {
   // TAB: MULTI
   // ═══════════════════════════════════════════════════
   const MultiTab = () => (
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
-      <div role="group" aria-label={t("multi.currencySelect")} style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+    <div style={{display:"flex",flexDirection:"column",gap:spacing["2xl"]}}>
+      <div role="group" aria-label={t("multi.currencySelect")} style={{display:"flex",gap:spacing.xs,flexWrap:"wrap"}}>
         {Object.entries(CURRENCIES).map(([code,info])=>(
           <button key={code} onClick={()=>setMultiCur(prev=>prev.includes(code)?prev.filter(c=>c!==code):[...prev,code])} aria-pressed={multiCur.includes(code)} style={{
-            padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
+            padding:"8px 10px",borderRadius:radius.xl,border:"none",cursor:"pointer",
             background:multiCur.includes(code)?c.border:c.bgCard,
-            color:multiCur.includes(code)?c.text:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
+            color:multiCur.includes(code)?c.text:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:fw.semibold,
             outline:multiCur.includes(code)?`1px solid ${info.color}`:"none",
             flex:"0 0 auto",minHeight:36,
           }}>{info.flag} {code}</button>
         ))}
       </div>
-      <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
-        <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("multi.normalizedIndex")}</p>
+      <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+        <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:fw.semibold,paddingLeft:spacing.xs}}>{t("multi.normalizedIndex")}</p>
         <ResponsiveContainer width="100%" height={280} minWidth={300}>
           <LineChart data={(()=>{
             const dates=HIST.USD.map(d=>d.d);
             return dates.map((date,i)=>{const pt={date};multiCur.forEach(code=>{const h=HIST[code];if(h&&h[0]&&h[i])pt[code]=Math.round((h[i].r/h[0].r)*10000)/100;});return pt;});
           })()} margin={{left:0,right:10,top:5,bottom:5}}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
+            <CartesianGrid strokeDasharray="3 3" stroke={c.gridStroke}/>
             <XAxis dataKey="date" tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>v.slice(2)} interval={5}/>
             <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-3","dataMax+3"]}/>
             <Tooltip content={<CTooltip/>}/>
@@ -1073,26 +1073,26 @@ export default function App() {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div style={{background:c.bgCard,borderRadius:12,padding:"10px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+      <div style={{background:c.bgCard,borderRadius:radius["2xl"],padding:"10px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
         <table style={{width:"100%",minWidth:550,borderCollapse:"separate",borderSpacing:"0 2px"}}>
-          <thead><tr>{[t("multi.currency"),t("multi.current"),t("multi.5yAvg"),t("multi.min"),t("multi.max"),t("multi.deviation"),t("multi.signal")].map(h=><th key={h} style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+          <thead><tr>{[t("multi.currency"),t("multi.current"),t("multi.5yAvg"),t("multi.min"),t("multi.max"),t("multi.deviation"),t("multi.signal")].map(h=><th key={h} style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:fw.semibold,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
           <tbody>{Object.entries(CURRENCIES).map(([code,info])=>{
             const h=HIST[code]||[];const lr=info.base;const a=h.length?Math.round(h.reduce((s,d)=>s+d.r,0)/h.length):0;const n=h.length?Math.min(...h.map(d=>d.r)):0;const x=h.length?Math.max(...h.map(d=>d.r)):0;const sg=getSignal(lr,a);
-            return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(14px, 3.5vw, 14px)"}}>{info.flag}</span> <span style={{color:c.text,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{code}</span></td><td style={{color:c.text,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,padding:"8px 7px",fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:c.accent,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:c.danger,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?c.danger:c.success,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{sg.i} {sg.s}</span></td></tr>);
+            return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(14px, 3.5vw, 14px)"}}>{info.flag}</span> <span style={{color:c.text,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:fw.semibold}}>{code}</span></td><td style={{color:c.text,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:fw.bold,padding:"8px 7px",fontFamily:fonts.numeric,whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:c.accent,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:c.danger,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?c.danger:c.success,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:fw.semibold,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:fw.semibold}}>{sg.i} {sg.s}</span></td></tr>);
           })}</tbody>
         </table>
       </div>
 
-      <div style={{background:c.bgCard,borderRadius:14,padding:"16px",border:`1px solid ${c.borderLight}`}}>
-        <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.multiTitle")}</h3>
-        <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+      <div style={{background:c.bgCard,borderRadius:radius["3xl"],padding:"16px",border:`1px solid ${c.borderLight}`}}>
+        <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:fw.bold,margin:"0 0 10px"}}>{t("editorial.multiTitle")}</h3>
+        <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:lh.airy,margin:"0 0 10px"}}>
           {t("editorial.multiBody1")}
         </p>
-        <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+        <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:lh.airy,margin:"0 0 10px"}}>
           <strong style={{color:c.text}}>{t("multi.editorialUsage")}</strong>{" "}
           {t("multi.editorialBody2")}
         </p>
-        <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+        <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:lh.loose,margin:0}}>
           {t("multi.editorialDisclaimer")}
         </p>
       </div>
@@ -1128,20 +1128,20 @@ export default function App() {
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
       <div style={{borderBottom:`1px solid ${c.borderLight}`,padding:"12px 16px 0"}}>
         <div style={{maxWidth:1100,margin:"0 auto"}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,gap:8}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,flex:"1 1 auto",minWidth:0}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:spacing.xl,gap:spacing.md}}>
+            <div style={{display:"flex",alignItems:"center",gap:spacing.md,flex:"1 1 auto",minWidth:0}}>
               <span style={{fontSize:"clamp(22px, 5vw, 26px)"}}>⚖️</span>
               <div style={{minWidth:0}}>
-                <h1 style={{margin:0,fontSize:"clamp(16px, 4vw, 18px)",fontWeight:800,letterSpacing:tracking.display}}>{t("header.title")}</h1>
+                <h1 style={{margin:0,fontSize:"clamp(16px, 4vw, 18px)",fontWeight:fw.extrabold,letterSpacing:tracking.display}}>{t("header.title")}</h1>
                 <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("header.subtitle")}</p>
               </div>
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:spacing.sm,flexShrink:0}}>
               {/* Dark/Light 토글 */}
               <button onClick={()=>{toggle();trackEvent("theme_toggle",{to:mode==="dark"?"light":"dark"});}} aria-label="Toggle theme"
                 style={{
                   display:"flex",alignItems:"center",justifyContent:"center",
-                  width:36,height:36,borderRadius:8,border:`1px solid ${c.border}`,
+                  width:36,height:36,borderRadius:radius.lg,border:`1px solid ${c.border}`,
                   background:"transparent",color:c.text,fontSize:18,
                   cursor:"pointer",transition:"all 0.2s",
                 }}
@@ -1152,10 +1152,10 @@ export default function App() {
               <div style={{position:"relative"}}>
                 <button onClick={()=>setLangOpen(!langOpen)} aria-label="Language"
                   style={{
-                    display:"flex",alignItems:"center",gap:4,
-                    padding:"8px 10px",borderRadius:8,border:`1px solid ${c.border}`,
+                    display:"flex",alignItems:"center",gap:spacing.xs,
+                    padding:"8px 10px",borderRadius:radius.lg,border:`1px solid ${c.border}`,
                     background:"transparent",color:c.text,
-                    fontSize:"clamp(12px, 3vw, 13px)",fontWeight:600,
+                    fontSize:"clamp(12px, 3vw, 13px)",fontWeight:fw.semibold,
                     cursor:"pointer",transition:"all 0.2s",whiteSpace:"nowrap",
                   }}
                   onMouseEnter={e=>{e.currentTarget.style.background=c.bgCardHover;}}
@@ -1166,23 +1166,23 @@ export default function App() {
                     <div onClick={()=>setLangOpen(false)} style={{position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9998}} />
                     <div style={{
                       position:"absolute",top:"calc(100% + 4px)",right:0,zIndex:9999,
-                      background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:10,
-                      overflow:"hidden",minWidth:130,boxShadow:"0 8px 24px rgba(0,0,0,0.15)",
+                      background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:radius.xl,
+                      overflow:"hidden",minWidth:130,boxShadow:`0 8px 24px ${c.shadow}`,
                     }}>
                       {SUPPORTED.map(l=>(
                         <button key={l} onClick={()=>{setLang(l);setLangOpen(false);trackEvent("lang_change",{to:l});}}
                           style={{
-                            display:"flex",alignItems:"center",gap:8,width:"100%",
+                            display:"flex",alignItems:"center",gap:spacing.md,width:"100%",
                             padding:"10px 14px",border:"none",cursor:"pointer",
                             background:lang===l?c.accentBg:"transparent",
                             color:lang===l?c.accent:c.text,
-                            fontSize:13,fontWeight:lang===l?700:400,
+                            fontSize:typeScale.md,fontWeight:lang===l?fw.bold:fw.regular,
                             textAlign:"left",transition:"background 0.15s",
                           }}
                           onMouseEnter={e=>{if(lang!==l)e.currentTarget.style.background=c.bgCardHover;}}
                           onMouseLeave={e=>{if(lang!==l)e.currentTarget.style.background="transparent";}}
                         >
-                          <span style={{fontSize:16}}>{LANG_META[l].flag}</span>
+                          <span style={{fontSize:typeScale.xl}}>{LANG_META[l].flag}</span>
                           {LANG_META[l].name}
                         </button>
                       ))}
@@ -1192,9 +1192,9 @@ export default function App() {
               </div>
             </div>
           </div>
-          <nav aria-label="tabs" style={{display:"flex",gap:2,overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none"}}>
+          <nav aria-label="tabs" style={{display:"flex",gap:spacing["2xs"],overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none"}}>
             <style>{`.tab-container::-webkit-scrollbar { display: none; }`}</style>
-            <div className="tab-container" role="tablist" style={{display:"flex",gap:2,minWidth:"100%"}}>
+            <div className="tab-container" role="tablist" style={{display:"flex",gap:spacing["2xs"],minWidth:"100%"}}>
               {tabs.map(tb=>(
                 <button key={tb.id} role="tab" aria-selected={tab===tb.id} onClick={()=>{
                   trackEvent('tab_change', { from_tab: tab, to_tab: tb.id });
@@ -1202,7 +1202,7 @@ export default function App() {
                 }} style={{
                   padding:"10px 12px",borderRadius:"6px 6px 0 0",border:"none",cursor:"pointer",
                   background:tab===tb.id?c.bgCard:"transparent",
-                  color:tab===tb.id?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:tab===tb.id?700:500,
+                  color:tab===tb.id?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:tab===tb.id?fw.bold:fw.medium,
                   borderBottom:tab===tb.id?`2px solid ${c.accent}`:"2px solid transparent",
                   transition:"all 0.15s",whiteSpace:"nowrap",flex:"1 0 auto",minHeight:44,
                 }}>{tb.icon} {tb.label}</button>
@@ -1219,39 +1219,39 @@ export default function App() {
       </main>
       {posts.length > 0 && (
         <section aria-label={t("blog.insights")} style={{maxWidth:1100,margin:"0 auto",padding:"20px 16px 8px"}}>
-          <h2 style={{color:c.text,fontSize:"clamp(15px,4vw,17px)",fontWeight:700,margin:"0 0 12px",display:"flex",alignItems:"center",gap:8}}>
+          <h2 style={{color:c.text,fontSize:"clamp(15px,4vw,17px)",fontWeight:fw.bold,margin:"0 0 12px",display:"flex",alignItems:"center",gap:spacing.md}}>
             <span style={{fontSize:18}}>📝</span> {t("blog.insights")}
           </h2>
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{display:"flex",flexDirection:"column",gap:spacing.lg}}>
             {posts.slice(0,5).map(post => (
               <a key={post.id} href={`/blog/${post.slug}`}
                 onClick={(e)=>{e.preventDefault();navigate(`/blog/${post.slug}`)}}
-                style={{display:"block",padding:"14px 16px",borderRadius:12,background:c.bgCard,border:`1px solid ${c.border}`,textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s"}}
+                style={{display:"block",padding:"14px 16px",borderRadius:radius["2xl"],background:c.bgCard,border:`1px solid ${c.border}`,textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s"}}
                 onMouseEnter={(e)=>{e.currentTarget.style.background=c.bgCardHover;e.currentTarget.style.borderColor=c.borderHover}}
                 onMouseLeave={(e)=>{e.currentTarget.style.background=c.bgCard;e.currentTarget.style.borderColor=c.border}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:6}}>
-                  <span style={{fontSize:11,color:c.accent,fontWeight:600,background:"rgba(41,108,242,0.08)",padding:"2px 8px",borderRadius:4}}>{post.category}</span>
-                  <span style={{fontSize:11,color:c.textDark,whiteSpace:"nowrap"}}>{post.date}</span>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:spacing.md,marginBottom:spacing.sm}}>
+                  <span style={{fontSize:typeScale.sm,color:c.accent,fontWeight:fw.semibold,background:c.accentBgSoft,padding:"2px 8px",borderRadius:radius.sm}}>{post.category}</span>
+                  <span style={{fontSize:typeScale.sm,color:c.textDark,whiteSpace:"nowrap"}}>{post.date}</span>
                 </div>
-                <p style={{margin:0,color:c.text,fontWeight:600,fontSize:"clamp(13px,3.5vw,14px)",lineHeight:1.5}}>{post.title}</p>
+                <p style={{margin:0,color:c.text,fontWeight:fw.semibold,fontSize:"clamp(13px,3.5vw,14px)",lineHeight:lh.relaxed}}>{post.title}</p>
                 {post.summary && (
-                  <p style={{margin:"6px 0 0",color:c.textDim,fontSize:"clamp(12px,3vw,13px)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.summary}</p>
+                  <p style={{margin:"6px 0 0",color:c.textDim,fontSize:"clamp(12px,3vw,13px)",lineHeight:lh.loose,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.summary}</p>
                 )}
               </a>
             ))}
-            <button onClick={()=>navigate("/blog")} style={{display:"block",width:"100%",padding:"12px",borderRadius:10,background:"rgba(41,108,242,0.08)",border:"1px solid rgba(41,108,242,0.2)",color:c.accent,fontSize:"clamp(13px,3.5vw,14px)",fontWeight:600,cursor:"pointer",textAlign:"center",transition:"background 0.2s",marginTop:4}} onMouseEnter={(e)=>e.target.style.background="rgba(41,108,242,0.12)"} onMouseLeave={(e)=>e.target.style.background="rgba(41,108,242,0.08)"}>{t("blog.viewAll")}</button>
+            <button onClick={()=>navigate("/blog")} style={{display:"block",width:"100%",padding:"12px",borderRadius:radius.xl,background:c.accentBgSoft,border:`1px solid ${c.accentBorderSoft}`,color:c.accent,fontSize:"clamp(13px,3.5vw,14px)",fontWeight:fw.semibold,cursor:"pointer",textAlign:"center",transition:"background 0.2s",marginTop:spacing.xs}} onMouseEnter={(e)=>e.target.style.background=c.accentBg} onMouseLeave={(e)=>e.target.style.background=c.accentBgSoft}>{t("blog.viewAll")}</button>
           </div>
         </section>
       )}
 
       <footer style={{borderTop:`1px solid ${c.borderLight}`,padding:"12px 16px",textAlign:"center"}}>
-        <p style={{color:c.textDarker,fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ {t("footer.apiNote")}</p>
-        <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.5}}>
+        <p style={{color:c.textDarker,fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:lh.relaxed}}>⚖️ {t("footer.apiNote")}</p>
+        <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:lh.relaxed}}>
           {t("footer.contact")}: <a href="mailto:the@designer-kyungho.com" style={{color:c.textDim,textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color=c.textMuted} onMouseLeave={(e) => e.target.style.color=c.textDim}>the@designer-kyungho.com</a>
         </p>
         <p style={{margin:"6px 0 0"}}>
-          <button onClick={() => navigate("/about")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.about")}</button>
-          <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.blog")}</button>
+          <button onClick={() => navigate("/about")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:spacing["3xl"]}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.about")}</button>
+          <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:spacing["3xl"]}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.blog")}</button>
           <button onClick={() => navigate("/privacy")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.privacy")}</button>
         </p>
       </footer>

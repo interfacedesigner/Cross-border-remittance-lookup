@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import { MAX_AMOUNT, DEBOUNCE_MS } from "../styles/theme";
+import { MAX_AMOUNT, DEBOUNCE_MS, fonts, fontWeight as fw, radius } from "../styles/theme";
 import { useTheme } from "../utils/useTheme";
 
 export const AmountInput = ({ amount, setAmount }) => {
@@ -82,12 +82,12 @@ export const AmountInput = ({ amount, setAmount }) => {
       role="textbox"
       style={{
         width:"100%", boxSizing:"border-box",
-        padding:"14px 16px", borderRadius:12,
+        padding:"14px 16px", borderRadius:radius["2xl"],
         border:`1.5px solid ${c.borderInput}`,
         background:c.bgPrimary,
         color:c.text,
-        fontSize:"clamp(20px, 6vw, 28px)", fontWeight:700,
-        fontFamily:"Roboto, 'Noto Sans', sans-serif",
+        fontSize:"clamp(20px, 6vw, 28px)", fontWeight:fw.bold,
+        fontFamily:fonts.numeric,
         textAlign:"right", outline:"none",
         transition:"border-color 0.2s, box-shadow 0.2s",
         WebkitAppearance:"none",

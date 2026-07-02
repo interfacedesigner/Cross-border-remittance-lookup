@@ -17,6 +17,21 @@ const light = {
   toneHighBg: "#FFE8E8", toneMidBg: "#FFF7E0", toneLowBg: "#E8F4FF", toneIdleBg: "#F1F2F4",
   chartGrid: "#E5E7EB", chartFill: "#F7F8FA",
   orange: "#FFA012", cyan: "#06B6D4", purple: "#8B5CF6",
+  // Semantic alpha tokens
+  gridStroke: "rgba(0,0,0,0.06)",
+  shimmer: "rgba(0,0,0,0.03)",
+  shadow: "rgba(0,0,0,0.15)",
+  shadowStrong: "rgba(0,0,0,0.2)",
+  accentBgSoft: "rgba(41,108,242,0.08)",
+  accentBorderSoft: "rgba(41,108,242,0.2)",
+  successBgSoft: "rgba(0,180,66,0.04)",
+  successBorderSoft: "rgba(0,180,66,0.15)",
+  successBgMed: "rgba(0,180,66,0.1)",
+  successBarFill: "rgba(0,180,66,0.5)",
+  dangerBgSoft: "rgba(243,70,70,0.1)",
+  dangerBarFill: "rgba(243,70,70,0.5)",
+  warningBgSoft: "rgba(255,160,18,0.05)",
+  warningBorderSoft: "rgba(255,160,18,0.12)",
 };
 
 const dark = {
@@ -33,6 +48,21 @@ const dark = {
   toneHighBg: "#3A1C1C", toneMidBg: "#3A3018", toneLowBg: "#1A2A3E", toneIdleBg: "#1B2026",
   chartGrid: "#21262E", chartFill: "#14181E",
   orange: "#FFA012", cyan: "#1b9bd0", purple: "#8B52FF",
+  // Semantic alpha tokens
+  gridStroke: "rgba(255,255,255,0.06)",
+  shimmer: "rgba(255,255,255,0.03)",
+  shadow: "rgba(0,0,0,0.4)",
+  shadowStrong: "rgba(0,0,0,0.5)",
+  accentBgSoft: "rgba(90,154,255,0.1)",
+  accentBorderSoft: "rgba(90,154,255,0.25)",
+  successBgSoft: "rgba(0,180,66,0.08)",
+  successBorderSoft: "rgba(0,180,66,0.2)",
+  successBgMed: "rgba(0,180,66,0.15)",
+  successBarFill: "rgba(0,180,66,0.5)",
+  dangerBgSoft: "rgba(243,70,70,0.15)",
+  dangerBarFill: "rgba(243,70,70,0.5)",
+  warningBgSoft: "rgba(255,160,18,0.08)",
+  warningBorderSoft: "rgba(255,160,18,0.18)",
 };
 
 export function getColors(mode) { return mode === "dark" ? dark : light; }
@@ -63,7 +93,9 @@ export const typeScale = {
 export const fontWeight = {
   regular: 400,
   medium: 500,
+  semibold: 600,
   bold: 700,
+  extrabold: 800,
 };
 
 // ── Line Height ───────────────────────────────────
@@ -74,6 +106,8 @@ export const lineHeight = {
   normal: 1.4,
   relaxed: 1.5,
   loose: 1.6,
+  spacious: 1.7,
+  airy: 1.8,
 };
 
 // ── Letter Spacing ────────────────────────────────
@@ -86,21 +120,32 @@ export const tracking = {
 
 // ── Spacing ───────────────────────────────────────
 export const spacing = {
+  "2xs": 2,
   xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  "2xl": 24,
-  "3xl": 32,
+  sm: 6,
+  md: 8,
+  lg: 10,
+  xl: 12,
+  "2xl": 14,
+  "3xl": 16,
+  "4xl": 20,
+  "5xl": 24,
+  "6xl": 28,
+  "7xl": 32,
 };
 
 // ── Border Radius ─────────────────────────────────
 export const radius = {
+  xs: 2,
   sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
+  md: 6,
+  lg: 8,
+  xl: 10,
+  "2xl": 12,
+  "3xl": 14,
+  "4xl": 16,
+  "5xl": 20,
+  pill: 50,
   full: 9999,
 };
 

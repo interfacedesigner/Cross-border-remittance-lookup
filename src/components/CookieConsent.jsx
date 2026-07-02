@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../utils/useTheme";
+import { fontWeight as fw, lineHeight as lh, spacing, radius, typeScale } from "../styles/theme";
 
 const CONSENT_KEY = "cookie_consent_v1";
 
@@ -47,7 +48,7 @@ export const CookieConsent = () => {
         zIndex: 99999,
         background: c.bgPrimary,
         borderTop: `1px solid ${c.border}`,
-        boxShadow: "0 -4px 20px rgba(0,0,0,0.08)",
+        boxShadow: `0 -4px 20px ${c.shadow}`,
         padding: "16px",
         animation: "slideUpBanner 0.3s ease-out",
       }}
@@ -64,7 +65,7 @@ export const CookieConsent = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 16,
+        gap: spacing["3xl"],
         flexWrap: "wrap",
       }}>
         <div style={{ flex: "1 1 300px", minWidth: 0 }}>
@@ -72,7 +73,7 @@ export const CookieConsent = () => {
             color: c.text,
             fontSize: "clamp(13px, 3.2vw, 14px)",
             margin: 0,
-            lineHeight: 1.6,
+            lineHeight: lh.loose,
           }}>
             🍪 이 웹사이트는 서비스 개선과 맞춤 광고 제공을 위해 쿠키를 사용합니다.{" "}
             <a
@@ -84,17 +85,17 @@ export const CookieConsent = () => {
             에서 자세한 내용을 확인하세요.
           </p>
         </div>
-        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: spacing.md, flexShrink: 0 }}>
           <button
             onClick={handleDecline}
             style={{
               padding: "8px 16px",
-              borderRadius: 8,
+              borderRadius: radius.lg,
               border: `1px solid ${c.border}`,
               background: "transparent",
               color: c.textDim,
-              fontSize: 13,
-              fontWeight: 600,
+              fontSize: typeScale.md,
+              fontWeight: fw.semibold,
               cursor: "pointer",
               transition: "all 0.2s",
               whiteSpace: "nowrap",
@@ -106,12 +107,12 @@ export const CookieConsent = () => {
             onClick={handleAccept}
             style={{
               padding: "8px 20px",
-              borderRadius: 8,
+              borderRadius: radius.lg,
               border: "none",
               background: c.accent,
               color: "#fff",
-              fontSize: 13,
-              fontWeight: 700,
+              fontSize: typeScale.md,
+              fontWeight: fw.bold,
               cursor: "pointer",
               transition: "all 0.2s",
               whiteSpace: "nowrap",
