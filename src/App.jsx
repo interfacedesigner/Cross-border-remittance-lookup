@@ -240,14 +240,14 @@ export default function App() {
 
   const getSignal = (r, a) => {
     if(direction==="outbound") {
-      if(r<=a*0.95) return {s:t("signal.strongBuy"),c:"#00B442",i:"🟢"};
-      if(r<=a) return {s:t("signal.buy"),c:"#296CF2",i:"🔵"};
-      if(r<=a*1.05) return {s:t("signal.hold"),c:"#FFA012",i:"🟡"};
-      return {s:t("signal.wait"),c:"#F34646",i:"🔴"};
+      if(r<=a*0.95) return {s:t("signal.strongBuy"),c:c.success,i:"🟢"};
+      if(r<=a) return {s:t("signal.buy"),c:c.accent,i:"🔵"};
+      if(r<=a*1.05) return {s:t("signal.hold"),c:c.warning,i:"🟡"};
+      return {s:t("signal.wait"),c:c.danger,i:"🔴"};
     }
-    if(r>=a*1.05) return {s:t("signal.strongRecv"),c:"#00B442",i:"🟢"};
-    if(r>=a) return {s:t("signal.recv"),c:"#296CF2",i:"🔵"};
-    return {s:t("signal.wait"),c:"#F34646",i:"🔴"};
+    if(r>=a*1.05) return {s:t("signal.strongRecv"),c:c.success,i:"🟢"};
+    if(r>=a) return {s:t("signal.recv"),c:c.accent,i:"🔵"};
+    return {s:t("signal.wait"),c:c.danger,i:"🔴"};
   };
   const sig = getSignal(curRate, recent1YAvg);
 
@@ -323,17 +323,17 @@ export default function App() {
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setCurOpen(true); }}
         style={{
           display:"flex",alignItems:"center",gap:10,padding:"12px 14px",borderRadius:12,cursor:"pointer",
-          border: "1px solid #E5E7EB",
-          background: "#F7F8FA",
+          border: `1px solid ${c.border}`,
+          background: c.bgCard,
           transition:"all 0.2s", minHeight:48,
         }}
       >
         <span style={{fontSize:"clamp(20px, 5.5vw, 22px)",flexShrink:0}}>{ci.flag}</span>
         <div style={{flex:1,minWidth:0}}>
-          <span style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
-          <span style={{color:"#757575",fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{ci.name}</span>
+          <span style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{cur}</span>
+          <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)",marginLeft:8}}>{ci.name}</span>
         </div>
-        <span style={{color:"#949494",fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>▼</span>
+        <span style={{color:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",flexShrink:0}}>▼</span>
       </div>
 
       {curOpen && (
@@ -354,7 +354,7 @@ export default function App() {
             style={{
               width:"100%",
               maxHeight:"70vh",
-              background:"#FFFFFF",
+              background:c.bgPrimary,
               borderRadius:"20px 20px 0 0",
               overflow:"hidden",
               animation:"slideUp 0.3s ease-out",
@@ -362,12 +362,12 @@ export default function App() {
           >
             <div style={{
               padding:"20px",
-              borderBottom:"1px solid #E5E7EB",
+              borderBottom:`1px solid ${c.border}`,
               display:"flex",
               justifyContent:"space-between",
               alignItems:"center",
             }}>
-              <h3 style={{color:"#222222",fontSize:"clamp(16px, 4.2vw, 18px)",fontWeight:700,margin:0}}>
+              <h3 style={{color:c.text,fontSize:"clamp(16px, 4.2vw, 18px)",fontWeight:700,margin:0}}>
                 {t("compare.currencySelect")}
               </h3>
               <button
@@ -376,7 +376,7 @@ export default function App() {
                 style={{
                   background:"transparent",
                   border:"none",
-                  color:"#757575",
+                  color:c.textDim,
                   fontSize:"clamp(24px, 6vw, 28px)",
                   cursor:"pointer",
                   padding:"0 8px",
@@ -412,18 +412,18 @@ export default function App() {
                   style={{
                     display:"flex",alignItems:"center",gap:12,padding:"16px 20px",cursor:"pointer",
                     background: cur === code ? "rgba(41,108,242,0.08)" : "transparent",
-                    borderLeft: cur === code ? "4px solid #296CF2" : "4px solid transparent",
+                    borderLeft: cur === code ? `4px solid ${c.accent}` : "4px solid transparent",
                     transition:"background 0.15s",
                   }}
-                  onMouseEnter={e => { if(cur!==code) e.currentTarget.style.background = "#F7F8FA"; }}
+                  onMouseEnter={e => { if(cur!==code) e.currentTarget.style.background = c.bgCard; }}
                   onMouseLeave={e => { if(cur!==code) e.currentTarget.style.background = "transparent"; }}
                 >
                   <span style={{fontSize:"clamp(24px, 6vw, 28px)",flexShrink:0}}>{info.flag}</span>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{color: cur===code ? "#296CF2" : "#222222", fontSize:"clamp(15px, 4vw, 16px)", fontWeight:700}}>{code}</div>
-                    <div style={{color:"#4C4C4C",fontSize:"clamp(13px, 3.5vw, 14px)",marginTop:2}}>{info.name}</div>
+                    <div style={{color: cur===code ? c.accent : c.text, fontSize:"clamp(15px, 4vw, 16px)", fontWeight:700}}>{code}</div>
+                    <div style={{color:c.textMuted,fontSize:"clamp(13px, 3.5vw, 14px)",marginTop:2}}>{info.name}</div>
                   </div>
-                  {cur === code && <span style={{color:"#296CF2",fontSize:"clamp(20px, 5vw, 24px)",flexShrink:0}}>✓</span>}
+                  {cur === code && <span style={{color:c.accent,fontSize:"clamp(20px, 5vw, 24px)",flexShrink:0}}>✓</span>}
                 </div>
               ))}
             </div>
@@ -451,26 +451,26 @@ export default function App() {
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
       {bizDayBlocked && svcSnapshot.length > 0 && (
         <div role="alert" style={{padding:"12px 16px",borderRadius:12,background:"rgba(255,160,18,0.05)",border:"1px solid rgba(255,160,18,0.12)"}}>
-          <p style={{color:"#FFA012",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:"0 0 4px"}}>
+          <p style={{color:c.warning,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:"0 0 4px"}}>
             📅 {t("compare.currentBizDay")} {getNonBusinessReason()}
           </p>
-          <p style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,lineHeight:1.5}}>
+          <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:0,lineHeight:1.5}}>
             {t("compare.bizDayNote")}
           </p>
         </div>
       )}
 
-      <div style={{background:"#F7F8FA",borderRadius:14,padding:"14px 16px",border:"1px solid #F0F1F3"}}>
+      <div style={{background:c.bgCard,borderRadius:14,padding:"14px 16px",border:`1px solid ${c.borderLight}`}}>
         <div style={{marginBottom:14}}>
-          <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 {t("compare.currency")}</span>
+          <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600,display:"block",marginBottom:8}}>🌍 {t("compare.currency")}</span>
           <CurPicker />
         </div>
 
         <div style={{marginBottom:14}}>
           <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:4}}>
-            <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600}}>💰 {t("compare.amount")}</span>
+            <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:600}}>💰 {t("compare.amount")}</span>
             {amount > 0 && (
-              <span style={{color:"#757575",fontSize:"clamp(14px, 3.5vw, 14px)"}}>
+              <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)"}}>
                 {amount >= 100000000 ? `${Math.floor(amount/100000000)}${t("amount.eok")} ` : ""}
                 {amount % 100000000 >= 10000 ? `${Math.floor((amount%100000000)/10000).toLocaleString()}${t("amount.man")}` : ""}
                 {amount % 10000 > 0 ? ` ${(amount%10000).toLocaleString()}` : ""}{t("common.won")}
@@ -494,14 +494,14 @@ export default function App() {
         `}</style>
         <button className="web3-btn" onClick={handleRefresh} disabled={dataLoading || fetchMode==="loading"} aria-label={t("compare.btn.compare")} style={{
           width:"100%", padding:"16px", borderRadius:14,
-          border: (dataLoading || fetchMode==="loading") ? "1px solid #E5E7EB" : "1px solid rgba(41,108,242,0.3)",
+          border: (dataLoading || fetchMode==="loading") ? `1px solid ${c.border}` : "1px solid rgba(41,108,242,0.3)",
           cursor:(dataLoading || fetchMode==="loading")?"not-allowed":"pointer",
           background: (dataLoading || fetchMode==="loading")
-            ? "#F7F8FA"
+            ? c.bgCard
             : "linear-gradient(135deg, rgba(41,108,242,0.08), rgba(41,108,242,0.12), rgba(41,108,242,0.08))",
           backgroundSize: "400% 400%",
           animation: (dataLoading || fetchMode==="loading") ? "none" : "web3Shimmer 6s ease infinite, borderGlow 4s ease infinite",
-          color: (dataLoading || fetchMode==="loading") ? "#949494" : "#222222",
+          color: (dataLoading || fetchMode==="loading") ? c.textDark : c.text,
           fontSize:15, fontWeight:700,
           opacity: (dataLoading || fetchMode==="loading") ? 0.5 : 1,
           minHeight:54, position:"relative", overflow:"hidden",
@@ -520,18 +520,18 @@ export default function App() {
       </div>
 
       {(fetchMode !== "idle" || svcSnapshot.length > 0) && (
-        <div role="status" style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",borderRadius:10,background:"#F7F8FA",border:"1px solid #F0F1F3",flexWrap:"wrap"}}>
+        <div role="status" style={{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",borderRadius:10,background:c.bgCard,border:`1px solid ${c.borderLight}`,flexWrap:"wrap"}}>
           <style>{`@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.5)}}`}</style>
-          {fetchMode==="loading" && <div style={{width:8,height:8,borderRadius:"50%",background:"#296CF2",animation:"pulse 2s infinite",flexShrink:0}} />}
-          {fetchMode==="live" && <div style={{width:8,height:8,borderRadius:"50%",background:"#00B442",flexShrink:0}} />}
-          {fetchMode==="cached" && <div style={{width:8,height:8,borderRadius:"50%",background:"#FFA012",flexShrink:0}} />}
-          {fetchMode==="error" && <div style={{width:8,height:8,borderRadius:"50%",background:"#F34646",flexShrink:0}} />}
-          <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",lineHeight:1.4}}>
+          {fetchMode==="loading" && <div style={{width:8,height:8,borderRadius:"50%",background:c.accent,animation:"pulse 2s infinite",flexShrink:0}} />}
+          {fetchMode==="live" && <div style={{width:8,height:8,borderRadius:"50%",background:c.success,flexShrink:0}} />}
+          {fetchMode==="cached" && <div style={{width:8,height:8,borderRadius:"50%",background:c.warning,flexShrink:0}} />}
+          {fetchMode==="error" && <div style={{width:8,height:8,borderRadius:"50%",background:c.danger,flexShrink:0}} />}
+          <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",lineHeight:1.4}}>
             {fetchMode==="loading" ? t("compare.status.fetching") :
              fetchMode==="live" ? t("compare.status.live") :
              fetchMode==="cached" ? t("compare.status.cached") :
              fetchMode==="error" ? t("compare.status.error") : t("compare.status.idle")}
-            {midRate && <> · <strong style={{color:"#222222"}}>₩{midRate.toLocaleString()}</strong>/{cur}</>}
+            {midRate && <> · <strong style={{color:c.text}}>₩{midRate.toLocaleString()}</strong>/{cur}</>}
             {lastUpdate && <> · {lastUpdate.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})}</>}
           </span>
         </div>
@@ -546,8 +546,8 @@ export default function App() {
               return (
                 <div key={s.id} style={{
                   padding:"14px 16px", borderRadius:14,
-                  background: isTop ? "rgba(0,180,66,0.04)" : "#F7F8FA",
-                  border: isTop ? "1px solid rgba(0,180,66,0.15)" : "1px solid #F0F1F3",
+                  background: isTop ? "rgba(0,180,66,0.04)" : c.bgCard,
+                  border: isTop ? "1px solid rgba(0,180,66,0.15)" : `1px solid ${c.borderLight}`,
                   opacity: unavailable ? 0.45 : 1,
                 }}>
                   <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
@@ -555,12 +555,12 @@ export default function App() {
                       <span style={{fontSize:"clamp(16px, 4.5vw, 18px)",flexShrink:0}}>{isTop?"🥇":i===1?"🥈":i===2?"🥉":`${i+1}`}</span>
                       <div style={{minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",flexWrap:"wrap",gap:6}}>
-                          <span style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{s.name}</span>
+                          <span style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700}}>{s.name}</span>
                           {bizDayBlocked && (
                             <span style={{
                               padding:"3px 7px", borderRadius:4, fontSize:"clamp(12px, 3vw, 12px)", fontWeight:600,
                               background: s.avail.weekend ? "rgba(0,180,66,0.1)" : "rgba(243,70,70,0.1)",
-                              color: s.avail.weekend ? "#00B442" : "#F34646",
+                              color: s.avail.weekend ? c.success : c.danger,
                               whiteSpace:"nowrap",
                             }}>
                               {s.avail.weekend ? t("compare.available") : t("compare.bizOnly")}
@@ -570,25 +570,25 @@ export default function App() {
                       </div>
                     </div>
                     <div style={{textAlign:"right",flexShrink:0}}>
-                      <p style={{color:isTop?"#00B442":"#222222",fontSize:"clamp(15px, 4.2vw, 17px)",fontWeight:800,margin:0,fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>
+                      <p style={{color:isTop?c.success:c.text,fontSize:"clamp(15px, 4.2vw, 17px)",fontWeight:800,margin:0,fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>
                         {ci.symbol}{s.foreignAmount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
                       </p>
-                      <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("compare.received")}</p>
+                      <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("compare.received")}</p>
                     </div>
                   </div>
                   <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                    <span style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",background:"#F7F8FA",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
-                      {t("compare.fee")} {s.fee===0?<span style={{color:"#00B442"}}>{t("compare.feeWaived")}</span>:`₩${s.fee.toLocaleString()}`}
+                    <span style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                      {t("compare.fee")} {s.fee===0?<span style={{color:c.success}}>{t("compare.feeWaived")}</span>:`₩${s.fee.toLocaleString()}`}
                     </span>
-                    <span style={{color:s.spread>2?"#F34646":s.spread>1?"#FFA012":"#00B442",fontSize:"clamp(14px, 3.5vw, 14px)",background:"#F7F8FA",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                    <span style={{color:s.spread>2?c.danger:s.spread>1?c.warning:c.success,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
                       {t("compare.spread")} {s.spread}%
                     </span>
-                    <span style={{color:"#757575",fontSize:"clamp(14px, 3.5vw, 14px)",background:"#F7F8FA",padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
+                    <span style={{color:c.textDim,fontSize:"clamp(14px, 3.5vw, 14px)",background:c.bgCard,padding:"4px 8px",borderRadius:6,whiteSpace:"nowrap"}}>
                       {s.speed}
                     </span>
                   </div>
                   {s.promotions && (
-                    <p style={{color:"#FFA012",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.4}}>🏷️ {s.promotions}</p>
+                    <p style={{color:c.warning,fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.4}}>🏷️ {s.promotions}</p>
                   )}
                 </div>
               );
@@ -597,41 +597,41 @@ export default function App() {
 
           {svcSnapshot.length >= 2 && (
             <div style={{padding:"14px 16px",borderRadius:14,background:"rgba(0,180,66,0.04)",border:"1px solid rgba(0,180,66,0.1)"}}>
-              <p style={{color:"#00B442",fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:0,lineHeight:1.5}}>
+              <p style={{color:c.success,fontSize:"clamp(14px, 3.5vw, 15px)",fontWeight:700,margin:0,lineHeight:1.5}}>
                 💡 {svcSnapshot[0].name} {t("compare.savings.save")} ₩{(svcSnapshot[svcSnapshot.length-1].totalCost - svcSnapshot[0].totalCost).toLocaleString()} {t("compare.savings.saved")}
               </p>
-              <p style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"4px 0 0",lineHeight:1.4}}>
+              <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:"4px 0 0",lineHeight:1.4}}>
                 {t("compare.savingsVs")} {svcSnapshot[svcSnapshot.length-1].name} · {ci.symbol}{(svcSnapshot[0].foreignAmount - svcSnapshot[svcSnapshot.length-1].foreignAmount).toFixed(2)} {t("compare.moreReceived")}
               </p>
             </div>
           )}
 
-          <div style={{background:"#F7F8FA",borderRadius:14,padding:"12px 10px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-            <p style={{color:"#4C4C4C",fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("compare.receivedCompare")} · ₩{amount.toLocaleString()} → {cur}</p>
+          <div style={{background:c.bgCard,borderRadius:14,padding:"12px 10px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+            <p style={{color:c.textMuted,fontSize:"clamp(14px, 3.5vw, 14px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("compare.receivedCompare")} · ₩{amount.toLocaleString()} → {cur}</p>
             <ResponsiveContainer width="100%" height={Math.max(260, svcSnapshot.length * 40)} minWidth={300}>
               <BarChart data={svcSnapshot} layout="vertical" margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
-                <XAxis type="number" tick={{fill:"#757575",fontSize:"clamp(12px, 3vw, 12px)"}} tickFormatter={v=>`${ci.symbol}${v.toFixed(0)}`}/>
-                <YAxis dataKey="kr" type="category" tick={{fill:"#4C4C4C",fontSize:"clamp(12px, 3vw, 12px)"}} width={60}/>
+                <XAxis type="number" tick={{fill:c.textDim,fontSize:"clamp(12px, 3vw, 12px)"}} tickFormatter={v=>`${ci.symbol}${v.toFixed(0)}`}/>
+                <YAxis dataKey="kr" type="category" tick={{fill:c.textMuted,fontSize:"clamp(12px, 3vw, 12px)"}} width={60}/>
                 <Tooltip content={<CTooltip/>}/>
                 <Bar dataKey="foreignAmount" name={`${t("compare.barName")}(${cur})`} radius={[0,4,4,0]}>
                   {svcSnapshot.map((s,i) => (
-                    <Cell key={s.id} fill={i===0?"#00B442":i<3?"#296CF2":"#949494"} />
+                    <Cell key={s.id} fill={i===0?c.success:i<3?c.accent:c.textDark} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div style={{background:"#F7F8FA",borderRadius:14,padding:"16px",border:"1px solid #F0F1F3"}}>
-            <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.compareTitle")}</h3>
-            <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+          <div style={{background:c.bgCard,borderRadius:14,padding:"16px",border:`1px solid ${c.borderLight}`}}>
+            <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.compareTitle")}</h3>
+            <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
               {t("editorial.compareBody1")}
             </p>
-            <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+            <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
               {t("editorial.compareBody2")}
             </p>
-            <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+            <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
               {t("editorial.compareDisclaimerFull")}
             </p>
           </div>
@@ -639,7 +639,7 @@ export default function App() {
           <AdSenseAd slot="1234567890" format="auto" responsive={true} style={{ minHeight: 90 }} />
         </>
       ) : (
-        <div style={{textAlign:"center",padding:"40px 20px",color:"#949494"}}>
+        <div style={{textAlign:"center",padding:"40px 20px",color:c.textDark}}>
           <p style={{fontSize:"clamp(32px, 10vw, 40px)",margin:"0 0 12px"}}>⚖️</p>
           <p style={{fontSize:"clamp(14px, 3.8vw, 15px)",margin:0,fontWeight:600,lineHeight:1.5}}>
             {dataLoading ? t("compare.emptyLoading") : fetchMode==="error" ? `${cur} ${t("compare.emptyNoData")}` : t("compare.emptyAction")}
@@ -695,17 +695,17 @@ export default function App() {
         </div>
 
         {/* ── 최근 3개월 일별 추이 ── */}
-        <div style={{background:"#F7F8FA",borderRadius:14,padding:"14px 12px",border:"1px solid #E5E7EB"}}>
+        <div style={{background:c.bgCard,borderRadius:14,padding:"14px 12px",border:`1px solid ${c.border}`}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:8}}>
-            <p style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:0}}>
+            <p style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:0}}>
               📊 {t("rate.dailyTitle")}
             </p>
             <div style={{display:"flex",gap:4}}>
               {[{v:1,l:t("rate.1m")},{v:2,l:t("rate.2m")},{v:3,l:t("rate.3m")}].map(p=>(
                 <button key={p.v} onClick={()=>setDailyPeriod(p.v)} aria-pressed={dailyPeriod===p.v} style={{
                   padding:"6px 10px",borderRadius:8,border:"none",cursor:"pointer",
-                  background:dailyPeriod===p.v?"#E5E7EB":"#F7F8FA",
-                  color:dailyPeriod===p.v?"#222222":"#949494",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
+                  background:dailyPeriod===p.v?c.border:c.bgCard,
+                  color:dailyPeriod===p.v?c.text:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
                   minHeight:32,
                 }}>{p.l}</button>
               ))}
@@ -715,27 +715,27 @@ export default function App() {
           {dailyLoading ? (
             <div style={{textAlign:"center",padding:"40px 0"}}>
               <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-              <div style={{width:24,height:24,border:"2px solid #E5E7EB",borderTop:`2px solid ${ci.color}`,borderRadius:"50%",animation:"spin 0.8s linear infinite",margin:"0 auto 12px"}} />
-              <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("rate.dailyLoading")}</p>
+              <div style={{width:24,height:24,border:`2px solid ${c.border}`,borderTop:`2px solid ${ci.color}`,borderRadius:"50%",animation:"spin 0.8s linear infinite",margin:"0 auto 12px"}} />
+              <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("rate.dailyLoading")}</p>
             </div>
           ) : dailyError ? (
             <div style={{textAlign:"center",padding:"30px 0"}}>
-              <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 13px)",margin:0,lineHeight:1.5}}>
+              <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 13px)",margin:0,lineHeight:1.5}}>
                 {t("rate.dailyError")}<br/>
-                <span style={{color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)"}}>{t("rate.dailyErrorSub")}</span>
+                <span style={{color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)"}}>{t("rate.dailyErrorSub")}</span>
               </p>
             </div>
           ) : dailyData.length > 0 && dailyStats ? (
             <>
               <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:6,marginBottom:12}}>
                 {[
-                  {l:t("rate.high"),v:`₩${dailyStats.hi.toLocaleString()}`,c:"#F34646"},
-                  {l:t("rate.low"),v:`₩${dailyStats.lo.toLocaleString()}`,c:"#296CF2"},
-                  {l:t("rate.avg"),v:`₩${dailyStats.avg3m.toLocaleString()}`,c:"#4C4C4C"},
-                  {l:t("rate.change"),v:`${parseFloat(dailyStats.chg)>0?"+":""}${dailyStats.chg}%`,c:parseFloat(dailyStats.chg)>0?"#F34646":"#00B442"},
+                  {l:t("rate.high"),v:`₩${dailyStats.hi.toLocaleString()}`,c:c.danger},
+                  {l:t("rate.low"),v:`₩${dailyStats.lo.toLocaleString()}`,c:c.accent},
+                  {l:t("rate.avg"),v:`₩${dailyStats.avg3m.toLocaleString()}`,c:c.textMuted},
+                  {l:t("rate.change"),v:`${parseFloat(dailyStats.chg)>0?"+":""}${dailyStats.chg}%`,c:parseFloat(dailyStats.chg)>0?c.danger:c.success},
                 ].map((s,i)=>(
-                  <div key={i} style={{background:"#FFFFFF",borderRadius:8,padding:"8px 6px",textAlign:"center",border:"1px solid #F0F1F3"}}>
-                    <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{s.l}</p>
+                  <div key={i} style={{background:c.bgPrimary,borderRadius:8,padding:"8px 6px",textAlign:"center",border:`1px solid ${c.borderLight}`}}>
+                    <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{s.l}</p>
                     <p style={{color:s.c,fontSize:"clamp(12px, 3.2vw, 14px)",fontWeight:700,margin:"2px 0 0",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>{s.v}</p>
                   </div>
                 ))}
@@ -743,23 +743,23 @@ export default function App() {
 
               <div style={{marginBottom:12,padding:"0 4px"}}>
                 <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                  <span style={{color:"#296CF2",fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.lowPoint")} ₩{dailyStats.lo.toLocaleString()}</span>
-                  <span style={{color:"#F34646",fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.highPoint")} ₩{dailyStats.hi.toLocaleString()}</span>
+                  <span style={{color:c.accent,fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.lowPoint")} ₩{dailyStats.lo.toLocaleString()}</span>
+                  <span style={{color:c.danger,fontSize:"clamp(10px, 2.5vw, 11px)"}}>{t("rate.highPoint")} ₩{dailyStats.hi.toLocaleString()}</span>
                 </div>
-                <div style={{position:"relative",height:6,background:"#E5E7EB",borderRadius:3}}>
+                <div style={{position:"relative",height:6,background:c.border,borderRadius:3}}>
                   <div style={{
                     position:"absolute",top:0,left:0,height:"100%",borderRadius:3,
                     width:`${dailyStats.pos}%`,
-                    background:`linear-gradient(90deg, #296CF2, ${ci.color})`,
+                    background:`linear-gradient(90deg, ${c.accent}, ${ci.color})`,
                   }} />
                   <div style={{
                     position:"absolute",top:-3,
                     left:`calc(${dailyStats.pos}% - 6px)`,
                     width:12,height:12,borderRadius:"50%",
-                    background:ci.color,border:"2px solid #FFFFFF",
+                    background:ci.color,border:`2px solid ${c.bgPrimary}`,
                   }} />
                 </div>
-                <p style={{color:"#4C4C4C",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"6px 0 0",textAlign:"center"}}>
+                <p style={{color:c.textMuted,fontSize:"clamp(10px, 2.5vw, 11px)",margin:"6px 0 0",textAlign:"center"}}>
                   {t("rate.current")} ₩{dailyStats.latest.toLocaleString()} · {t("rate.posInRange")} {dailyStats.pos}% {t("rate.position")}
                 </p>
               </div>
@@ -776,23 +776,23 @@ export default function App() {
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
                     <XAxis
                       dataKey="d"
-                      tick={{fill:"#757575",fontSize:"clamp(10px, 2.2vw, 11px)"}}
+                      tick={{fill:c.textDim,fontSize:"clamp(10px, 2.2vw, 11px)"}}
                       tickFormatter={v => {const p=v.split("-"); return `${parseInt(p[1])}/${parseInt(p[2])}`;}}
                       interval={dailyPeriod===1?4:dailyPeriod===2?9:14}
                     />
                     <YAxis
-                      tick={{fill:"#757575",fontSize:"clamp(10px, 2.2vw, 11px)"}}
+                      tick={{fill:c.textDim,fontSize:"clamp(10px, 2.2vw, 11px)"}}
                       domain={["dataMin-5","dataMax+5"]}
                       tickFormatter={v=>`₩${v.toLocaleString()}`}
                     />
                     <Tooltip content={<CTooltip/>}/>
-                    <ReferenceLine y={dailyStats.avg3m} stroke="#FFA012" strokeDasharray="4 4" label={{value:t("rate.avg"),fill:"#FFA012",fontSize:10,position:"right"}}/>
-                    <Area type="monotone" dataKey="r" stroke={ci.color} fill="url(#dailyGrad)" strokeWidth={2} name={`${ci.flag} ${cur}/KRW`} dot={false} activeDot={{r:4,fill:ci.color,stroke:"#FFFFFF",strokeWidth:2}}/>
+                    <ReferenceLine y={dailyStats.avg3m} stroke={c.warning} strokeDasharray="4 4" label={{value:t("rate.avg"),fill:c.warning,fontSize:10,position:"right"}}/>
+                    <Area type="monotone" dataKey="r" stroke={ci.color} fill="url(#dailyGrad)" strokeWidth={2} name={`${ci.flag} ${cur}/KRW`} dot={false} activeDot={{r:4,fill:ci.color,stroke:c.bgPrimary,strokeWidth:2}}/>
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
 
-              <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:"8px 0 0",textAlign:"right"}}>
+              <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:"8px 0 0",textAlign:"right"}}>
                 {t("rate.source")} · {dailyData.length}{t("rate.dataCount")}
               </p>
             </>
@@ -804,73 +804,73 @@ export default function App() {
           {["all","2020","2021","2022","2023","2024","2025","2026"].map(y=>(
             <button key={y} onClick={()=>setSelectedYear(y)} aria-pressed={selectedYear===y} style={{
               padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
-              background:selectedYear===y?"#E5E7EB":"#F7F8FA",
-              color:selectedYear===y?"#222222":"#949494",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
+              background:selectedYear===y?c.border:c.bgCard,
+              color:selectedYear===y?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
               minHeight:36,flex:"1 0 auto",
             }}>{y==="all"?t("rate.all"):y}</button>
           ))}
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(2, 1fr)",gap:8}}>
-          {[{l:t("rate.current"),v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:t("rate.5yAvg"),v:`₩${avg.toLocaleString()}`,a:"#296CF2"},{l:t("rate.minMax"),v:`${mn}~${mx}`,a:"#FFA012"},{l:t("rate.signal"),v:sig.s,a:sig.c}].map((k,i)=>(
-            <div key={i} style={{background:"#F7F8FA",borderRadius:10,padding:"12px",border:"1px solid #F0F1F3",borderTop:`2px solid ${k.a}`}}>
-              <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{k.l}</p>
-              <p style={{color:"#222222",fontSize:"clamp(15px, 4.5vw, 18px)",fontWeight:700,margin:"4px 0 0",fontFamily:"Roboto, 'Noto Sans', sans-serif",wordBreak:"break-word"}}>{k.v}</p>
+          {[{l:t("rate.current"),v:`₩${curRate.toLocaleString()}`,a:ci.color},{l:t("rate.5yAvg"),v:`₩${avg.toLocaleString()}`,a:c.accent},{l:t("rate.minMax"),v:`${mn}~${mx}`,a:c.warning},{l:t("rate.signal"),v:sig.s,a:sig.c}].map((k,i)=>(
+            <div key={i} style={{background:c.bgCard,borderRadius:10,padding:"12px",border:`1px solid ${c.borderLight}`,borderTop:`2px solid ${k.a}`}}>
+              <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{k.l}</p>
+              <p style={{color:c.text,fontSize:"clamp(15px, 4.5vw, 18px)",fontWeight:700,margin:"4px 0 0",fontFamily:"Roboto, 'Noto Sans', sans-serif",wordBreak:"break-word"}}>{k.v}</p>
             </div>
           ))}
         </div>
-        <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-          <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.monthlyTrend")}</p>
+        <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+          <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.monthlyTrend")}</p>
           <ResponsiveContainer width="100%" height={280} minWidth={300}>
             <AreaChart data={filteredHist} margin={{left:0,right:10,top:5,bottom:5}}>
               <defs><linearGradient id="ag2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={ci.color} stopOpacity={0.15}/><stop offset="100%" stopColor={ci.color} stopOpacity={0}/></linearGradient></defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
-              <XAxis dataKey="d" tick={{fill:"#757575",fontSize:"clamp(12px, 2.5vw, 12px)"}} tickFormatter={v=>v.slice(2)} interval={selectedYear==="all"?5:0}/>
-              <YAxis tick={{fill:"#757575",fontSize:"clamp(12px, 2.5vw, 12px)"}} domain={["dataMin-15","dataMax+15"]}/>
+              <XAxis dataKey="d" tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}} tickFormatter={v=>v.slice(2)} interval={selectedYear==="all"?5:0}/>
+              <YAxis tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}} domain={["dataMin-15","dataMax+15"]}/>
               <Tooltip content={<CTooltip/>}/>
-              <ReferenceLine y={avg} stroke="#FFA012" strokeDasharray="4 4"/>
+              <ReferenceLine y={avg} stroke={c.warning} strokeDasharray="4 4"/>
               <Area type="monotone" dataKey="r" stroke={ci.color} fill="url(#ag2)" strokeWidth={2} name={`${cur}/KRW`}/>
             </AreaChart>
           </ResponsiveContainer>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:12}}>
-          <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-            <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyChange")}</p>
+          <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+            <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyChange")}</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <BarChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
-                <XAxis dataKey="year" tick={{fill:"#757575",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
-                <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} unit="%"/>
+                <XAxis dataKey="year" tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+                <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} unit="%"/>
                 <Tooltip content={<CTooltip/>}/>
-                <Bar dataKey="chg" name={t("rate.changeRatePct")} radius={[2,2,0,0]}>{yearly.map((e,i)=><Cell key={i} fill={parseFloat(e.chg)>0?"#F34646":"#00B442"} fillOpacity={0.6}/>)}</Bar>
+                <Bar dataKey="chg" name={t("rate.changeRatePct")} radius={[2,2,0,0]}>{yearly.map((e,i)=><Cell key={i} fill={parseFloat(e.chg)>0?c.danger:c.success} fillOpacity={0.6}/>)}</Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-            <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyAvgRange")}</p>
+          <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+            <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:6}}>{t("rate.yearlyAvgRange")}</p>
             <ResponsiveContainer width="100%" height={180} minWidth={280}>
               <ComposedChart data={yearly} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
-                <XAxis dataKey="year" tick={{fill:"#757575",fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
-                <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
+                <XAxis dataKey="year" tick={{fill:c.textDim,fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
+                <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
                 <Tooltip content={<CTooltip/>}/>
                 <Line type="monotone" dataKey="avg" stroke={ci.color} strokeWidth={2} dot={{r:2.5,fill:ci.color}} name={t("rate.avg")}/>
-                <Line type="monotone" dataKey="min" stroke="#296CF2" strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("rate.low")}/>
-                <Line type="monotone" dataKey="max" stroke="#F34646" strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("rate.high")}/>
+                <Line type="monotone" dataKey="min" stroke={c.accent} strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("rate.low")}/>
+                <Line type="monotone" dataKey="max" stroke={c.danger} strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("rate.high")}/>
                 <Legend wrapperStyle={{fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <div style={{background:"#F7F8FA",borderRadius:14,padding:"16px",border:"1px solid #F0F1F3"}}>
-          <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.rateTitle")}</h3>
-          <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+        <div style={{background:c.bgCard,borderRadius:14,padding:"16px",border:`1px solid ${c.borderLight}`}}>
+          <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.rateTitle")}</h3>
+          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
             {t("editorial.rateBody1")}
           </p>
-          <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-            <strong style={{color:"#222222"}}>{t("editorial.rateBody2Title")}</strong>{" "}
+          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+            <strong style={{color:c.text}}>{t("editorial.rateBody2Title")}</strong>{" "}
             {t("editorial.rateBody2")}
           </p>
-          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
             {t("editorial.rateDisclaimer")}
           </p>
         </div>
@@ -887,7 +887,7 @@ export default function App() {
     const recentWithRate = recentSeasonalData.filter(m=>m.rate!==null);
     const bestSendRecent=[...recentWithRate].sort((a,b)=>a.rate-b.rate).slice(0,3);
     const bestRecvRecent=[...recentWithRate].sort((a,b)=>b.rate-a.rate).slice(0,3);
-    const trendColor = recentTrend.pct>0?"#F34646":recentTrend.pct<0?"#00B442":"#757575";
+    const trendColor = recentTrend.pct>0?c.danger:recentTrend.pct<0?c.success:c.textDim;
     const trendArrow = recentTrend.pct>0?"↑":recentTrend.pct<0?"↓":"→";
     const periodLabel = recentHist.length>=2 ? `${recentHist[0].d} ~ ${recentHist[recentHist.length-1].d}` : "";
     return (
@@ -896,8 +896,8 @@ export default function App() {
           {["outbound","inbound"].map(d=>(
             <button key={d} onClick={()=>setDirection(d)} aria-pressed={direction===d} style={{
               padding:"10px 14px",borderRadius:12,border:"none",cursor:"pointer",
-              background:direction===d?"#E5E7EB":"#F7F8FA",
-              color:direction===d?"#222222":"#949494",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
+              background:direction===d?c.border:c.bgCard,
+              color:direction===d?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:600,
               flex:"1 0 auto",minHeight:44,
             }}>{d==="outbound"?t("timing.outbound"):t("timing.inbound")}</button>
           ))}
@@ -909,7 +909,7 @@ export default function App() {
           <span style={{fontSize:"clamp(28px, 8vw, 32px)",flexShrink:0}}>{sig.i}</span>
           <div style={{minWidth:0,flex:1}}>
             <p style={{color:sig.c,margin:0,fontSize:"clamp(18px, 5vw, 20px)",fontWeight:800}}>{sig.s}</p>
-            <p style={{color:"#757575",margin:"2px 0 0",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.4}}>
+            <p style={{color:c.textDim,margin:"2px 0 0",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.4}}>
               {ci.flag} {cur} {t("rate.current")} ₩{curRate.toLocaleString()} · {t("timing.1yAvgLabel")} ₩{recent1YAvg.toLocaleString()}
             </p>
           </div>
@@ -917,68 +917,68 @@ export default function App() {
 
         {/* 1년 핵심 지표 카드 */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-          <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yTrend")}</p>
+          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+            <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yTrend")}</p>
             <p style={{color:trendColor,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>{trendArrow} {recentTrend.pct>0?"+":""}{recentTrend.pct}%</p>
           </div>
-          <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.currentPos")}</p>
-            <p style={{color:percentilePos>=70?"#F34646":percentilePos<=30?"#00B442":"#FFA012",fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>
+          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+            <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.currentPos")}</p>
+            <p style={{color:percentilePos>=70?c.danger:percentilePos<=30?c.success:c.warning,fontSize:"clamp(16px, 4.5vw, 18px)",margin:"4px 0 0",fontWeight:800,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>
               {t("timing.top")} {100-percentilePos}%
             </p>
           </div>
-          <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yLow")}</p>
-            <p style={{color:"#296CF2",fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMin.toLocaleString()}</p>
+          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+            <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yLow")}</p>
+            <p style={{color:c.accent,fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMin.toLocaleString()}</p>
           </div>
-          <div style={{background:"#F7F8FA",borderRadius:10,padding:"10px 12px",border:"1px solid #F0F1F3"}}>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yHigh")}</p>
-            <p style={{color:"#F34646",fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMax.toLocaleString()}</p>
+          <div style={{background:c.bgCard,borderRadius:10,padding:"10px 12px",border:`1px solid ${c.borderLight}`}}>
+            <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 11px)",margin:0}}>{t("timing.1yHigh")}</p>
+            <p style={{color:c.danger,fontSize:"clamp(14px, 3.8vw, 16px)",margin:"4px 0 0",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMax.toLocaleString()}</p>
           </div>
         </div>
 
         {/* 현재 위치 바 */}
-        <div style={{background:"#F7F8FA",borderRadius:10,padding:"12px 14px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 8px",fontWeight:600}}>{t("timing.1yRangePos")}</p>
-          <div style={{position:"relative",height:24,background:"#E5E7EB",borderRadius:6,overflow:"hidden"}}>
+        <div style={{background:c.bgCard,borderRadius:10,padding:"12px 14px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 8px",fontWeight:600}}>{t("timing.1yRangePos")}</p>
+          <div style={{position:"relative",height:24,background:c.border,borderRadius:6,overflow:"hidden"}}>
             <div style={{
               position:"absolute",left:0,top:0,height:"100%",borderRadius:6,
               width:`${recent1YMax>recent1YMin?((curRate-recent1YMin)/(recent1YMax-recent1YMin)*100):50}%`,
-              background:`linear-gradient(90deg, #00B442, #FFA012, #F34646)`,opacity:0.3,
+              background:`linear-gradient(90deg, ${c.success}, ${c.warning}, ${c.danger})`,opacity:0.3,
             }}/>
             <div style={{
               position:"absolute",top:"50%",transform:"translate(-50%,-50%)",
               left:`${recent1YMax>recent1YMin?Math.min(Math.max(((curRate-recent1YMin)/(recent1YMax-recent1YMin)*100),2),98):50}%`,
-              width:10,height:10,borderRadius:"50%",background:"#222222",boxShadow:"0 0 6px rgba(0,0,0,0.2)",
+              width:10,height:10,borderRadius:"50%",background:c.text,boxShadow:"0 0 6px rgba(0,0,0,0.2)",
             }}/>
           </div>
           <div style={{display:"flex",justifyContent:"space-between",marginTop:4}}>
-            <span style={{color:"#296CF2",fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMin.toLocaleString()}</span>
-            <span style={{color:"#F34646",fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMax.toLocaleString()}</span>
+            <span style={{color:c.accent,fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMin.toLocaleString()}</span>
+            <span style={{color:c.danger,fontSize:"clamp(10px, 2.5vw, 11px)",fontFamily:"Roboto, 'Noto Sans', sans-serif"}}>₩{recent1YMax.toLocaleString()}</span>
           </div>
         </div>
 
         {/* 최근 1년 월별 추이 차트 */}
-        <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.recent1yMonthly")} ({periodLabel})</p>
+        <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.recent1yMonthly")} ({periodLabel})</p>
           <div style={{overflowX:"auto"}}>
             <ResponsiveContainer width="100%" height={220} minWidth={300}>
               <ComposedChart data={recentHist.map(d=>({...d,label:d.d.split("-")[1]+t("common.month")}))} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
-                <XAxis dataKey="label" tick={{fill:"#757575",fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
-                <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
+                <XAxis dataKey="label" tick={{fill:c.textDim,fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
+                <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-15","dataMax+15"]}/>
                 <Tooltip content={<CTooltip/>}/>
                 <Area type="monotone" dataKey="r" stroke={ci.color} fill={ci.color} fillOpacity={0.08} strokeWidth={2} name={t("timing.rate")}/>
-                <ReferenceLine y={recent1YAvg} stroke="#FFA012" strokeDasharray="4 4" label={{value:t("timing.1yAvg"),fill:"#FFA012",fontSize:10,position:"insideTopRight"}}/>
-                <ReferenceLine y={curRate} stroke="#222222" strokeDasharray="2 2" strokeWidth={1}/>
+                <ReferenceLine y={recent1YAvg} stroke={c.warning} strokeDasharray="4 4" label={{value:t("timing.1yAvg"),fill:c.warning,fontSize:10,position:"insideTopRight"}}/>
+                <ReferenceLine y={curRate} stroke={c.text} strokeDasharray="2 2" strokeWidth={1}/>
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* 전월 대비 변화 */}
-        <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.momChange")}</p>
+        <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:"0 0 6px 8px",fontWeight:600}}>{t("timing.momChange")}</p>
           <div style={{overflowX:"auto"}}>
             <ResponsiveContainer width="100%" height={160} minWidth={300}>
               <BarChart data={recentHist.slice(1).map((d,i)=>{
@@ -987,10 +987,10 @@ export default function App() {
                 return {label:d.d.split("-")[1]+t("common.month"),change:chg};
               })} margin={{left:0,right:10,top:5,bottom:5}}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
-                <XAxis dataKey="label" tick={{fill:"#757575",fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
-                <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>`${v}%`}/>
+                <XAxis dataKey="label" tick={{fill:c.textDim,fontSize:"clamp(11px, 2.5vw, 12px)"}}/>
+                <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>`${v}%`}/>
                 <Tooltip content={<CTooltip/>} formatter={v=>[`${v}%`,t("timing.changeRate")]}/>
-                <ReferenceLine y={0} stroke="#E5E7EB"/>
+                <ReferenceLine y={0} stroke={c.border}/>
                 <Bar dataKey="change" name={t("timing.changeRate")} radius={[2,2,0,0]}>
                   {recentHist.slice(1).map((d,i)=>{
                     const prev=recentHist[i].r;
@@ -1006,13 +1006,13 @@ export default function App() {
         {/* BEST 월 - 1년 기준 */}
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
           {[{t:t("timing.sendBestShort"),sub:t("timing.lowRateMonth"),d:bestSendRecent,icon:"📤"},{t:t("timing.recvBestShort"),sub:t("timing.highRateMonth"),d:bestRecvRecent,icon:"📥"}].map((sec,si)=>(
-            <div key={si} style={{background:"#F7F8FA",borderRadius:12,padding:"12px 14px",border:"1px solid #F0F1F3"}}>
-              <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 13px)",margin:"0 0 8px",fontWeight:700}}>{sec.icon} {sec.t}</p>
-              <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 10px)",margin:"-4px 0 8px"}}>{sec.sub}</p>
+            <div key={si} style={{background:c.bgCard,borderRadius:12,padding:"12px 14px",border:`1px solid ${c.borderLight}`}}>
+              <p style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",margin:"0 0 8px",fontWeight:700}}>{sec.icon} {sec.t}</p>
+              <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 10px)",margin:"-4px 0 8px"}}>{sec.sub}</p>
               {sec.d.map((m,i)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 8px",borderRadius:6,marginBottom:4,background:"#FFFFFF",alignItems:"center",border:"1px solid #F0F1F3"}}>
-                  <span style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 13px)",fontWeight:600}}>{["🥇","🥈","🥉"][i]} {m.label}</span>
-                  <span style={{color:"#222222",fontSize:"clamp(12px, 3vw, 13px)",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>₩{m.rate.toLocaleString()}</span>
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"6px 8px",borderRadius:6,marginBottom:4,background:c.bgPrimary,alignItems:"center",border:`1px solid ${c.borderLight}`}}>
+                  <span style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",fontWeight:600}}>{["🥇","🥈","🥉"][i]} {m.label}</span>
+                  <span style={{color:c.text,fontSize:"clamp(12px, 3vw, 13px)",fontWeight:700,fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>₩{m.rate.toLocaleString()}</span>
                 </div>
               ))}
             </div>
@@ -1020,10 +1020,10 @@ export default function App() {
         </div>
 
         {/* 분석 요약 */}
-        <div style={{background:"#F7F8FA",borderRadius:12,padding:"14px 16px",border:"1px solid #F0F1F3"}}>
-          <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 13px)",margin:0,fontWeight:700}}>📊 {t("timing.patternSummary")}</p>
+        <div style={{background:c.bgCard,borderRadius:12,padding:"14px 16px",border:`1px solid ${c.borderLight}`}}>
+          <p style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 13px)",margin:0,fontWeight:700}}>📊 {t("timing.patternSummary")}</p>
           <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:6}}>
-            <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",margin:0,lineHeight:1.6}}>
+            <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",margin:0,lineHeight:1.6}}>
               {direction==="outbound"
                 ? curRate <= recent1YAvg
                   ? `${t("timing.currentRate")}(₩${curRate.toLocaleString()})${t("timing.1yAvgLabel")}(₩${recent1YAvg.toLocaleString()})${t("timing.outboundFavorable")} ${recentTrend.pct>0?t("timing.trendUp"):t("timing.trendDown")} ${t("timing.trendNote")}(${recentTrend.pct>0?"+":""}${recentTrend.pct}%)`
@@ -1033,7 +1033,7 @@ export default function App() {
                   : `${t("timing.currentRate")}(₩${curRate.toLocaleString()})${t("timing.1yAvgLabel")}(₩${recent1YAvg.toLocaleString()})${t("timing.inboundLow")}`
               }
             </p>
-            <p style={{color:"#949494",fontSize:"clamp(10px, 2.5vw, 10px)",margin:0}}>※ {t("timing.disclaimer")} ({periodLabel})</p>
+            <p style={{color:c.textDark,fontSize:"clamp(10px, 2.5vw, 10px)",margin:0}}>※ {t("timing.disclaimer")} ({periodLabel})</p>
           </div>
         </div>
       </div>
@@ -1049,50 +1049,50 @@ export default function App() {
         {Object.entries(CURRENCIES).map(([code,info])=>(
           <button key={code} onClick={()=>setMultiCur(prev=>prev.includes(code)?prev.filter(c=>c!==code):[...prev,code])} aria-pressed={multiCur.includes(code)} style={{
             padding:"8px 10px",borderRadius:10,border:"none",cursor:"pointer",
-            background:multiCur.includes(code)?"#E5E7EB":"#F7F8FA",
-            color:multiCur.includes(code)?"#222222":"#949494",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
+            background:multiCur.includes(code)?c.border:c.bgCard,
+            color:multiCur.includes(code)?c.text:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,
             outline:multiCur.includes(code)?`1px solid ${info.color}`:"none",
             flex:"0 0 auto",minHeight:36,
           }}>{info.flag} {code}</button>
         ))}
       </div>
-      <div style={{background:"#F7F8FA",borderRadius:12,padding:"12px 8px",border:"1px solid #F0F1F3",overflowX:"auto"}}>
-        <p style={{color:"#757575",fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("multi.normalizedIndex")}</p>
+      <div style={{background:c.bgCard,borderRadius:12,padding:"12px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto"}}>
+        <p style={{color:c.textDim,fontSize:"clamp(12px, 3vw, 12px)",margin:"0 0 8px",fontWeight:600,paddingLeft:4}}>{t("multi.normalizedIndex")}</p>
         <ResponsiveContainer width="100%" height={280} minWidth={300}>
           <LineChart data={(()=>{
             const dates=HIST.USD.map(d=>d.d);
             return dates.map((date,i)=>{const pt={date};multiCur.forEach(code=>{const h=HIST[code];if(h&&h[0]&&h[i])pt[code]=Math.round((h[i].r/h[0].r)*10000)/100;});return pt;});
           })()} margin={{left:0,right:10,top:5,bottom:5}}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)"/>
-            <XAxis dataKey="date" tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>v.slice(2)} interval={5}/>
-            <YAxis tick={{fill:"#757575",fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-3","dataMax+3"]}/>
+            <XAxis dataKey="date" tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} tickFormatter={v=>v.slice(2)} interval={5}/>
+            <YAxis tick={{fill:c.textDim,fontSize:"clamp(7px, 1.8vw, 8px)"}} domain={["dataMin-3","dataMax+3"]}/>
             <Tooltip content={<CTooltip/>}/>
-            <ReferenceLine y={100} stroke="#E5E7EB" strokeDasharray="3 3"/>
+            <ReferenceLine y={100} stroke={c.border} strokeDasharray="3 3"/>
             {multiCur.map(code=><Line key={code} type="monotone" dataKey={code} stroke={CURRENCIES[code].color} strokeWidth={2} dot={false} name={`${CURRENCIES[code].flag} ${code}`}/>)}
             <Legend wrapperStyle={{fontSize:"clamp(12px, 2.5vw, 12px)"}}/>
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div style={{background:"#F7F8FA",borderRadius:12,padding:"10px 8px",border:"1px solid #F0F1F3",overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
+      <div style={{background:c.bgCard,borderRadius:12,padding:"10px 8px",border:`1px solid ${c.borderLight}`,overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
         <table style={{width:"100%",minWidth:550,borderCollapse:"separate",borderSpacing:"0 2px"}}>
-          <thead><tr>{[t("multi.currency"),t("multi.current"),t("multi.5yAvg"),t("multi.min"),t("multi.max"),t("multi.deviation"),t("multi.signal")].map(h=><th key={h} style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
+          <thead><tr>{[t("multi.currency"),t("multi.current"),t("multi.5yAvg"),t("multi.min"),t("multi.max"),t("multi.deviation"),t("multi.signal")].map(h=><th key={h} style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"6px 7px",textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>)}</tr></thead>
           <tbody>{Object.entries(CURRENCIES).map(([code,info])=>{
             const h=HIST[code]||[];const lr=info.base;const a=h.length?Math.round(h.reduce((s,d)=>s+d.r,0)/h.length):0;const n=h.length?Math.min(...h.map(d=>d.r)):0;const x=h.length?Math.max(...h.map(d=>d.r)):0;const sg=getSignal(lr,a);
-            return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(14px, 3.5vw, 14px)"}}>{info.flag}</span> <span style={{color:"#222222",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{code}</span></td><td style={{color:"#222222",fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,padding:"8px 7px",fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:"#4C4C4C",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:"#296CF2",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:"#F34646",fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?"#F34646":"#00B442",fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{sg.i} {sg.s}</span></td></tr>);
+            return(<tr key={code}><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{fontSize:"clamp(14px, 3.5vw, 14px)"}}>{info.flag}</span> <span style={{color:c.text,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{code}</span></td><td style={{color:c.text,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:700,padding:"8px 7px",fontFamily:"Roboto, 'Noto Sans', sans-serif",whiteSpace:"nowrap"}}>₩{lr.toLocaleString()}</td><td style={{color:c.textMuted,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{a.toLocaleString()}</td><td style={{color:c.accent,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{n.toLocaleString()}</td><td style={{color:c.danger,fontSize:"clamp(12px, 3vw, 12px)",padding:"8px 7px",whiteSpace:"nowrap"}}>₩{x.toLocaleString()}</td><td style={{color:(lr-a)>0?c.danger:c.success,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600,padding:"8px 7px",whiteSpace:"nowrap"}}>{a?((lr-a)/a*100).toFixed(1):0}%</td><td style={{padding:"8px 7px",whiteSpace:"nowrap"}}><span style={{color:sg.c,fontSize:"clamp(12px, 3vw, 12px)",fontWeight:600}}>{sg.i} {sg.s}</span></td></tr>);
           })}</tbody>
         </table>
       </div>
 
-      <div style={{background:"#F7F8FA",borderRadius:14,padding:"16px",border:"1px solid #F0F1F3"}}>
-        <h3 style={{color:"#222222",fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.multiTitle")}</h3>
-        <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+      <div style={{background:c.bgCard,borderRadius:14,padding:"16px",border:`1px solid ${c.borderLight}`}}>
+        <h3 style={{color:c.text,fontSize:"clamp(14px, 3.8vw, 15px)",fontWeight:700,margin:"0 0 10px"}}>{t("editorial.multiTitle")}</h3>
+        <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
           {t("editorial.multiBody1")}
         </p>
-        <p style={{color:"#4C4C4C",fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
-          <strong style={{color:"#222222"}}>{t("multi.editorialUsage")}</strong>{" "}
+        <p style={{color:c.textMuted,fontSize:"clamp(12px, 3.2vw, 13px)",lineHeight:1.8,margin:"0 0 10px"}}>
+          <strong style={{color:c.text}}>{t("multi.editorialUsage")}</strong>{" "}
           {t("multi.editorialBody2")}
         </p>
-        <p style={{color:"#757575",fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
+        <p style={{color:c.textDim,fontSize:"clamp(11px, 2.8vw, 12px)",lineHeight:1.6,margin:0}}>
           {t("multi.editorialDisclaimer")}
         </p>
       </div>
@@ -1219,40 +1219,40 @@ export default function App() {
       </main>
       {posts.length > 0 && (
         <section aria-label={t("blog.insights")} style={{maxWidth:1100,margin:"0 auto",padding:"20px 16px 8px"}}>
-          <h2 style={{color:"#222222",fontSize:"clamp(15px,4vw,17px)",fontWeight:700,margin:"0 0 12px",display:"flex",alignItems:"center",gap:8}}>
+          <h2 style={{color:c.text,fontSize:"clamp(15px,4vw,17px)",fontWeight:700,margin:"0 0 12px",display:"flex",alignItems:"center",gap:8}}>
             <span style={{fontSize:18}}>📝</span> {t("blog.insights")}
           </h2>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {posts.slice(0,5).map(post => (
               <a key={post.id} href={`/blog/${post.slug}`}
                 onClick={(e)=>{e.preventDefault();navigate(`/blog/${post.slug}`)}}
-                style={{display:"block",padding:"14px 16px",borderRadius:12,background:"#F7F8FA",border:"1px solid #E5E7EB",textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s"}}
-                onMouseEnter={(e)=>{e.currentTarget.style.background="#EFF0F3";e.currentTarget.style.borderColor="#D1D5DB"}}
-                onMouseLeave={(e)=>{e.currentTarget.style.background="#F7F8FA";e.currentTarget.style.borderColor="#E5E7EB"}}>
+                style={{display:"block",padding:"14px 16px",borderRadius:12,background:c.bgCard,border:`1px solid ${c.border}`,textDecoration:"none",color:"inherit",transition:"background 0.2s,border-color 0.2s"}}
+                onMouseEnter={(e)=>{e.currentTarget.style.background=c.bgCardHover;e.currentTarget.style.borderColor=c.borderHover}}
+                onMouseLeave={(e)=>{e.currentTarget.style.background=c.bgCard;e.currentTarget.style.borderColor=c.border}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:6}}>
-                  <span style={{fontSize:11,color:"#296CF2",fontWeight:600,background:"rgba(41,108,242,0.08)",padding:"2px 8px",borderRadius:4}}>{post.category}</span>
-                  <span style={{fontSize:11,color:"#949494",whiteSpace:"nowrap"}}>{post.date}</span>
+                  <span style={{fontSize:11,color:c.accent,fontWeight:600,background:"rgba(41,108,242,0.08)",padding:"2px 8px",borderRadius:4}}>{post.category}</span>
+                  <span style={{fontSize:11,color:c.textDark,whiteSpace:"nowrap"}}>{post.date}</span>
                 </div>
-                <p style={{margin:0,color:"#222222",fontWeight:600,fontSize:"clamp(13px,3.5vw,14px)",lineHeight:1.5}}>{post.title}</p>
+                <p style={{margin:0,color:c.text,fontWeight:600,fontSize:"clamp(13px,3.5vw,14px)",lineHeight:1.5}}>{post.title}</p>
                 {post.summary && (
-                  <p style={{margin:"6px 0 0",color:"#757575",fontSize:"clamp(12px,3vw,13px)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.summary}</p>
+                  <p style={{margin:"6px 0 0",color:c.textDim,fontSize:"clamp(12px,3vw,13px)",lineHeight:1.6,display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{post.summary}</p>
                 )}
               </a>
             ))}
-            <button onClick={()=>navigate("/blog")} style={{display:"block",width:"100%",padding:"12px",borderRadius:10,background:"rgba(41,108,242,0.08)",border:"1px solid rgba(41,108,242,0.2)",color:"#296CF2",fontSize:"clamp(13px,3.5vw,14px)",fontWeight:600,cursor:"pointer",textAlign:"center",transition:"background 0.2s",marginTop:4}} onMouseEnter={(e)=>e.target.style.background="rgba(41,108,242,0.12)"} onMouseLeave={(e)=>e.target.style.background="rgba(41,108,242,0.08)"}>{t("blog.viewAll")}</button>
+            <button onClick={()=>navigate("/blog")} style={{display:"block",width:"100%",padding:"12px",borderRadius:10,background:"rgba(41,108,242,0.08)",border:"1px solid rgba(41,108,242,0.2)",color:c.accent,fontSize:"clamp(13px,3.5vw,14px)",fontWeight:600,cursor:"pointer",textAlign:"center",transition:"background 0.2s",marginTop:4}} onMouseEnter={(e)=>e.target.style.background="rgba(41,108,242,0.12)"} onMouseLeave={(e)=>e.target.style.background="rgba(41,108,242,0.08)"}>{t("blog.viewAll")}</button>
           </div>
         </section>
       )}
 
-      <footer style={{borderTop:"1px solid #F0F1F3",padding:"12px 16px",textAlign:"center"}}>
-        <p style={{color:"#B0B0B0",fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ {t("footer.apiNote")}</p>
-        <p style={{color:"#949494",fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.5}}>
-          {t("footer.contact")}: <a href="mailto:the@designer-kyungho.com" style={{color:"#757575",textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#4C4C4C"} onMouseLeave={(e) => e.target.style.color="#757575"}>the@designer-kyungho.com</a>
+      <footer style={{borderTop:`1px solid ${c.borderLight}`,padding:"12px 16px",textAlign:"center"}}>
+        <p style={{color:c.textDarker,fontSize:"clamp(12px, 3vw, 12px)",margin:0,lineHeight:1.5}}>⚖️ {t("footer.apiNote")}</p>
+        <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:"6px 0 0",lineHeight:1.5}}>
+          {t("footer.contact")}: <a href="mailto:the@designer-kyungho.com" style={{color:c.textDim,textDecoration:"none",transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color=c.textMuted} onMouseLeave={(e) => e.target.style.color=c.textDim}>the@designer-kyungho.com</a>
         </p>
         <p style={{margin:"6px 0 0"}}>
-          <button onClick={() => navigate("/about")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>{t("footer.about")}</button>
-          <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>{t("footer.blog")}</button>
-          <button onClick={() => navigate("/privacy")} style={{background:"none",border:"none",color:"#949494",fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color="#757575"} onMouseLeave={(e) => e.target.style.color="#949494"}>{t("footer.privacy")}</button>
+          <button onClick={() => navigate("/about")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.about")}</button>
+          <button onClick={() => navigate("/blog")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s",marginRight:16}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.blog")}</button>
+          <button onClick={() => navigate("/privacy")} style={{background:"none",border:"none",color:c.textDark,fontSize:"clamp(11px, 2.8vw, 12px)",cursor:"pointer",textDecoration:"underline",textUnderlineOffset:3,padding:0,transition:"color 0.2s"}} onMouseEnter={(e) => e.target.style.color=c.textDim} onMouseLeave={(e) => e.target.style.color=c.textDark}>{t("footer.privacy")}</button>
         </p>
       </footer>
     </div>
