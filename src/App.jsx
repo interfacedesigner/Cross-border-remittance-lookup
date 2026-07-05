@@ -32,6 +32,7 @@ export default function App() {
   const { mode, toggle, c } = useTheme();
   const [langOpen, setLangOpen] = useState(false);
   const [tab, setTab] = useState("compare");
+  const [menuOpen, setMenuOpen] = useState(false);
   // Path-based routing for SEO
   const getRouteFromPath = () => {
     const path = window.location.pathname;
@@ -1126,15 +1127,12 @@ export default function App() {
   return (
     <div style={{minHeight:"100vh",background:c.bgPrimary,color:c.text,fontFamily:fonts.primary,letterSpacing:tracking.default,overflowX:"hidden",transition:"background 0.3s, color 0.3s"}}>
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
-      <div style={{borderBottom:`1px solid ${c.borderLight}`,padding:"12px 16px 0"}}>
+      <div style={{borderBottom:`1px solid ${c.borderLight}`,padding:"12px 16px"}}>
         <div style={{maxWidth:1100,margin:"0 auto"}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:spacing.xl,gap:spacing.md}}>
-            <div style={{display:"flex",alignItems:"center",gap:spacing.md,flex:"1 1 auto",minWidth:0}}>
-              <span style={{fontSize:"clamp(22px, 5vw, 26px)"}}>⚖️</span>
-              <div style={{minWidth:0}}>
-                <h1 style={{margin:0,fontSize:"clamp(16px, 4vw, 18px)",fontWeight:fw.extrabold,letterSpacing:tracking.display}}>{t("header.title")}</h1>
-                <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("header.subtitle")}</p>
-              </div>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:spacing.md}}>
+            <div style={{minWidth:0}}>
+              <h1 style={{margin:0,fontSize:"clamp(16px, 4vw, 18px)",fontWeight:fw.extrabold,letterSpacing:tracking.display}}>{t("header.title")}</h1>
+              <p style={{color:c.textDark,fontSize:"clamp(12px, 3vw, 12px)",margin:0}}>{t("header.subtitle")}</p>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:spacing.sm,flexShrink:0}}>
               {/* Dark/Light 토글 */}
@@ -1190,25 +1188,68 @@ export default function App() {
                   </>
                 )}
               </div>
+              {/* 햄버거 메뉴 */}
+              <div style={{position:"relative"}}>
+                <button onClick={()=>setMenuOpen(!menuOpen)} aria-label="Menu"
+                  style={{
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    width:36,height:36,borderRadius:radius.lg,border:`1px solid ${c.border}`,
+                    background:menuOpen?c.bgCardHover:"transparent",color:c.text,fontSize:18,
+                    cursor:"pointer",transition:"all 0.2s",
+                  }}
+                  onMouseEnter={e=>{e.currentTarget.style.background=c.bgCardHover;}}
+                  onMouseLeave={e=>{if(!menuOpen)e.currentTarget.style.background="transparent";}}
+                >☰</button>
+                {menuOpen && (
+                  <>
+                    <div onClick={()=>setMenuOpen(false)} style={{position:"fixed",top:0,left:0,right:0,bottom:0,zIndex:9998}} />
+                    <div style={{
+                      position:"absolute",top:"calc(100% + 4px)",right:0,zIndex:9999,
+                      background:c.bgCard,border:`1px solid ${c.border}`,borderRadius:radius.xl,
+                      overflow:"hidden",minWidth:200,boxShadow:`0 8px 24px ${c.shadow}`,
+                    }}>
+                      {/* 탭 메뉴 */}
+                      {tabs.map(tb=>(
+                        <button key={tb.id} onClick={()=>{
+                          trackEvent('tab_change', { from_tab: tab, to_tab: tb.id });
+                          setTab(tb.id);setMenuOpen(false);
+                        }}
+                          style={{
+                            display:"flex",alignItems:"center",gap:spacing.md,width:"100%",
+                            padding:"12px 16px",border:"none",cursor:"pointer",
+                            background:tab===tb.id?c.accentBg:"transparent",
+                            color:tab===tb.id?c.accent:c.text,
+                            fontSize:typeScale.lg,fontWeight:tab===tb.id?fw.bold:fw.regular,
+                            textAlign:"left",transition:"background 0.15s",
+                          }}
+                          onMouseEnter={e=>{if(tab!==tb.id)e.currentTarget.style.background=c.bgCardHover;}}
+                          onMouseLeave={e=>{if(tab!==tb.id)e.currentTarget.style.background="transparent";}}
+                        >
+                          <span>{tb.icon}</span> {tb.label}
+                        </button>
+                      ))}
+                      {/* 구분선 */}
+                      <div style={{height:1,background:c.borderLight,margin:`${spacing.xs}px 0`}} />
+                      {/* 외부 링크 */}
+                      <a href="https://designer-kyungho.com" target="_blank" rel="noopener noreferrer"
+                        style={{
+                          display:"flex",alignItems:"center",gap:spacing.md,width:"100%",
+                          padding:"12px 16px",border:"none",cursor:"pointer",
+                          background:"transparent",color:c.textMuted,
+                          fontSize:typeScale.md,fontWeight:fw.regular,
+                          textDecoration:"none",transition:"background 0.15s",
+                        }}
+                        onMouseEnter={e=>{e.currentTarget.style.background=c.bgCardHover;}}
+                        onMouseLeave={e=>{e.currentTarget.style.background="transparent";}}
+                      >
+                        🔗 Designer-kyungho.com
+                      </a>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-          <nav aria-label="tabs" style={{display:"flex",gap:spacing["2xs"],overflowX:"auto",WebkitOverflowScrolling:"touch",scrollbarWidth:"none",msOverflowStyle:"none"}}>
-            <style>{`.tab-container::-webkit-scrollbar { display: none; }`}</style>
-            <div className="tab-container" role="tablist" style={{display:"flex",gap:spacing["2xs"],minWidth:"100%"}}>
-              {tabs.map(tb=>(
-                <button key={tb.id} role="tab" aria-selected={tab===tb.id} onClick={()=>{
-                  trackEvent('tab_change', { from_tab: tab, to_tab: tb.id });
-                  setTab(tb.id);
-                }} style={{
-                  padding:"10px 12px",borderRadius:"6px 6px 0 0",border:"none",cursor:"pointer",
-                  background:tab===tb.id?c.bgCard:"transparent",
-                  color:tab===tb.id?c.text:c.textDark,fontSize:"clamp(14px, 3.5vw, 14px)",fontWeight:tab===tb.id?fw.bold:fw.medium,
-                  borderBottom:tab===tb.id?`2px solid ${c.accent}`:"2px solid transparent",
-                  transition:"all 0.15s",whiteSpace:"nowrap",flex:"1 0 auto",minHeight:44,
-                }}>{tb.icon} {tb.label}</button>
-              ))}
-            </div>
-          </nav>
         </div>
       </div>
       <main style={{maxWidth:1100,margin:"0 auto",padding:"14px 16px 32px"}}>
