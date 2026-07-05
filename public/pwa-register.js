@@ -160,17 +160,29 @@
   // 홈 화면 추가 프롬프트
   // ═══════════════════════════════════════════════════
   function setupInstallPrompt() {
+    // 이미 standalone 모드면 표시 안 함
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      return;
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
       // 기본 프롬프트 방지
       e.preventDefault();
       // window 객체에 저장하여 UI 버튼에서 사용 가능하게
       window.deferredPrompt = e;
 
-      // 설치 안내 표시 (한 번만)
-      if (!localStorage.getItem('pwa-install-prompted')) {
-        showInstallBanner(window.deferredPrompt);
+      // 세션당 1회 표시 (sessionStorage)
+      if (!sessionStorage.getItem('pwa-install-shown')) {
+        setTimeout(() => showInstallBanner(window.deferredPrompt), 3000);
       }
     });
+
+    // iOS Safari 감지 — beforeinstallprompt 미지원
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isSafari = /Safari/.test(navigator.userAgent) && !/Chrome|CriOS|FxiOS/.test(navigator.userAgent);
+    if (isIOS && isSafari && !sessionStorage.getItem('pwa-install-shown')) {
+      setTimeout(() => showIOSInstallGuide(), 3000);
+    }
 
     // 설치 완료 감지
     window.addEventListener('appinstalled', () => {
@@ -185,6 +197,67 @@
         });
       }
     });
+  }
+
+  // ═══════════════════════════════════════════════════
+  // iOS Safari 설치 안내
+  // ═══════════════════════════════════════════════════
+  function showIOSInstallGuide() {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) return;
+
+    var banner = document.createElement('div');
+    banner.id = 'pwa-ios-guide';
+    banner.innerHTML = '\
+      <div style="\
+        position:fixed;bottom:20px;left:50%;transform:translateX(-50%);\
+        background:linear-gradient(135deg,#296CF2 0%,#8B5CF6 100%);\
+        color:white;padding:16px 20px;border-radius:14px;\
+        box-shadow:0 10px 40px rgba(0,0,0,0.25);z-index:999999;\
+        display:flex;align-items:center;gap:14px;\
+        font-family:-apple-system,BlinkMacSystemFont,sans-serif;\
+        max-width:90%;width:360px;animation:slideUpIOS 0.3s ease-out;\
+      ">\
+        <div style="flex:1;">\
+          <div style="font-weight:700;margin-bottom:4px;font-size:15px;">홈 화면에 추가</div>\
+          <div style="font-size:13px;opacity:0.9;line-height:1.5;">\
+            Safari 하단 <span style="display:inline-block;background:rgba(255,255,255,0.2);padding:1px 6px;border-radius:4px;font-size:16px;vertical-align:middle;">⬆</span> 버튼 →\
+            <strong>홈 화면에 추가</strong>를 눌러주세요\
+          </div>\
+        </div>\
+        <button id="pwa-ios-close" style="\
+          background:rgba(255,255,255,0.2);color:white;border:none;\
+          width:28px;height:28px;border-radius:50%;cursor:pointer;\
+          font-size:16px;line-height:1;flex-shrink:0;\
+        ">×</button>\
+      </div>\
+      <div style="\
+        position:fixed;bottom:8px;left:50%;transform:translateX(-50%);\
+        width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;\
+        border-top:10px solid #7c6af0;z-index:999999;\
+      "></div>\
+      <style>\
+        @keyframes slideUpIOS {\
+          from { transform:translateX(-50%) translateY(100px); opacity:0; }\
+          to { transform:translateX(-50%) translateY(0); opacity:1; }\
+        }\
+      </style>';
+
+    document.body.appendChild(banner);
+    sessionStorage.setItem('pwa-install-shown', 'true');
+
+    document.getElementById('pwa-ios-close').addEventListener('click', function() {
+      banner.style.opacity = '0';
+      banner.style.transition = 'opacity 0.2s';
+      setTimeout(function() { banner.remove(); }, 200);
+    });
+
+    setTimeout(function() {
+      if (banner.parentNode) {
+        banner.style.opacity = '0';
+        banner.style.transition = 'opacity 0.3s';
+        setTimeout(function() { banner.remove(); }, 300);
+      }
+    }, 15000);
   }
 
   // ═══════════════════════════════════════════════════
@@ -262,6 +335,8 @@
 
     document.body.appendChild(banner);
 
+    sessionStorage.setItem('pwa-install-shown', 'true');
+
     // 설치 버튼 클릭
     document.getElementById('pwa-install-btn').addEventListener('click', async () => {
       if (!deferredPrompt) return;
@@ -279,13 +354,11 @@
         });
       }
 
-      localStorage.setItem('pwa-install-prompted', 'true');
       banner.remove();
     });
 
     // 닫기 버튼
     document.getElementById('pwa-install-close').addEventListener('click', () => {
-      localStorage.setItem('pwa-install-prompted', 'true');
       banner.style.animation = 'slideDown 0.3s ease-out reverse';
       setTimeout(() => banner.remove(), 300);
     });
